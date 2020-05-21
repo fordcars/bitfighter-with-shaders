@@ -25,9 +25,14 @@
 varying vec2 UV;
 
 // Values that stay constant for the whole mesh
-uniform sampler2D textureSampler;
+uniform sampler2D textureSampler; // In this case, black with alpha channel
+uniform vec4 color;
 
 void main()
 {
-	gl_FragColor = texture2D(textureSampler, UV);
+	// Remove any color the texture had, if any. Only keep alpha channel.
+	vec4 textureValue = vec4(0.0, 0.0, 0.0, texture2D(textureSampler, UV).a);
+
+	// * color.a to support semi-transparent text
+	gl_FragColor = (textureValue + vec4(color.rgb, 0)) * vec4(1.0, 1.0, 1.0, color.a);
 }
