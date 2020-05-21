@@ -827,7 +827,7 @@ void QueryServersUserInterface::render()
             (F32)horizMargin,               (F32)dividerPos,
             (F32)canvasWidth - horizMargin, (F32)dividerPos
       };
-      renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINES);
+      renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINES);
 
 
       S32 ypos = dividerPos + 3;      // 3 = gap after divider
@@ -915,7 +915,7 @@ void QueryServersUserInterface::render()
          if(s.dedicated || s.test || s.pingTimedOut || !s.everGotQueryResponse)
          {
             glPushMatrix();
-               glTranslate(columns[1].xStart + 5, y + 2, 0);
+               glTranslate(columns[1].xStart + 5.0f, y + 2.0f, 0.0f);
                if( s.pingTimedOut || !s.everGotQueryResponse )
                   drawString(0, questionMarkVertOffset, SERVER_ENTRY_TEXTSIZE, "?");
                else if(s.test)
@@ -978,7 +978,7 @@ void QueryServersUserInterface::renderTopBanner()
          (F32)canvasWidth, (F32)BANNER_HEIGHT,
          0,                (F32)BANNER_HEIGHT
    };
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_TRIANGLE_FAN);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_TRIANGLE_FAN);
 
    glColor(Colors::green);
    drawCenteredString(vertMargin + 12, 24, "BITFIGHTER GAME LOBBY");
@@ -1029,7 +1029,7 @@ void QueryServersUserInterface::renderColumnHeaders()
          x2 = columns[mHighlightColumn+1].xStart - 5;
 
       glColor(Colors::white);
-      drawRect(x1, COLUMN_HEADER_TOP, x2, COLUMN_HEADER_TOP + COLUMN_HEADER_HEIGHT + 1, GL_LINE_LOOP);
+      drawRect(x1, COLUMN_HEADER_TOP, x2, COLUMN_HEADER_TOP + COLUMN_HEADER_HEIGHT + 1, zGL_LINE_LOOP);
    }
 }
 

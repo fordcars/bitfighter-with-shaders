@@ -252,7 +252,7 @@ void CreditsScroller::render()
          (F32)DisplayManager::getScreenInfo()->getGameCanvasWidth(), 150,
          (F32)DisplayManager::getScreenInfo()->getGameCanvasWidth(), 0
    };
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_TRIANGLE_FAN);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_TRIANGLE_FAN);
 
    renderStaticBitfighterLogo();    // And add our logo at the top of the page
 

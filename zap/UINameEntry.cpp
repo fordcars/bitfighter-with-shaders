@@ -357,7 +357,7 @@ void PasswordEntryUserInterface::render()
             (F32)canvasWidth, (F32)canvasHeight,
             0,                (F32)canvasHeight
       };
-      renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_TRIANGLE_FAN);
+      renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_TRIANGLE_FAN);
    }
 
    Parent::render();

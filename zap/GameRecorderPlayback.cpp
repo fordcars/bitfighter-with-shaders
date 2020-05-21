@@ -640,24 +640,24 @@ void PlaybackGameUserInterface::render()
 
       // Fill
       glColor(Colors::black, 0.70f);
-      renderVertexArray(controlBoxPoints, ARRAYSIZE(controlBoxPoints)/2, GL_TRIANGLE_FAN);
+      renderVertexArray(controlBoxPoints, ARRAYSIZE(controlBoxPoints)/2, zGL_TRIANGLE_FAN);
 
       // Border
       glColor(Colors::blue);
-      renderVertexArray(controlBoxPoints, ARRAYSIZE(controlBoxPoints)/2, GL_LINE_STRIP);
+      renderVertexArray(controlBoxPoints, ARRAYSIZE(controlBoxPoints)/2, zGL_LINE_STRIP);
 
       // Playback bar
       glColor(Colors::white);
-      renderVertexArray(playbackBarVertex, 4, GL_LINE_LOOP);
+      renderVertexArray(playbackBarVertex, 4, zGL_LINE_LOOP);
 
       F32 vertex[4];
       vertex[0] = mPlaybackConnection->mCurrentTime * playbackBar_w / mPlaybackConnection->mTotalTime + playbackBar_x;
       vertex[1] = playbackBar_y;
       vertex[2] = vertex[0];
       vertex[3] = playbackBar_y + playbackBar_h;
-      renderVertexArray(vertex, 2, GL_LINES);
+      renderVertexArray(vertex, 2, zGL_LINES);
 
-      renderVertexArray(buttons_lines, sizeof(buttons_lines) / (sizeof(buttons_lines[0]) * 2), GL_LINES);
+      renderVertexArray(buttons_lines, sizeof(buttons_lines) / (sizeof(buttons_lines[0]) * 2), zGL_LINES);
 
       glColor(Colors::yellow);
       drawString(btn_spectate_name_x, btn_y, 15, mPlaybackConnection->mClientInfoSpectatingName.getString());

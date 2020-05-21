@@ -15,6 +15,8 @@
 #include "RenderUtils.h"
 #include "OpenglUtils.h"
 
+#include "inclGL.h"
+
 namespace Zap
 {
 
@@ -253,7 +255,7 @@ void JoystickRender::drawPlaystationCross(const Point &center)
          p3.x, p3.y,
          p4.x, p4.y
    };
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINES);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINES);
 }
 
 
@@ -278,7 +280,7 @@ void JoystickRender::drawPlaystationSquare(const Point &center)
          p3.x, p3.y,
          p4.x, p4.y
    };
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINE_LOOP);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINE_LOOP);
 }
 
 
@@ -293,7 +295,7 @@ void JoystickRender::drawPlaystationTriangle(const Point &center)
          p2.x, p2.y,
          p3.x, p3.y
    };
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINE_LOOP);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINE_LOOP);
 }
 
 
@@ -308,7 +310,7 @@ void JoystickRender::drawSmallLeftTriangle(const Point & center)
          p2.x, p2.y,
          p3.x, p3.y
    };
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINE_LOOP);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINE_LOOP);
 }
 
 
@@ -323,7 +325,7 @@ void JoystickRender::drawSmallRightTriangle(const Point & center)
          p2.x, p2.y,
          p3.x, p3.y
    };
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINE_LOOP);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINE_LOOP);
 }
 
 
@@ -338,7 +340,7 @@ void JoystickRender::drawButtonRightTriangle(const Point &center)
          p2.x, p2.y,
          p3.x, p3.y
    };
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINE_LOOP);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINE_LOOP);
 }
 
 
@@ -355,7 +357,7 @@ void JoystickRender::drawDPadUp(Point center)
    points[5] = (center + Point( 3, 0));
    points[6] = (center + Point( 3, 6));
 
-   renderVertexArray((F32 *)points, ARRAYSIZE(points), GL_LINE_LOOP);
+   renderVertexArray((F32 *)points, ARRAYSIZE(points), zGL_LINE_LOOP);
 }
 
 
@@ -372,7 +374,7 @@ void JoystickRender::drawDPadDown(Point center)
    points[5] = (center + Point( 3, 0));
    points[6] = (center + Point( 3,-6));
 
-   renderVertexArray((F32 *)points, ARRAYSIZE(points), GL_LINE_LOOP);
+   renderVertexArray((F32 *)points, ARRAYSIZE(points), zGL_LINE_LOOP);
 }
 
 
@@ -389,7 +391,7 @@ void JoystickRender::drawDPadLeft(Point center)
    points[5] = (center + Point( 0, 3));
    points[6] = (center + Point( 6, 3));
 
-   renderVertexArray((F32 *)points, ARRAYSIZE(points), GL_LINE_LOOP);
+   renderVertexArray((F32 *)points, ARRAYSIZE(points), zGL_LINE_LOOP);
 }
 
 
@@ -406,7 +408,7 @@ void JoystickRender::drawDPadRight(Point center)
    points[5] = (center + Point( 0, 3));
    points[6] = (center + Point(-6, 3));
 
-   renderVertexArray((F32 *)points, ARRAYSIZE(points), GL_LINE_LOOP);
+   renderVertexArray((F32 *)points, ARRAYSIZE(points), zGL_LINE_LOOP);
 }
 
 ////////// End rendering functions

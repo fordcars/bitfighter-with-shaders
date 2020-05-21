@@ -218,7 +218,7 @@ void ChatHelper::render()
    for(S32 i = 1; i >= 0; i--)
    {
       glColor(baseColor, i ? .25f : .4f);
-      renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, i ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
+      renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, i ? zGL_TRIANGLE_FAN : zGL_LINE_LOOP);
    }
 
    glColor(baseColor);

@@ -98,11 +98,7 @@ using namespace TNL;
 #  include "Event.h"
 #  include "SDL.h"
 
-#  if defined(TNL_OS_MOBILE) || defined(BF_USE_GLES)
-#    include "SDL_opengles.h"
-#  else
-#    include "SDL_opengl.h"
-#  endif
+#include "inclGL.h"
 
 #  include "VideoSystem.h"
 #  include "ClientGame.h"
@@ -225,15 +221,15 @@ void hostGame(ServerGame *serverGame)
 // Clear screen -- force clear of "black bars" area to avoid flickering on some video cards
 static void clearScreen()
 {
-   bool scissorMode = glIsEnabled(GL_SCISSOR_TEST);
+   bool scissorMode = glIsEnabled(zGL_SCISSOR_TEST);
 
    if(scissorMode)
-      glDisable(GL_SCISSOR_TEST);
+      glDisable(zGL_SCISSOR_TEST);
 
-   glClear(GL_COLOR_BUFFER_BIT);
+   glClear(zGL_COLOR_BUFFER_BIT);
 
    if(scissorMode)
-      glEnable(GL_SCISSOR_TEST);
+      glEnable(zGL_SCISSOR_TEST);
 }
 
 
@@ -242,7 +238,7 @@ void display()
 {
    clearScreen();
 
-   glMatrixMode(GL_MODELVIEW);
+   glMatrixMode(zGL_MODELVIEW);
    glLoadIdentity();
 
    const Vector<ClientGame *> *clientGames = GameManager::getClientGames();
@@ -509,6 +505,9 @@ void shutdownBitfighter()
    delete settings;
 
    DisplayManager::cleanup();
+
+   // Shutdown OGL
+   GLWrap::shutdown();
 
    NetClassRep::logBitUsage();
    logprintf("Bye!");

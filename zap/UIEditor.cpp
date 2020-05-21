@@ -1692,15 +1692,15 @@ void EditorUserInterface::renderTurretAndSpyBugRanges(GridDatabase *editorDb)
    {
       // Use Z Buffer to make use of not drawing overlap visible area of same team SpyBug, but does overlap different team
       fillVector.sort(sortByTeam); // Need to sort by team, or else won't properly combine the colors.
-      glClear(GL_DEPTH_BUFFER_BIT);
-      glEnable(GL_DEPTH_TEST);
-      glEnable(GL_DEPTH_WRITEMASK);
-      glDepthFunc(GL_LESS);
+      glClear(zGL_DEPTH_BUFFER_BIT);
+      glEnable(zGL_DEPTH_TEST);
+      //glEnable(zGL_DEPTH_WRITEMASK); I think this doesn't exist
+      glDepthFunc(zGL_LESS);
       glPushMatrix();
       glTranslatef(0, 0, -0.95f);
 
       // This blending works like this, source(SRC) * GL_ONE_MINUS_DST_COLOR + destination(DST) * GL_ONE
-      glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);  
+      glBlendFunc(zGL_ONE_MINUS_DST_COLOR, zGL_ONE);  
 
       S32 prevTeam = -10;
 
@@ -1722,8 +1722,8 @@ void EditorUserInterface::renderTurretAndSpyBugRanges(GridDatabase *editorDb)
       setDefaultBlendFunction();
 
       glPopMatrix();
-      glDisable(GL_DEPTH_WRITEMASK);
-      glDisable(GL_DEPTH_TEST);
+      glDisable(zGL_DEPTH_WRITEMASK);
+      glDisable(zGL_DEPTH_TEST);
    }
 
    // Next draw turret firing ranges for selected or highlighted turrets only
@@ -2198,7 +2198,7 @@ void EditorUserInterface::renderObjectsUnderConstruction()
    else              // LineItem --> Caution! we're rendering an object that doesn't exist yet; its game is NULL
       glColor(getGame()->getTeamColor(mCurrentTeam));
 
-   renderLine(mNewItem->getOutline());
+   GLOPT::renderLine(mNewItem->getOutline());
 
    glLineWidth(gDefaultLineWidth);
 
@@ -2304,11 +2304,11 @@ void EditorUserInterface::renderSaveMessage() const
 
       // Fill
       glColor(Colors::black, alpha * 0.80f);
-      drawFancyBox(inset, boxTop, DisplayManager::getScreenInfo()->getGameCanvasWidth() - inset, boxBottom, cornerInset, GL_TRIANGLE_FAN);
+      drawFancyBox(inset, boxTop, DisplayManager::getScreenInfo()->getGameCanvasWidth() - inset, boxBottom, cornerInset, zGL_TRIANGLE_FAN);
 
       // Border
       glColor(Colors::blue, alpha);
-      drawFancyBox(inset, boxTop, DisplayManager::getScreenInfo()->getGameCanvasWidth() - inset, boxBottom, cornerInset, GL_LINE_LOOP);
+      drawFancyBox(inset, boxTop, DisplayManager::getScreenInfo()->getGameCanvasWidth() - inset, boxBottom, cornerInset, zGL_LINE_LOOP);
 
       glColor(mSaveMsgColor, alpha);
       drawCenteredString(520, textsize, mSaveMsg.c_str());
@@ -5168,7 +5168,7 @@ void EditorUserInterface::createNormalizedScreenshot(ClientGame* game)
    mPreviewMode = true;
    mNormalizedScreenshotMode = true;
 
-   glClear(GL_COLOR_BUFFER_BIT);
+   glClear(zGL_COLOR_BUFFER_BIT);
    centerView(true);
 
    render();

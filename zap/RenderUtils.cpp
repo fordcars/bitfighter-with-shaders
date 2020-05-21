@@ -580,13 +580,13 @@ void drawRect(F32 x1, F32 y1, F32 x2, F32 y2, S32 mode)
 
 void drawFilledRect(S32 x1, S32 y1, S32 x2, S32 y2)
 {
-   drawRect(x1, y1, x2, y2, GL_TRIANGLE_FAN);
+   drawRect(x1, y1, x2, y2, zGL_TRIANGLE_FAN);
 }
 
 
 void drawFilledRect(F32 x1, F32 y1, F32 x2, F32 y2)
 {
-   drawRect(x1, y1, x2, y2, GL_TRIANGLE_FAN);
+   drawRect(x1, y1, x2, y2, zGL_TRIANGLE_FAN);
 }
 
 
@@ -613,10 +613,10 @@ void drawFilledRect(S32 x1, S32 y1, S32 x2, S32 y2, const Color &fillColor, cons
 void drawFilledRect(S32 x1, S32 y1, S32 x2, S32 y2, const Color &fillColor, F32 fillAlpha, const Color &outlineColor)
 {
    glColor(fillColor, fillAlpha);
-   drawRect(x1, y1, x2, y2, GL_TRIANGLE_FAN);
+   drawRect(x1, y1, x2, y2, zGL_TRIANGLE_FAN);
 
    glColor(outlineColor, 1);
-   drawRect(x1, y1, x2, y2, GL_LINE_LOOP);
+   drawRect(x1, y1, x2, y2, zGL_LINE_LOOP);
 }
 
 
@@ -650,7 +650,7 @@ void drawFancyBox(F32 xLeft, F32 yTop, F32 xRight, F32 yBottom, F32 cornerInset,
 
 void drawHollowFancyBox(S32 xLeft, S32 yTop, S32 xRight, S32 yBottom, S32 cornerInset)
 {
-   drawFancyBox(xLeft, yTop, xRight, yBottom, cornerInset, GL_LINE_LOOP);
+   drawFancyBox(xLeft, yTop, xRight, yBottom, cornerInset, zGL_LINE_LOOP);
 }
 
 
@@ -658,11 +658,11 @@ void drawFilledFancyBox(S32 xLeft, S32 yTop, S32 xRight, S32 yBottom, S32 corner
 {
    // Fill
    glColor(fillColor, fillAlpha);
-   drawFancyBox(xLeft, yTop, xRight, yBottom, cornerInset, GL_TRIANGLE_FAN);
+   drawFancyBox(xLeft, yTop, xRight, yBottom, cornerInset, zGL_TRIANGLE_FAN);
 
    // Border
    glColor(borderColor, 1.f);
-   drawFancyBox(xLeft, yTop, xRight, yBottom, cornerInset, GL_LINE_LOOP);
+   drawFancyBox(xLeft, yTop, xRight, yBottom, cornerInset, zGL_LINE_LOOP);
 }
 
 
@@ -679,7 +679,7 @@ void renderUpArrow(const Point &center, S32 size)
                       center.x, top,     center.x + capHeight, top + capHeight
                     };
 
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINES);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINES);
 }
 
 
@@ -695,7 +695,7 @@ void renderDownArrow(const Point &center, S32 size)
                       center.x, bot,     center.x + capHeight, bot - capHeight
                     };
 
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINES);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINES);
 }
 
 
@@ -711,7 +711,7 @@ void renderLeftArrow(const Point &center, S32 size)
                       left, center.y,     left + capHeight, center.y + capHeight
                     };
 
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINES);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINES);
 }
 
 
@@ -727,7 +727,7 @@ void renderRightArrow(const Point &center, S32 size)
                       right, center.y,     right - capHeight, center.y + capHeight
                     };
 
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINES);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINES);
 }
 
 

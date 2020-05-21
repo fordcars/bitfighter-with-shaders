@@ -130,6 +130,7 @@ set(CLIENT_SOURCES
 	FpsRenderer.cpp
 	gameObjectRender.cpp
 	GameRecorderPlayback.cpp
+	OGL.cpp
 	HelpItemManager.cpp
 	HelperManager.cpp
 	helperMenu.cpp
@@ -142,11 +143,11 @@ set(CLIENT_SOURCES
 	LoadoutIndicator.cpp
 	loadoutHelper.cpp
 	oglconsole.cpp
-	OpenglUtils.cpp
 	quickChatHelper.cpp
 	RenderUtils.cpp
 	ScissorsManager.cpp
 	ScreenShooter.cpp
+	Shader.cpp
 	ShipShape.cpp
 	SlideOutWidget.cpp
 	sparkManager.cpp
@@ -176,10 +177,11 @@ set(CLIENT_SOURCES
 	UINameEntry.cpp
 	UIQueryServers.cpp
 	UITeamDefMenu.cpp
+	Utils.cpp
 	VideoSystem.cpp
 	voiceCodec.cpp
 	${CMAKE_SOURCE_DIR}/fontstash/stb_truetype.c
-	${CMAKE_SOURCE_DIR}/fontstash/fontstash.c
+	${CMAKE_SOURCE_DIR}/fontstash/fontstash.cpp
 )
 
 file(GLOB BITFIGHTER_HEADERS *.h)
@@ -219,8 +221,9 @@ set(SHARED_LIBS
 # libraries used only on the client
 set(CLIENT_LIBS
 	${SDL_LIBRARY}
-	${PNG_LIBRARY}
 	${GL_LIBRARY}
+	glad
+	${PNG_LIBRARY}
 	${OPENAL_LIBRARY}
 	${ALURE_LIBRARIES}
 	${MODPLUG_LIBRARIES}
@@ -286,6 +289,8 @@ set(INCLUDE_DIRS
 if(COMPILE_CLIENT)
 	list(APPEND INCLUDE_DIRS
 		${GL_INCLUDE_DIR}
+		${GLAD_INCLUDE_DIR}
+		${GLM_INCLUDE_DIRS} # GLM is a header-only library BTW.
 		${PNG_INCLUDE_DIR}
 		${SDL_INCLUDE_DIR}
 		${SPEEX_INCLUDE_DIR}

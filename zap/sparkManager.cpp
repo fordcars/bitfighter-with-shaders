@@ -128,7 +128,7 @@ void FxManager::DebrisChunk::render() const
 
    glColor(color, alpha);
 
-   renderPointVector(&points, GL_LINE_LOOP);
+   renderPointVector(&points, zGL_LINE_LOOP);
 
    glPopMatrix();
 }
@@ -315,19 +315,24 @@ void FxManager::render(S32 renderPass, F32 commanderZoomFraction) const
       {
          glPointSize(gDefaultLineWidth);
 
-         glEnableClientState(GL_COLOR_ARRAY);
-         glEnableClientState(GL_VERTEX_ARRAY);
+         //glEnableClientState(GL_COLOR_ARRAY);
+         //glEnableClientState(GL_VERTEX_ARRAY);
 
-         glVertexPointer(2, GL_FLOAT, sizeof(Spark), &mSparks[i][0].pos);     // Where to find the vertices -- see OpenGL docs
-         glColorPointer (4, GL_FLOAT, sizeof(Spark), &mSparks[i][0].color);   // Where to find the colors -- see OpenGL docs
+         //glVertexPointer(2, zGL_FLOAT, sizeof(Spark), &mSparks[i][0].pos);     // Where to find the vertices -- see OpenGL docs
+         //glColorPointer (4, zGL_FLOAT, sizeof(Spark), &mSparks[i][0].color);   // Where to find the colors -- see OpenGL docs
 
+         // Colors have 4 components
          if((SparkType) i == SparkTypePoint)
-            glDrawArrays(GL_POINTS, 0, firstFreeIndex[i]);
+            renderColorVertexArray(reinterpret_cast<const F32*>(&mSparks[i][0].pos), // Quick and easy Point* to F32*
+                        reinterpret_cast<const F32*>(&mSparks[i][0].color), firstFreeIndex[i], zGL_POINTS, 0, sizeof(Spark));
+            //glDrawArrays(zGL_POINTS, 0, firstFreeIndex[i]);
          else if((SparkType) i == SparkTypeLine)
-            glDrawArrays(GL_LINES, 0, firstFreeIndex[i]);
+            renderColorVertexArray(reinterpret_cast<const F32*>(&mSparks[i][0].pos),
+                        reinterpret_cast<const F32*>(&mSparks[i][0].color), firstFreeIndex[i], zGL_LINES, 0, sizeof(Spark));
+            //glDrawArrays(zGL_LINES, 0, firstFreeIndex[i]);
 
-         glDisableClientState(GL_COLOR_ARRAY);
-         glDisableClientState(GL_VERTEX_ARRAY);
+         //glDisableClientState(zGL_COLOR_ARRAY);
+         //glDisableClientState(zGL_VERTEX_ARRAY);
       }
 
       for(S32 i = 0; i < mDebrisChunks.size(); i++)
@@ -505,7 +510,7 @@ void FxTrail::render() const
       FxTrailVertexArray[(2*i) + 1] = mNodes[i].pos.y;
    }
 
-   renderColorVertexArray(FxTrailVertexArray, FxTrailColorArray, mNodes.size(), GL_LINE_STRIP);
+   renderColorVertexArray(FxTrailVertexArray, FxTrailColorArray, mNodes.size(), zGL_LINE_STRIP);
 }
 
 

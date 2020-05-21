@@ -47,7 +47,7 @@ void EnergyGaugeRenderer::render(S32 energy)
          cyan.r, cyan.g, cyan.b, 1,   // Fade to
          cyan.r, cyan.g, cyan.b, 1,
    };
-   renderColorVertexArray(vertices, colors, ARRAYSIZE(vertices) / 2, GL_TRIANGLE_FAN);
+   renderColorVertexArray(vertices, colors, ARRAYSIZE(vertices) / 2, zGL_TRIANGLE_FAN);
 
    // Guage outline
    glColor(Colors::white);

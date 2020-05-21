@@ -868,7 +868,7 @@ void GameUserInterface::renderProgressBar() const
                left + w, F32(DisplayManager::getScreenInfo()->getGameCanvasHeight() - vertMargin - height),
                left,     F32(DisplayManager::getScreenInfo()->getGameCanvasHeight() - vertMargin - height)
          };
-         renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, i ? GL_LINE_LOOP : GL_TRIANGLE_FAN);
+         renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, i ? zGL_LINE_LOOP : zGL_TRIANGLE_FAN);
       }
    }
 }
@@ -931,7 +931,7 @@ void GameUserInterface::renderReticle() const
 #undef COLOR_RGB
 #undef RETICLE_COLOR
 
-   renderColorVertexArray(vertices, colors, ARRAYSIZE(vertices) / 2, GL_LINES);
+   renderColorVertexArray(vertices, colors, ARRAYSIZE(vertices) / 2, zGL_LINES);
 }
 
 
@@ -1912,7 +1912,7 @@ void GameUserInterface::VoiceRecorder::render() const
             F32(10 + totalLineCount * 2), 130.0f,
             F32(10 + totalLineCount * 2), 145.0f
       };
-      renderVertexArray(vertices, ARRAYSIZE(vertices)/2, GL_LINES);
+      renderVertexArray(vertices, ARRAYSIZE(vertices)/2, zGL_LINES);
 
       F32 halfway = totalLineCount * 0.5f;
       F32 full = amt * totalLineCount;
@@ -1953,7 +1953,7 @@ void GameUserInterface::VoiceRecorder::render() const
          vertexArray[(4*(i-1))+3] = F32(145);
       }
 
-      renderColorVertexArray(vertexArray, colorArray, S32(full*2), GL_LINES);
+      renderColorVertexArray(vertexArray, colorArray, S32(full*2), zGL_LINES);
    }
 }
 
@@ -2466,8 +2466,8 @@ void GameUserInterface::renderBasicInterfaceOverlay()
       if(progress != 0)
       {
          glColor(Colors::yellow);
-         drawRect(25.f, 200.f, progress * (DisplayManager::getScreenInfo()->getGameCanvasWidth()-50) + 25.f, 210.f, GL_TRIANGLE_FAN);
-         drawRect(25, 200, DisplayManager::getScreenInfo()->getGameCanvasWidth()-25, 210, GL_LINE_LOOP);
+         drawRect(25.f, 200.f, progress * (DisplayManager::getScreenInfo()->getGameCanvasWidth()-50) + 25.f, 210.f, zGL_TRIANGLE_FAN);
+         drawRect(25, 200, DisplayManager::getScreenInfo()->getGameCanvasWidth()-25, 210, zGL_LINE_LOOP);
       }
    }
    

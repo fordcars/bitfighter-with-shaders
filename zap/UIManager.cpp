@@ -32,12 +32,7 @@
 
 #include "SoundSystem.h"
 
-#if defined(TNL_OS_MOBILE) || defined(BF_USE_GLES)
-#  include "SDL_opengles.h"
-#else
-#  include "SDL_opengl.h"
-#endif
-
+#include "inclGL.h"
 
 namespace Zap
 {
@@ -462,7 +457,7 @@ void UIManager::renderCurrent()
    {
       // Save viewport
       GLint viewport[4];
-      glGetIntegerv(GL_VIEWPORT, viewport);    
+      glGetIntegerv(zGL_VIEWPORT, viewport);    
 
       glViewport(viewport[0] + GLint((mLastWasLower ? 1 : -1) * viewport[2] * (1 - mMenuTransitionTimer.getFraction())), 0, viewport[2], viewport[3]);
       mLastUI->render();

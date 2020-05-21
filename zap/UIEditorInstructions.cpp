@@ -488,7 +488,7 @@ void EditorInstructionsUserInterface::renderPageWalls() const
 
    glLineWidth(gLineWidth3);
 
-   renderPointVector(&points, GL_LINES);
+   renderPointVector(&points, zGL_LINES);
 
    glLineWidth(gDefaultLineWidth);
 

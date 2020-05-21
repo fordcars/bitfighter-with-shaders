@@ -1079,7 +1079,7 @@ static void drawButtonRightTriangle(const Point &center)
          p2.x, p2.y,
          p3.x, p3.y
    };
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINE_LOOP);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINE_LOOP);
 }
 
 

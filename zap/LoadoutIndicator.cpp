@@ -97,7 +97,7 @@ static S32 renderComponentIndicator(S32 xPos, S32 yPos, const char *name)
 
    S32 rectWidth = getComponentRectWidth(textWidth);
 
-   drawFancyBox(xPos, yPos, xPos + rectWidth, yPos + IndicatorHeight, IndicatorVertPadding, GL_LINE_LOOP);
+   drawFancyBox(xPos, yPos, xPos + rectWidth, yPos + IndicatorHeight, IndicatorVertPadding, zGL_LINE_LOOP);
 
    return rectWidth;
 }

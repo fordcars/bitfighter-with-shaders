@@ -168,7 +168,7 @@ void FontManager::initialize(GameSettings *settings, bool useExternalFonts)
       fontList[FontModernVision]   = new BfFont("Modern-Vision.ttf",   settings);
 
       // set texture blending function
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      glBlendFunc(zGL_SRC_ALPHA, zGL_ONE_MINUS_SRC_ALPHA);
    }
 }
 
@@ -339,7 +339,7 @@ void FontManager::drawStrokeCharacter(const SFG_StrokeFont *font, S32 character)
         characterVertexArray[2*j]     = strip->Vertices[j].X;
         characterVertexArray[(2*j)+1] = strip->Vertices[j].Y;
       }
-      renderVertexArray(characterVertexArray, strip->Number, GL_LINE_STRIP);
+      renderVertexArray(characterVertexArray, strip->Number, zGL_LINE_STRIP);
    }
    glTranslatef( schar->Right, 0.0, 0.0 );
 }
@@ -423,7 +423,7 @@ void FontManager::renderString(F32 size, const char *string)
    if(font->isStrokeFont())
    {
       static F32 modelview[16];
-      glGetFloatv(GL_MODELVIEW_MATRIX, modelview);    // Fills modelview[]
+      glGetFloatv(zGL_MODELVIEW_MATRIX, modelview);    // Fills modelview[]
 
       // Clamp to range of 0.5 - 1 then multiply by line width (2 by default)
       F32 linewidth =

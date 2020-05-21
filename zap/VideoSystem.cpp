@@ -16,18 +16,11 @@
 #include "UIManager.h"
 
 #include "stringUtils.h"
-
 #include "tnlLog.h"
 
-//#include "SDL.h"
+#include "Utils.hpp"
 
-#if defined(TNL_OS_MOBILE) || defined(BF_USE_GLES)
-#  include "SDL_opengles.h"
-//   // Needed for GLES compatibility
-#  define glOrtho glOrthof
-//#else
-//#  include "SDL_opengl.h"
-#endif
+#include "inclGL.h"
 
 #include <cmath>
 
@@ -53,6 +46,51 @@ extern string getInstalledDataDir();
 
 static string WINDOW_TITLE = "Bitfighter " + string(ZAP_GAME_RELEASE);
 
+void postCallbackForGladDebug(const char* name, void* funcPtr, int argLength, ...)
+{
+	// No loop since a function should only generate one error
+	U32 error = glGetError();
+	
+	if(error != zGL_NO_ERROR) // Something went wrong!
+	{
+		Utils::LOGPRINT("");
+		Utils::WARN("OpenGL error during function '" + std::string(name) + "'!");
+		Utils::LOGPRINT("OpenGL error code: '" + Utils::getGLErrorString(error) + "'.");
+		Utils::LOGPRINT("");
+	}
+}
+
+// You cannot call anything from OpenGL before calling this.
+// Returns false on failure
+bool initGlad()
+{
+	// USING SDL_GL_LoadLibrary leads to segfaults when calling OpenGL functions!!!!
+	// Don't know why, so lets use glad's loader instead.
+	if(!gladLoadGL()) // Load OpenGL at runtime. I don't use SDL's loader, so no need to use gladLoadGLLoader().
+	{
+		logprintf(LogConsumer::LogFatalError, "Failed to initialize Glad!");
+	}
+
+// Setup glad debug callback if glad was generated with the C/C++ Debug generator
+// Note: right now it does not seem to work, but it looks like the problem
+// is on glad's side, but I am not sure.
+#ifdef GLAD_DEBUG
+	//glad_set_post_callback(&postCallbackForGladDebug);
+#endif
+
+	// Print OpenGL information
+	// Since OpenGL gives GLubytes, we need to reinterpret them into chars (unsigned to signed)
+	Utils::LOGPRINT("OpenGL information:");
+	Utils::LOGPRINT(" - Vendor: " + std::string(reinterpret_cast<const char*>(glGetString(zGL_VENDOR))));
+	Utils::LOGPRINT(" - Renderer: " + std::string(reinterpret_cast<const char*>(glGetString(zGL_RENDERER))));
+	Utils::LOGPRINT(" - Version: " + std::string(reinterpret_cast<const char*>(glGetString(zGL_VERSION))));
+	Utils::LOGPRINT("");
+
+	Utils::LOGPRINT("Context initialization complete.");
+
+	return true;
+}
+
 // Returns true if everything went ok, false otherwise
 bool VideoSystem::init()
 {
@@ -66,7 +104,6 @@ bool VideoSystem::init()
       return false;
    }
 
-
    // Now, we want to setup our requested
    // window attributes for our OpenGL window.
    // Note on SDL_GL_RED/GREEN/BLUE/ALPHA_SIZE: On windows, it is better to not set them at all, or risk going extremely slow software rendering including if your desktop graphics set to 16 bit color.
@@ -74,9 +111,15 @@ bool VideoSystem::init()
    //SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
    //SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
    //SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 8 );
+/*
+   SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles2");
+   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+*/
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );  // depth used in editor to display spybug visible area non-overlap
    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-
 
    // Get information about the current desktop video settings and initialize
    // our ScreenInfo class with with current width and height
@@ -123,7 +166,6 @@ bool VideoSystem::init()
    SDL_GLContext context = SDL_GL_CreateContext(DisplayManager::getScreenInfo()->sdlWindow);
    DisplayManager::getScreenInfo()->sdlGlContext = &context;
 
-
    // Set the window icon -- note that the icon must be a 32x32 bmp, and SDL will
    // downscale it to 16x16 with no interpolation.  Therefore, it's best to start
    // with a finely crafted 16x16 icon, then scale it up to 32x32 with no interpolation.
@@ -143,6 +185,13 @@ bool VideoSystem::init()
       SDL_FreeSurface(icon);
 
    // We will set the resolution, position, and flags in updateDisplayState()
+
+   initGlad();
+
+   // OpenGL must now be up and running before calling this!
+   // ... but failing to call this before using OpenGL will
+   // result in a segfault!
+   GLWrap::init();
 
    return true;
 }
@@ -206,9 +255,6 @@ void VideoSystem::saveUpdateWindowScale(GameSettings *settings)
    // Save the new window dimensions in ScreenInfo
    screen->setWindowSize(newWidth, newHeight);
 }
-
-
-extern void setDefaultBlendFunction();
 
 
 static void debugPrintState(VideoSystem::videoSystem_st_t currentState)
@@ -580,7 +626,7 @@ void VideoSystem::redrawViewport(GameSettings *settings)
    // TODO High-DPI mode may change various OpenGL parameters below (and also
    glViewport(0, 0, windowWidth, windowHeight);
 
-   glMatrixMode(GL_PROJECTION);
+   glMatrixMode(zGL_PROJECTION);
    glLoadIdentity();
 
 
@@ -592,7 +638,7 @@ void VideoSystem::redrawViewport(GameSettings *settings)
 //   logprintf("ortho left: %f, right: %f, bottom: %f, top: %f", ortho.left, ortho.right, ortho.bottom, ortho.top);
 
 
-   glMatrixMode(GL_MODELVIEW);
+   glMatrixMode(zGL_MODELVIEW);
    glLoadIdentity();
 
    // Enabling scissor appears to fix crashing problem switching screen mode
@@ -605,7 +651,7 @@ void VideoSystem::redrawViewport(GameSettings *settings)
    glScissor(scissor.x, scissor.y, scissor.width, scissor.height);
 //   logprintf("scissor x: %f, y: %f, width: %f, height: %f", scissor.x, scissor.y, scissor.width, scissor.height);
 
-   glEnable(GL_SCISSOR_TEST);    // Turn on clipping
+   glEnable(zGL_SCISSOR_TEST);    // Turn on clipping
 
    setDefaultBlendFunction();
    glLineWidth(gDefaultLineWidth);
@@ -613,11 +659,11 @@ void VideoSystem::redrawViewport(GameSettings *settings)
    // Enable Line smoothing everywhere!  Make sure to disable temporarily for filled polygons and such
    if(settings->getIniSettings()->mSettings.getVal<YesNo>("LineSmoothing"))
    {
-      glEnable(GL_LINE_SMOOTH);
+      glEnable(zGL_LINE_SMOOTH);
       //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
    }
 
-   glEnable(GL_BLEND);
+   glEnable(zGL_BLEND);
 }
 
 

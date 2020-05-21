@@ -20,6 +20,7 @@
 #include "VertexStylesEnum.h"
 #include "FontManager.h"
 
+#include "Point.h"
 #include "Colors.h"
 
 #include "stringUtils.h"
@@ -33,6 +34,9 @@
 #ifdef SHOW_SERVER_SITUATION
 #  include "GameManager.h"
 #endif
+
+#include "inclGL.h"
+#include <vector>
 
 
 namespace Zap
@@ -61,14 +65,14 @@ void drawVertLine(S32 x, S32 y1, S32 y2)
 void drawHorizLine(F32 x1, F32 x2, F32 y)
 {
    F32 vertices[] = { x1, y,   x2, y };
-   renderVertexArray(vertices, 2, GL_LINES);
+   renderVertexArray(vertices, 2, zGL_LINES);
 }
 
 
 void drawVertLine(F32 x, F32 y1, F32 y2)
 {
    F32 vertices[] = { x, y1,   x, y2 };
-   renderVertexArray(vertices, 2, GL_LINES);
+   renderVertexArray(vertices, 2, zGL_LINES);
 }
 
 
@@ -92,7 +96,7 @@ void drawArc(const Point &pos, F32 radius, F32 startAngle, F32 endAngle)
    arcVertexArray[(2*count) + 1] = pos.y + sin(endAngle) * radius;
    count++;
 
-   renderVertexArray(arcVertexArray, count, GL_LINE_STRIP);
+   renderVertexArray(arcVertexArray, count, zGL_LINE_STRIP);
 }
 
 
@@ -118,7 +122,7 @@ void drawAngledRay(const Point &center, F32 innerRadius, F32 outerRadius, F32 an
          center.x + cos(angle) * outerRadius, center.y + sin(angle) * outerRadius,
    };
 
-   renderVertexArray(vertices, 2, GL_LINE_STRIP);
+   renderVertexArray(vertices, 2, zGL_LINE_STRIP);
 }
 
 
@@ -188,7 +192,7 @@ void drawRoundedRect(const Point &pos, F32 width, F32 height, F32 rad)
          pos.x - width2, pos.y - height2 + rad
    };
 
-   renderVertexArray(vertices, 8, GL_LINES);
+   renderVertexArray(vertices, 8, zGL_LINES);
 
    // Now add some quarter-rounds in the corners, start in UL, proceed CW
    p.set(pos.x - width2 + rad, pos.y - height2 + rad);
@@ -229,7 +233,7 @@ void drawFilledArc(const Point &pos, F32 radius, F32 startAngle, F32 endAngle)
    filledArcVertexArray[(2*count) + 1] = pos.y;
    count++;
 
-   renderVertexArray(filledArcVertexArray, count, GL_TRIANGLE_FAN);
+   renderVertexArray(filledArcVertexArray, count, zGL_TRIANGLE_FAN);
 }
 
 
@@ -249,13 +253,13 @@ void drawFilledRoundedRect(const Point &pos, F32 width, F32 height, const Color 
    drawFilledArc(Point(pos.x - width / 2 + radius, pos.y + height / 2 - radius), radius,  FloatHalfPi, FloatPi);
 
    drawRect(pos.x - width / 2, pos.y - height / 2 + radius, 
-            pos.x + width / 2, pos.y + height / 2 - radius, GL_TRIANGLE_FAN);
+            pos.x + width / 2, pos.y + height / 2 - radius, zGL_TRIANGLE_FAN);
 
    drawRect(pos.x - width / 2 + radius, pos.y - height / 2, 
-            pos.x + width / 2 - radius, pos.y - height / 2 + radius, GL_TRIANGLE_FAN);
+            pos.x + width / 2 - radius, pos.y - height / 2 + radius, zGL_TRIANGLE_FAN);
 
    drawRect(pos.x - width / 2 + radius, pos.y + height / 2, 
-            pos.x + width / 2 - radius, pos.y + height / 2 - radius, GL_TRIANGLE_FAN);
+            pos.x + width / 2 - radius, pos.y + height / 2 - radius, zGL_TRIANGLE_FAN);
 
    glColor(outlineColor, alpha);
    drawRoundedRect(pos, width, height, radius);
@@ -304,34 +308,34 @@ void drawPolygon(const Point &pos, S32 sides, F32 radius, F32 angle)
       theta += dTheta;
    }
 
-   renderVertexArray(polygonVertexArray, sides, GL_LINE_LOOP);
+   renderVertexArray(polygonVertexArray, sides, zGL_LINE_LOOP);
 }
 
 
 // Draw an ellipse at pos, with axes width and height, canted at angle
 void drawEllipse(const Point &pos, F32 width, F32 height, F32 angle)
 {
-   drawFilledEllipseUtil(pos, width, height, angle, GL_LINE_LOOP);
+   drawFilledEllipseUtil(pos, width, height, angle, zGL_LINE_LOOP);
 }
 
 
 // Draw an ellipse at pos, with axes width and height, canted at angle
 void drawEllipse(const Point &pos, S32 width, S32 height, F32 angle)
 {
-   drawFilledEllipseUtil(pos, (F32)width, (F32)height, angle, GL_LINE_LOOP);
+   drawFilledEllipseUtil(pos, (F32)width, (F32)height, angle, zGL_LINE_LOOP);
 }
 
 
 // Well...  draws a filled ellipse, much as you'd expect
 void drawFilledEllipse(const Point &pos, F32 width, F32 height, F32 angle)
 {
-   drawFilledEllipseUtil(pos, width, height, angle, GL_TRIANGLE_FAN);
+   drawFilledEllipseUtil(pos, width, height, angle, zGL_TRIANGLE_FAN);
 }
 
 
 void drawFilledEllipse(const Point &pos, S32 width, S32 height, F32 angle)
 {
-   drawFilledEllipseUtil(pos, (F32)width, (F32)height, angle, GL_TRIANGLE_FAN);
+   drawFilledEllipseUtil(pos, (F32)width, (F32)height, angle, zGL_TRIANGLE_FAN);
 }
 
 
@@ -359,7 +363,7 @@ void drawFilledSector(const Point &pos, F32 radius, F32 start, F32 end)
       count++;
    }
 
-   renderVertexArray(filledSectorVertexArray, count, GL_TRIANGLE_FAN);
+   renderVertexArray(filledSectorVertexArray, count, zGL_TRIANGLE_FAN);
 }
 
 
@@ -392,7 +396,7 @@ void renderHealthBar(F32 health, const Point &center, const Point &dir, F32 leng
       vertexArray.push_back(segMid + cross * F32(width) * 0.5);
    }
 
-   renderPointVector(&vertexArray, GL_LINES);
+   renderPointVector(&vertexArray, zGL_LINES);
 }
 
 
@@ -478,7 +482,7 @@ static void renderShipFlame(ShipFlame *flames, S32 flameCount, F32 thrust, F32 a
                yThrusterX, yThrusterY,
                flameLayer->points[4], flameLayer->points[5]
          };
-         renderVertexArray(vertices, 3, GL_LINE_STRIP);
+         renderVertexArray(vertices, 3, zGL_LINE_STRIP);
       }
 }
 
@@ -504,12 +508,12 @@ void renderShip(ShipShape::ShipShapeType shapeType, const Color *shipColor, cons
 
    // Flame ports...
    glColor(Colors::gray50, alpha);
-   renderVertexArray(shipShapeInfo->flamePortPoints, shipShapeInfo->flamePortPointCount, GL_LINES);
+   renderVertexArray(shipShapeInfo->flamePortPoints, shipShapeInfo->flamePortPointCount, zGL_LINES);
 
    // Inner hull with colored insides
    glColor(shipColor, alpha);
    for(S32 i = 0; i < shipShapeInfo->innerHullPieceCount; i++)
-      renderVertexArray(shipShapeInfo->innerHullPieces[i].points, shipShapeInfo->innerHullPieces[i].pointCount, GL_LINE_STRIP);
+      renderVertexArray(shipShapeInfo->innerHullPieces[i].points, shipShapeInfo->innerHullPieces[i].pointCount, zGL_LINE_STRIP);
 
    // Render health bar
    glColor(hbc, alpha);
@@ -517,7 +521,7 @@ void renderShip(ShipShape::ShipShapeType shapeType, const Color *shipColor, cons
 
    // Grey outer hull drawn last, on top
    glColor(Colors::gray70, alpha);
-   renderVertexArray(shipShapeInfo->outerHullPoints, shipShapeInfo->outerHullPointCount, GL_LINE_LOOP);
+   renderVertexArray(shipShapeInfo->outerHullPoints, shipShapeInfo->outerHullPointCount, zGL_LINE_LOOP);
 
    // Now render any module states
    renderActiveModuleOverlays(alpha, radius, sensorTime, shieldActive, sensorActive, repairActive, hasArmor);
@@ -722,85 +726,85 @@ void renderGamesPlayedMark(S32 x, S32 y, S32 height, U32 gamesPlayed)
 
    glPushMatrix();
 
-   glTranslate(x - 10, y - 6, 0);
+   glTranslate(x - 10.0f, y - 6.0f, 0.0f);
    
    glLineWidth(gLineWidth1);
 
    glColor(Colors::gray20);
-   renderVertexArray(rectPoints, 4, GL_LINE_LOOP);
-   renderVertexArray(&rectPoints[8], 4, GL_LINE_LOOP);
-   renderVertexArray(&rectPoints[16], 4, GL_LINE_LOOP);
-   renderVertexArray(&rectPoints[24], 4, GL_LINE_LOOP);
+   renderVertexArray(rectPoints, 4, zGL_LINE_LOOP);
+   renderVertexArray(&rectPoints[8], 4, zGL_LINE_LOOP);
+   renderVertexArray(&rectPoints[16], 4, zGL_LINE_LOOP);
+   renderVertexArray(&rectPoints[24], 4, zGL_LINE_LOOP);
 
    switch(sym)
    {
       case 0:
          //glColor(Colors::red);
-         //renderVertexArray(triPoints, 3, GL_TRIANGLE_FAN);
+         //renderVertexArray(triPoints, 3, zGL_TRIANGLE_FAN);
          glColor(Colors::green80);
-         renderVertexArray(rectPoints, 4, GL_LINE_LOOP);
+         renderVertexArray(rectPoints, 4, zGL_LINE_LOOP);
          break;
       case 1:
          glColor(Colors::green80);
-         renderVertexArray(rectPoints, 4, GL_TRIANGLE_FAN);
-         renderVertexArray(rectPoints, 4, GL_LINE_LOOP);
+         renderVertexArray(rectPoints, 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(rectPoints, 4, zGL_LINE_LOOP);
          break;
       case 2:
          glColor(Colors::green80);
-         renderVertexArray(rectPoints, 4, GL_TRIANGLE_FAN);
-         renderVertexArray(rectPoints, 4, GL_LINE_LOOP);
+         renderVertexArray(rectPoints, 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(rectPoints, 4, zGL_LINE_LOOP);
          //glColor(Colors::red);
-         //renderVertexArray(&triPoints[6], 3, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[8], 4, GL_LINE_LOOP);
+         //renderVertexArray(&triPoints[6], 3, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[8], 4, zGL_LINE_LOOP);
          break;
       case 3:
          glColor(Colors::green80);
-         renderVertexArray(rectPoints, 4, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[8], 4, GL_TRIANGLE_FAN);
-         renderVertexArray(rectPoints, 4, GL_LINE_LOOP);
-         renderVertexArray(&rectPoints[8], 4, GL_LINE_LOOP);
+         renderVertexArray(rectPoints, 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[8], 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(rectPoints, 4, zGL_LINE_LOOP);
+         renderVertexArray(&rectPoints[8], 4, zGL_LINE_LOOP);
          break;
       case 4:
          glColor(Colors::green80);
-         renderVertexArray(rectPoints, 4, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[8], 4, GL_TRIANGLE_FAN);
-         renderVertexArray(rectPoints, 4, GL_LINE_LOOP);
-         renderVertexArray(&rectPoints[8], 4, GL_LINE_LOOP);
+         renderVertexArray(rectPoints, 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[8], 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(rectPoints, 4, zGL_LINE_LOOP);
+         renderVertexArray(&rectPoints[8], 4, zGL_LINE_LOOP);
          //glColor(Colors::red);
-         //renderVertexArray(&triPoints[12], 3, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[16], 4, GL_LINE_LOOP);
+         //renderVertexArray(&triPoints[12], 3, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[16], 4, zGL_LINE_LOOP);
          break;
       case 5:
          glColor(Colors::green80);
-         renderVertexArray(rectPoints, 4, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[8], 4, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[16], 4, GL_TRIANGLE_FAN);
-         renderVertexArray(rectPoints, 4, GL_LINE_LOOP);
-         renderVertexArray(&rectPoints[8], 4, GL_LINE_LOOP);
-         renderVertexArray(&rectPoints[16], 4, GL_LINE_LOOP);
+         renderVertexArray(rectPoints, 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[8], 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[16], 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(rectPoints, 4, zGL_LINE_LOOP);
+         renderVertexArray(&rectPoints[8], 4, zGL_LINE_LOOP);
+         renderVertexArray(&rectPoints[16], 4, zGL_LINE_LOOP);
          break;
       case 6:
          glColor(Colors::green80);
-         renderVertexArray(rectPoints, 4, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[8], 4, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[16], 4, GL_TRIANGLE_FAN);
-         renderVertexArray(rectPoints, 4, GL_LINE_LOOP);
-         renderVertexArray(&rectPoints[8], 4, GL_LINE_LOOP);
-         renderVertexArray(&rectPoints[16], 4, GL_LINE_LOOP);
+         renderVertexArray(rectPoints, 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[8], 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[16], 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(rectPoints, 4, zGL_LINE_LOOP);
+         renderVertexArray(&rectPoints[8], 4, zGL_LINE_LOOP);
+         renderVertexArray(&rectPoints[16], 4, zGL_LINE_LOOP);
          //glColor(Colors::red);
-         //renderVertexArray(&triPoints[18], 3, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[24], 4, GL_LINE_LOOP);
+         //renderVertexArray(&triPoints[18], 3, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[24], 4, zGL_LINE_LOOP);
          break;
       case 7:
          glColor(Colors::green80);
-         renderVertexArray(rectPoints, 4, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[8], 4, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[16], 4, GL_TRIANGLE_FAN);
-         renderVertexArray(&rectPoints[24], 4, GL_TRIANGLE_FAN);
-         renderVertexArray(rectPoints, 4, GL_LINE_LOOP);
-         renderVertexArray(&rectPoints[8], 4, GL_LINE_LOOP);
-         renderVertexArray(&rectPoints[16], 4, GL_LINE_LOOP);
-         renderVertexArray(&rectPoints[24], 4, GL_LINE_LOOP);
+         renderVertexArray(rectPoints, 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[8], 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[16], 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(&rectPoints[24], 4, zGL_TRIANGLE_FAN);
+         renderVertexArray(rectPoints, 4, zGL_LINE_LOOP);
+         renderVertexArray(&rectPoints[8], 4, zGL_LINE_LOOP);
+         renderVertexArray(&rectPoints[16], 4, zGL_LINE_LOOP);
+         renderVertexArray(&rectPoints[24], 4, zGL_LINE_LOOP);
          break;
    }
    glPopMatrix();
@@ -884,12 +888,12 @@ void renderShip(S32 layerIndex, const Point &renderPos, const Point &actualPos, 
       // scrambling thing here as well...
       glColor(Colors::black);
 
-      glDisable(GL_BLEND);
+      glDisable(zGL_BLEND);
 
       F32 vertices[] = { 20,-15,  0,25,  20,-15 };
-      renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_TRIANGLE_FAN);
+      renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_TRIANGLE_FAN);
 
-      glEnable(GL_BLEND);
+      glEnable(zGL_BLEND);
    }
 
    else     // LayerIndex == 1
@@ -943,7 +947,7 @@ void renderShipRepairRays(const Point &pos, const Ship *ship, Vector<SafePtr<BfO
             vertexArray.push_back(targetRepairLocations[i]);
          }
 
-         renderPointVector(&vertexArray, GL_LINES);
+         renderPointVector(&vertexArray, zGL_LINES);
       }
    }
    glLineWidth(gDefaultLineWidth);
@@ -983,7 +987,7 @@ void drawFourArrows(const Point &pos)
 
    glPushMatrix();
       glTranslate(pos);
-      renderVertexArray(pointList, ARRAYSIZE(pointList) / 2, GL_LINES);
+      renderVertexArray(pointList, ARRAYSIZE(pointList) / 2, zGL_LINES);
    glPopMatrix();
 
 }
@@ -1076,9 +1080,9 @@ void renderTeleporter(const Point &pos, U32 type, bool spiralInwards, U32 time, 
 
       glColor(Colors::white, .25f * alpha );
 
-//      glEnable(GL_POLYGON_SMOOTH);
+//      glEnable(zGL_POLYGON_SMOOTH);
       setDefaultBlendFunction();
-//      glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+//      glHint(zGL_POLYGON_SMOOTH_HINT, zGL_FASTEST);
 
       // Draw a different line for each destination
       for(S32 i = 0; i < dests->size(); i++)
@@ -1101,7 +1105,7 @@ void renderTeleporter(const Point &pos, U32 type, bool spiralInwards, U32 time, 
                midx - asina * width, midy - acosa * width,
                pos.x - asina * width, pos.y - acosa * width
          };
-         renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_TRIANGLE_FAN);
+         renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_TRIANGLE_FAN);
 
          // Render blended part
          F32 x = dests->get(i).x;
@@ -1118,10 +1122,10 @@ void renderTeleporter(const Point &pos, U32 type, bool spiralInwards, U32 time, 
                1, 1, 1, 0,
                1, 1, 1, .25f * alpha
          };
-         renderColorVertexArray(vertices2, colors, ARRAYSIZE(vertices2) / 2, GL_TRIANGLE_FAN);
+         renderColorVertexArray(vertices2, colors, ARRAYSIZE(vertices2) / 2, zGL_TRIANGLE_FAN);
       }
 
-      //   glDisable(GL_POLYGON_SMOOTH);
+      //   glDisable(zGL_POLYGON_SMOOTH);
    }
 
 
@@ -1258,7 +1262,7 @@ void renderTeleporter(const Point &pos, U32 type, bool spiralInwards, U32 time, 
          teleporterColorArray[(8*j)+7] = alpha * alphaMod * (1 - frac);
       }
 
-      renderColorVertexArray(teleporterVertexArray, teleporterColorArray, arrayCount, GL_TRIANGLE_STRIP);
+      renderColorVertexArray(teleporterVertexArray, teleporterColorArray, arrayCount, zGL_TRIANGLE_STRIP);
    }
 
    glPopMatrix();
@@ -1309,7 +1313,7 @@ void renderTurretFiringRange(const Point &pos, const Color &color, F32 currentSc
 
    F32 range = Turret::TurretPerceptionDistance * currentScale;
 
-   drawRect(pos.x - range, pos.y - range, pos.x + range, pos.y + range, GL_TRIANGLE_FAN);
+   drawRect(pos.x - range, pos.y - range, pos.x + range, pos.y + range, zGL_TRIANGLE_FAN);
 }
 
 
@@ -1332,7 +1336,7 @@ void renderTurret(const Color &c, const Color &hbc, Point anchor, Point normal, 
 
    glColor(c);
 
-   renderPointVector(&vertexArray, GL_LINE_STRIP);
+   renderPointVector(&vertexArray, zGL_LINE_STRIP);
 
    // Render symbol if it is a regenerating turret
    if(healRate > 0)
@@ -1344,7 +1348,7 @@ void renderTurret(const Color &c, const Color &hbc, Point anchor, Point normal, 
          Point pos = normal * cos(theta) + cross * sin(theta);
          pointArray.push_back(aimCenter + pos * frontRadius * 0.667f);
       }
-      renderPointVector(&pointArray, GL_LINE_STRIP);
+      renderPointVector(&pointArray, zGL_LINE_STRIP);
    }
 
    // Render gun
@@ -1357,7 +1361,7 @@ void renderTurret(const Color &c, const Color &hbc, Point anchor, Point normal, 
          aim1.x, aim1.y,
          aim2.x, aim2.y
    };
-   renderVertexArray(vertices, 2, GL_LINES);
+   renderVertexArray(vertices, 2, zGL_LINES);
 
    glLineWidth(gDefaultLineWidth);
 
@@ -1377,7 +1381,7 @@ void renderTurret(const Color &c, const Color &hbc, Point anchor, Point normal, 
          corner3.x, corner3.y,
          corner4.x, corner4.y
    };
-   renderVertexArray(vertices2, 4, GL_LINE_LOOP);
+   renderVertexArray(vertices2, 4, zGL_LINE_LOOP);
 
    // Render health bar
    glColor(hbc);
@@ -1399,7 +1403,7 @@ void renderTurret(const Color &c, const Color &hbc, Point anchor, Point normal, 
          seg2start.x, seg2start.y,
          seg2end.x, seg2end.y
    };
-   renderVertexArray(vertices3, 4, GL_LINES);
+   renderVertexArray(vertices3, 4, zGL_LINES);
 }
 
 
@@ -1409,7 +1413,7 @@ static void drawFlag(const Color *flagColor, const Color *mastColor, F32 alpha)
 
    // First, the flag itself
    static F32 flagPoints[] = { -15,-15, 15,-5,  15,-5, -15,5,  -15,-10, 10,-5,  10,-5, -15,0 };
-   renderVertexArray(flagPoints, ARRAYSIZE(flagPoints) / 2, GL_LINES);
+   renderVertexArray(flagPoints, ARRAYSIZE(flagPoints) / 2, zGL_LINES);
 
    // Now the flag's mast
    glColor(mastColor != NULL ? *mastColor : Colors::white, alpha);
@@ -1482,7 +1486,7 @@ void renderSmallFlag(const Point &pos, const Color &c, F32 parentAlpha)
             1, 1, 1, alpha,
             1, 1, 1, alpha
       };
-      renderColorVertexArray(vertices, colors, ARRAYSIZE(vertices) / 2, GL_LINES);
+      renderColorVertexArray(vertices, colors, ARRAYSIZE(vertices) / 2, zGL_LINES);
    glPopMatrix();
 }
 
@@ -1530,13 +1534,13 @@ void renderPolygonLabel(const Point &centroid, F32 angle, F32 size, const char *
 // Renders fill in the form of a series of points representing triangles
 void renderTriangulatedPolygonFill(const Vector<Point> *fill)
 {
-   renderPointVector(fill, GL_TRIANGLES);
+   renderPointVector(fill, zGL_TRIANGLES);
 }
 
 
 void renderPolygonOutline(const Vector<Point> *outline)
 {
-   renderPointVector(outline, GL_LINE_LOOP);
+   renderPointVector(outline, zGL_LINE_LOOP);
 }
 
 
@@ -1636,9 +1640,9 @@ void drawFilledStar(const Point &pos, S32 points, F32 radius, F32 innerRadius)
 
    pts.push_back(first);
 
-   renderPointVector(&pts, GL_TRIANGLES);       // Points
-   renderPointVector(&core, GL_TRIANGLE_FAN);        // Inner pentagon
-   renderPointVector(&outline, GL_LINE_LOOP);   // Outline to make things look smoother, at least when star is small
+   renderPointVector(&pts, zGL_TRIANGLES);       // Points
+   renderPointVector(&core, zGL_TRIANGLE_FAN);        // Inner pentagon
+   renderPointVector(&outline, zGL_LINE_LOOP);   // Outline to make things look smoother, at least when star is small
 }
 
 
@@ -1677,7 +1681,7 @@ void renderGoalZoneIcon(const Point &center, S32 radius, F32 angleRadians)
       glTranslatef(center.x, center.y, 0);
       glRotatef(angleRadians * RADIANS_TO_DEGREES, 0, 0, 1);
       glScale(radius * 0.041667f);  // 1 / 24 since we drew it to in-game radius of 24 (a ship's radius)
-      renderVertexArray(flagPoints, ARRAYSIZE(flagPoints) / 2, GL_LINE_STRIP);
+      renderVertexArray(flagPoints, ARRAYSIZE(flagPoints) / 2, zGL_LINE_STRIP);
    glPopMatrix();
 }
 
@@ -1708,7 +1712,7 @@ void renderNavMeshBorders(const Vector<NeighboringZone> &borders)
             borders[i].borderStart.x, borders[i].borderStart.y,
             borders[i].borderEnd.x,   borders[i].borderEnd.y,
       };
-      renderVertexArray(vertices, 2, GL_LINES);
+      renderVertexArray(vertices, 2, zGL_LINES);
    }
 
    glLineWidth(gDefaultLineWidth);
@@ -1814,7 +1818,7 @@ void renderNexusIcon(const Point &center, S32 radius, F32 angleRadians)
       glRotatef(angleRadians * RADIANS_TO_DEGREES, 0, 0, 1);
 
       // Draw our center spokes
-      renderVertexArray(spokes, ARRAYSIZE(spokes) / 2, GL_LINES);
+      renderVertexArray(spokes, ARRAYSIZE(spokes) / 2, zGL_LINES);
 
       // Draw design
       drawArc(arcPoint1, arcRadius, 0.583f * FloatTau, FloatTau * 1.25f);
@@ -1866,7 +1870,7 @@ void renderSlipZoneIcon(const Point &center, S32 radius, F32 angleRadians)
       glScale(radius * 0.05f);  // 1/20.  Default radius is 20 in-game
 
       glColor(Colors::cyan);
-      renderVertexArray(lines, ARRAYSIZE(lines) / 2, GL_LINES);
+      renderVertexArray(lines, ARRAYSIZE(lines) / 2, zGL_LINES);
    glPopMatrix();
 }
 
@@ -1876,10 +1880,10 @@ void renderSlipZone(const Vector<Point> *bounds, const Vector<Point> *boundsFill
    Color theColor (0, 0.5, 0);  // Go for a pale green, for now...
 
    glColor(theColor * 0.5);
-   renderPointVector(boundsFill, GL_TRIANGLES);
+   renderPointVector(boundsFill, zGL_TRIANGLES);
 
    glColor(theColor * 0.7f);
-   renderPointVector(bounds, GL_LINE_LOOP);
+   renderPointVector(bounds, zGL_LINE_LOOP);
 
    renderSlipZoneIcon(centroid, 20);
 }
@@ -1902,7 +1906,7 @@ void renderProjectile(const Point &pos, U32 type, U32 time)
             glRotatef((time % 720) * 0.5f, 0, 0, 1);
 
             static S16 projectilePoints1[] = { -2,2,  0,6,  2,2,  6,0,  2,-2,  0,-6,  -2,-2,  -6,0 };
-            renderVertexArray(projectilePoints1, ARRAYSIZE(projectilePoints1) / 2, GL_LINE_LOOP);
+            renderVertexArray(projectilePoints1, ARRAYSIZE(projectilePoints1) / 2, zGL_LINE_LOOP);
 
          glPopMatrix();
 
@@ -1910,7 +1914,7 @@ void renderProjectile(const Point &pos, U32 type, U32 time)
          glColor(pi->projColors[1]);
 
          static S16 projectilePoints2[] = { -2,2,  0,8,  2,2,  8,0,  2,-2,  0,-8, -2,-2,  -8,0 };
-         renderVertexArray(projectilePoints2, ARRAYSIZE(projectilePoints2) / 2, GL_LINE_LOOP);
+         renderVertexArray(projectilePoints2, ARRAYSIZE(projectilePoints2) / 2, zGL_LINE_LOOP);
 
       glPopMatrix();
 
@@ -1927,7 +1931,7 @@ void renderProjectile(const Point &pos, U32 type, U32 time)
       glColor(pi->projColors[1]);
 
       static S16 projectilePoints3[] = { -2,2,  2,2,  2,-2,  -2,-2 };
-      renderVertexArray(projectilePoints3, ARRAYSIZE(projectilePoints3) / 2, GL_LINE_LOOP);
+      renderVertexArray(projectilePoints3, ARRAYSIZE(projectilePoints3) / 2, zGL_LINE_LOOP);
 
       glPopMatrix();
 
@@ -1977,14 +1981,14 @@ void renderSeeker(const Point &pos, F32 angleRadians, F32 speed, U32 timeRemaini
             -8 - (4 * speedRatio), 0,
             -8, 1,
       };
-      renderVertexArray(innerFlame, 3, GL_LINE_STRIP);
+      renderVertexArray(innerFlame, 3, zGL_LINE_STRIP);
       glColor(Colors::orange50, 0.6f);
       F32 outerFlame[] = {
             -8, -3,
             -8 - (8 * speedRatio), 0,
             -8, 3,
       };
-      renderVertexArray(outerFlame, 3, GL_LINE_STRIP);
+      renderVertexArray(outerFlame, 3, zGL_LINE_STRIP);
 
       // The body of the seeker
       glColor4f(1, 0, 0.35f, 1);  // A redder magenta
@@ -1993,7 +1997,7 @@ void renderSeeker(const Point &pos, F32 angleRadians, F32 speed, U32 timeRemaini
             -8,  4,
              8,  0
       };
-      renderVertexArray(vertices, 3, GL_LINE_LOOP);
+      renderVertexArray(vertices, 3, zGL_LINE_LOOP);
    glPopMatrix();
 }
 
@@ -2162,7 +2166,7 @@ void renderRepairItem(const Point &pos, bool forEditor, const Color *overrideCol
          -crossWidth,  crossLen,
           crossWidth,  crossLen
    };
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINE_LOOP);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINE_LOOP);
 
    glPopMatrix();
 }
@@ -2185,7 +2189,7 @@ void renderEnergySymbol()
    glColor(Colors::orange67, 1);
 
    static S16 energySymbolPoints[] = { 20,-20,  3,-2,  12,5,  -20,20,  -2,3,  -12,-5 };
-   renderVertexArray(energySymbolPoints, ARRAYSIZE(energySymbolPoints) / 2, GL_LINE_LOOP);
+   renderVertexArray(energySymbolPoints, ARRAYSIZE(energySymbolPoints) / 2, zGL_LINE_LOOP);
 }
 
 
@@ -2218,7 +2222,7 @@ void renderEnergyItem(const Point &pos)
 void renderWallFill(const Vector<Point> *points, const Color &fillColor, bool polyWall)
 {
    glColor(fillColor);
-   renderPointVector(points, polyWall ? GL_TRIANGLES : GL_TRIANGLE_FAN);
+   renderPointVector(points, polyWall ? zGL_TRIANGLES : zGL_TRIANGLE_FAN);
 }
 
 
@@ -2226,7 +2230,7 @@ void renderWallFill(const Vector<Point> *points, const Color &fillColor, bool po
 void renderWallFill(const Vector<Point> *points, const Color &fillColor, const Point &offset, bool polyWall)
 {
    glColor(fillColor);
-   renderPointVector(points, offset, polyWall ? GL_TRIANGLES : GL_TRIANGLE_FAN);
+   renderPointVector(points, offset, polyWall ? zGL_TRIANGLES : zGL_TRIANGLE_FAN);
 }
 
 
@@ -2234,7 +2238,7 @@ void renderWallFill(const Vector<Point> *points, const Color &fillColor, const P
 void renderWallEdges(const Vector<Point> &edges, const Color &outlineColor, F32 alpha)
 {
    glColor(outlineColor, alpha);
-   renderPointVector(&edges, GL_LINES);
+   renderPointVector(&edges, zGL_LINES);
 }
 
 
@@ -2242,7 +2246,7 @@ void renderWallEdges(const Vector<Point> &edges, const Color &outlineColor, F32 
 void renderWallEdges(const Vector<Point> &edges, const Point &offset, const Color &outlineColor, F32 alpha)
 {
    glColor(outlineColor, alpha);
-   renderPointVector(&edges, offset, GL_LINES);
+   renderPointVector(&edges, offset, zGL_LINES);
 }
 
 
@@ -2250,17 +2254,19 @@ void renderSpeedZone(const Vector<Point> &points, U32 time)
 {
    glColor(Colors::red);
 
-   for(S32 j = 0; j < 2; j++)
+   renderPointVector(&points, zGL_LINE_LOOP);
+
+   /*for(S32 j = 0; j < 2; j++)
    {
       S32 start = j * points.size() / 2;    // GoFast comes in two equal shapes
 
-      glEnableClientState(GL_VERTEX_ARRAY);
+      glEnableClientState(zGL_VERTEX_ARRAY);
 
-      glVertexPointer(2, GL_FLOAT, sizeof(Point), points.address());    
-      glDrawArrays(GL_LINE_LOOP, start, points.size() / 2);
+      glVertexPointer(2, zGL_FLOAT, sizeof(Point), points.address());    
+      glDrawArrays(zGL_LINE_LOOP, start, points.size() / 2);
 
-      glDisableClientState(GL_VERTEX_ARRAY);
-   }
+      glDisableClientState(zGL_VERTEX_ARRAY);
+   }*/
 }
 
 
@@ -2275,7 +2281,7 @@ void renderTestItem(const Point &pos, S32 size, F32 alpha)
 void renderTestItem(const Vector<Point> &points, F32 alpha)
 {
    glColor(Colors::yellow, alpha);
-   renderVertexArray((F32 *)&points[0], points.size(), GL_LINE_LOOP);
+   renderVertexArray((F32 *)&points[0], points.size(), zGL_LINE_LOOP);
 }
 
 
@@ -2292,7 +2298,7 @@ void renderAsteroid(const Point &pos, S32 design, F32 scaleFact, const Color *co
       vertexArray[2*i]     = AsteroidCoords[design][i][0] * scaleFact;
       vertexArray[(2*i)+1] = AsteroidCoords[design][i][1] * scaleFact;
    }
-   renderVertexArray(vertexArray, ASTEROID_POINTS, GL_LINE_LOOP);
+   renderVertexArray(vertexArray, ASTEROID_POINTS, zGL_LINE_LOOP);
 
    glPopMatrix();
 }
@@ -2371,7 +2377,7 @@ void renderAsteroidSpawnEditor(const Point &pos, F32 scale)
 void renderResourceItem(const Vector<Point> &points, F32 alpha)
 {
    glColor(Colors::white, alpha);
-   renderVertexArray((F32 *)&points[0], points.size(), GL_LINE_LOOP);
+   renderVertexArray((F32 *)&points[0], points.size(), zGL_LINE_LOOP);
 }
 
 
@@ -2411,7 +2417,7 @@ void renderCore(const Point &pos, const Color *coreColor, const Color &hbc, U32 
             panelGeom->getStart(i).x, panelGeom->getStart(i).y,
             panelGeom->getEnd(i).x, panelGeom->getEnd(i).y
       };
-      renderVertexArray(vertices, 2, GL_LINES);
+      renderVertexArray(vertices, 2, zGL_LINES);
 
       // Draw health stakes
       if(panelHealth[i] > 0)
@@ -2426,7 +2432,7 @@ void renderCore(const Point &pos, const Color *coreColor, const Color &hbc, U32 
                0,    0,    0,    1,    // Colors::black
          };
 
-         renderColorVertexArray(vertices2, colors, 2, GL_LINES);
+         renderColorVertexArray(vertices2, colors, 2, zGL_LINES);
       }
    }
 
@@ -2454,7 +2460,7 @@ void renderCore(const Point &pos, const Color *coreColor, const Color &hbc, U32 
          colorArray[(4*count)+3]  = theta / FloatTau;
          count++;
       }
-      renderColorVertexArray(vertexArray, colorArray, ARRAYSIZE(vertexArray)/2, GL_LINE_LOOP);
+      renderColorVertexArray(vertexArray, colorArray, ARRAYSIZE(vertexArray)/2, zGL_LINE_LOOP);
    }
 
    glColor(baseColor);
@@ -2543,11 +2549,11 @@ void renderForceFieldProjector(const Vector<Point> *geom, const Point &pos, cons
       glPushMatrix();
          glTranslate(centerPoint);
          glRotatef(angle * RADIANS_TO_DEGREES, 0, 0, 1);
-         renderVertexArray(symbol, ARRAYSIZE(symbol) / 2, GL_LINE_STRIP);
+         renderVertexArray(symbol, ARRAYSIZE(symbol) / 2, zGL_LINE_STRIP);
       glPopMatrix();
    }
 
-   renderPointVector(geom, GL_LINE_LOOP);
+   renderPointVector(geom, zGL_LINE_LOOP);
 }
 
 
@@ -2562,7 +2568,7 @@ void renderForceField(Point start, Point end, const Color *color, bool fieldUp, 
 
    glColor(fieldUp ? c : c * 0.5);
 
-   renderPointVector(&geom, GL_LINE_LOOP);
+   renderPointVector(&geom, zGL_LINE_LOOP);
 }
 
 
@@ -2585,9 +2591,10 @@ const S32 LetterLoc10 = 21;  // B top hole
 const S32 LetterLoc11 = 21;  // B bottom hole
 const S32 LetterLoc12 = 46;  // R outline
 const S32 LetterLoc13 = 22;  // R hole
+const S32 LetterTot = LetterLoc1 + LetterLoc2 + LetterLoc3 + LetterLoc4 + LetterLoc5 + LetterLoc6 +
+                      LetterLoc7 + LetterLoc8 + LetterLoc9 + LetterLoc10 + LetterLoc11 + LetterLoc12 + LetterLoc13;
 
-pixLoc gLogoPoints[LetterLoc1 + LetterLoc2 + LetterLoc3 + LetterLoc4 + LetterLoc5 + LetterLoc6 +
-                   LetterLoc7 + LetterLoc8 + LetterLoc9 + LetterLoc10 + LetterLoc11 + LetterLoc12 + LetterLoc13] =
+pixLoc gLogoPoints[LetterTot] =
 {
 { 498,265 }, { 498,31  }, { 500,21  }, { 506,11  }, { 516,3   }, { 526,0   }, { 536,3   }, { 546,11  }, { 551,21  },
 { 554,31  }, { 554,554 }, { 551,569 }, { 546,577 }, { 539,582 }, { 457,582 }, { 442,580 }, { 434,575 }, { 429,567 },
@@ -2692,54 +2699,56 @@ void renderStaticBitfighterLogo()
 //  512 = R
 void renderBitfighterLogo(U32 mask)
 {
-   glEnableClientState(GL_VERTEX_ARRAY);
-
-   glVertexPointer(2, GL_SHORT, sizeof(pixLoc), &gLogoPoints[0]);
-
+   //glEnableClientState(zGL_VERTEX_ARRAY);
+   // Convert pixLoc to Point (why is pixLoc used?)
+   Point points[LetterTot];
+   for(unsigned i = 0; i < LetterTot; ++i)
+      points[i] = Point(gLogoPoints[i].x, gLogoPoints[i].y);
+   
    U32 pos = 0;
 
    if(mask & 1 << 0)
-      glDrawArrays(GL_LINE_LOOP,   0, LetterLoc1);
+      renderPointArray(points, LetterLoc1, zGL_LINE_LOOP, 0, sizeof(Point));
    pos += LetterLoc1;
    if(mask & 1 << 1)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc2);
+      renderPointArray(points, LetterLoc2, zGL_LINE_LOOP, pos, sizeof(Point));
    pos += LetterLoc2;
    if(mask & 1 << 2)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc3);
+      renderPointArray(points, LetterLoc3, zGL_LINE_LOOP, pos, sizeof(Point));
    pos += LetterLoc3;
    if(mask & 1 << 3)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc4);
+      renderPointArray(points, LetterLoc4, zGL_LINE_LOOP, pos, sizeof(Point));
    pos += LetterLoc4;
    if(mask & 1 << 4)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc5);
+      renderPointArray(points, LetterLoc5, zGL_LINE_LOOP, pos, sizeof(Point));
    pos += LetterLoc5;
    if(mask & 1 << 5)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc6);
+      renderPointArray(points, LetterLoc6, zGL_LINE_LOOP, pos, sizeof(Point));
    pos += LetterLoc6;
    if(mask & 1 << 6)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc7);
+      renderPointArray(points, LetterLoc7, zGL_LINE_LOOP, pos, sizeof(Point));
    pos += LetterLoc7;
    if(mask & 1 << 7)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc8);
+      renderPointArray(points, LetterLoc8, zGL_LINE_LOOP, pos, sizeof(Point));
    pos += LetterLoc8;
 
    if(mask & 1 << 8)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc9);
+      renderPointArray(points, LetterLoc9, zGL_LINE_LOOP, pos, sizeof(Point));
    pos += LetterLoc9;
    if(mask & 1 << 8)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc10);
+      renderPointArray(points, LetterLoc10, zGL_LINE_LOOP, pos, sizeof(Point));
    pos += LetterLoc10;
    if(mask & 1 << 8)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc11);
+      renderPointArray(points, LetterLoc11, zGL_LINE_LOOP, pos, sizeof(Point));
    pos += LetterLoc11;
 
    if(mask & 1 << 9)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc12);
+      renderPointArray(points, LetterLoc12, zGL_LINE_LOOP, pos, sizeof(Point));
    pos += LetterLoc12;
    if(mask & 1 << 9)
-      glDrawArrays(GL_LINE_LOOP, pos, LetterLoc13);
+      renderPointArray(points, LetterLoc13, zGL_LINE_LOOP, pos, sizeof(Point));
 
-   glDisableClientState(GL_VERTEX_ARRAY);
+   //glDisableClientState(zGL_VERTEX_ARRAY);
 }
 
 
@@ -2773,7 +2782,7 @@ void renderBitfighterLogo(const Point &pos, F32 size, U32 letterMask)
 // Pos is the square's center
 void drawSquare(const Point &pos, F32 radius, bool filled)
 {
-   drawRect(pos.x - radius, pos.y - radius, pos.x + radius, pos.y + radius, filled ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
+   drawRect(pos.x - radius, pos.y - radius, pos.x + radius, pos.y + radius, filled ? zGL_TRIANGLE_FAN : zGL_LINE_LOOP);
 }
 
 
@@ -2876,7 +2885,7 @@ void renderLine(const Vector<Point> *points, const Color *color)
    if(color)
       glColor(color);
 
-   renderLine(points);
+   GLOPT::renderLine(points); // Avoid recursion
 }
 
 
@@ -2892,7 +2901,7 @@ void drawFadingHorizontalLine(S32 x1, S32 x2, S32 yPos, const Color &color)
          color.r, color.g, color.b, 0,
    };
 
-   renderColorVertexArray(vertices, colors, ARRAYSIZE(vertices) / 2, GL_LINES);
+   renderColorVertexArray(vertices, colors, ARRAYSIZE(vertices) / 2, zGL_LINES);
 }
 
 
@@ -2951,7 +2960,7 @@ void drawCircle(F32 x, F32 y, F32 radius, const Color *color, F32 alpha)
       curY = (sinTheta * prevX) + (cosTheta * curY);
    }
 
-   renderVertexArray(vertexArray, 32, GL_LINE_LOOP);
+   renderVertexArray(vertexArray, 32, zGL_LINE_LOOP);
 }
 
 
@@ -2995,7 +3004,7 @@ void drawDivetedTriangle(F32 height, F32 len)
 
    
    glPushMatrix();
-      glTranslate(200, 200, 0);
+      glTranslate(200.0f, 200.0f, 0.0f);
       glRotatef(GLfloat(Platform::getRealMilliseconds() / 10 % 360), 0, 0, 1);
       glScale(6);
 
@@ -3186,10 +3195,10 @@ void renderRagingRabidRabbitBadge(F32 x, F32 y, F32 rad)
       glScale(.1f * rad);
 
       glColor(Colors::gray50);
-      renderVertexArray(rabbit, ARRAYSIZE(rabbit) / 2, GL_LINE_LOOP);
+      renderVertexArray(rabbit, ARRAYSIZE(rabbit) / 2, zGL_LINE_LOOP);
 
       glColor(Colors::red);
-      renderVertexArray(eye, ARRAYSIZE(eye) / 2, GL_LINE_LOOP);
+      renderVertexArray(eye, ARRAYSIZE(eye) / 2, zGL_LINE_LOOP);
    glPopMatrix();
 }
 
@@ -3268,20 +3277,20 @@ void renderHatTrickBadge(F32 x, F32 y, F32 rad)
 
       // GL_TRIANGLE_FAN, then GL_LINE_LOOP for anti-aliasing
       glColor(Colors::red);
-      renderVertexArray(brim, ARRAYSIZE(brim) / 2, GL_TRIANGLE_FAN);
-      renderVertexArray(brim, ARRAYSIZE(brim) / 2, GL_LINE_LOOP);
+      renderVertexArray(brim, ARRAYSIZE(brim) / 2, zGL_TRIANGLE_FAN);
+      renderVertexArray(brim, ARRAYSIZE(brim) / 2, zGL_LINE_LOOP);
 
       glColor(Colors::white);
-      renderVertexArray(outline, ARRAYSIZE(outline) / 2, GL_TRIANGLE_FAN);
+      renderVertexArray(outline, ARRAYSIZE(outline) / 2, zGL_TRIANGLE_FAN);
       glLineWidth(gLineWidth1);
-      renderVertexArray(outline, ARRAYSIZE(outline) / 2, GL_LINE_LOOP);
+      renderVertexArray(outline, ARRAYSIZE(outline) / 2, zGL_LINE_LOOP);
       glLineWidth(gDefaultLineWidth);
 
       glColor(Colors::red);
-      renderVertexArray(stripe, ARRAYSIZE(stripe) / 2, GL_LINE_STRIP);
+      renderVertexArray(stripe, ARRAYSIZE(stripe) / 2, zGL_LINE_STRIP);
 
       glColor(Colors::red);
-      renderVertexArray(pompom, ARRAYSIZE(pompom) / 2, GL_LINES);
+      renderVertexArray(pompom, ARRAYSIZE(pompom) / 2, zGL_LINES);
    glPopMatrix();
 }
 
@@ -3427,14 +3436,14 @@ void renderStars(const Point *stars, const Color *colors, S32 numStars, F32 alph
    // Render some stars
    glPointSize( gLineWidth1 );
 
-   glEnableClientState(GL_VERTEX_ARRAY);
-   //glEnableClientState(GL_COLOR_ARRAY);
+   //glEnableClientState(zGL_VERTEX_ARRAY);
+   //glEnableClientState(zGL_COLOR_ARRAY);
 
-   glEnable(GL_BLEND);
+   glEnable(zGL_BLEND);
    glColor(Colors::gray60, alpha);
 
-   //glColorPointer(4, GL_FLOAT, sizeof(Color), &colors[0]);
-   glVertexPointer(2, GL_FLOAT, sizeof(Point), &stars[0]);    // Each star is a pair of floats between 0 and 1
+   //glColorPointer(4, zGL_FLOAT, sizeof(Color), &colors[0]);
+   //glVertexPointer(2, zGL_FLOAT, sizeof(Point), &stars[0]);    // Each star is a pair of floats between 0 and 1
 
 
    // Do some calculations for the parallax
@@ -3455,16 +3464,16 @@ void renderStars(const Point *stars, const Color *colors, S32 numStars, F32 alph
 
          glTranslatef(xPage + (cameraPos.x / starDist), yPage + (cameraPos.y / starDist), 0);
 
-         glDrawArrays(GL_POINTS, 0, numStars);
+         renderPointArray(stars, numStars, zGL_POINTS, sizeof(Point));
          
          //glColor(.1,.1,.1);
          // for(S32 i = 0; i < 50; i++)
-         //   glDrawArrays(GL_LINE_LOOP, i * 6, 6);
+         //   glDrawArrays(zGL_LINE_LOOP, i * 6, 6);
 
          glPopMatrix();
       }
 
-   glDisableClientState(GL_VERTEX_ARRAY);
+   //glDisableClientState(zGL_VERTEX_ARRAY);
 }
 
 
@@ -3537,7 +3546,7 @@ void renderWallOutline(WallItem *wallItem, const Vector<Point> *outline, const C
    if(color)
       glColor(color);
 
-   renderLine(outline);
+   GLOPT::renderLine(outline);
 
    if(renderVertices)
       renderPolyLineVertices(wallItem, snappingToWallCornersEnabled, currentScale);
@@ -3596,7 +3605,7 @@ void drawObjectiveArrow(const Point &nearestPoint, F32 zoomFraction, const Color
    for(S32 i = 0; i < 2; i++)
    {
       glColor(i == 1 ? &fillColor : outlineColor, alpha);
-      renderVertexArray((F32 *)(vertices), ARRAYSIZE(vertices), i == 1 ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
+      renderVertexArray((F32 *)(vertices), ARRAYSIZE(vertices), i == 1 ? zGL_TRIANGLE_FAN : zGL_LINE_LOOP);
    }
 
    // Highlight the objective arrow, if need be.  This will be called rarely, so efficiency here is 
@@ -3608,7 +3617,7 @@ void drawObjectiveArrow(const Point &nearestPoint, F32 zoomFraction, const Color
       offsetPolygon(&inPoly, outPoly, HIGHLIGHTED_OBJECT_BUFFER_WIDTH);
 
       glColor(Colors::HelpItemRenderColor, highlightAlpha * alpha);
-      renderVertexArray((F32 *)(outPoly.address()), outPoly.size(), GL_LINE_LOOP);
+      renderVertexArray((F32 *)(outPoly.address()), outPoly.size(), zGL_LINE_LOOP);
    }
 
    //   Point cen = rp - arrowDir * 12;
@@ -3658,10 +3667,10 @@ void renderFlightPlan(const Point &from, const Point &to, const Vector<Point> &f
    Vector<Point> line(2);
    line.push_back(from);
    line.push_back(to);
-   renderLine(&line);
+   GLOPT::renderLine(&line);
 
    // Render the flight plan itself
-   renderPointVector(&flightPlan, GL_LINE_STRIP);
+   renderPointVector(&flightPlan, zGL_LINE_STRIP);
 }
 
 
@@ -3685,7 +3694,7 @@ void renderHeavysetArrow(const Point &pos, const Point &dest, const Color &color
             dest.x, dest.y,
             dest.x - cos(ang - angoff) * al, dest.y - sin(ang - angoff) * al
       };
-      renderVertexArray(vertices, 4, GL_LINES);
+      renderVertexArray(vertices, 4, zGL_LINES);
 
       // Draw highlighted core on 2nd pass if item is selected, but not while it's being edited
       if(!i && (isSelected || isLitUp))
@@ -3696,7 +3705,7 @@ void renderHeavysetArrow(const Point &pos, const Point &dest, const Color &color
             dest.x, dest.y
       };
 
-      renderVertexArray(vertices2, 2, GL_LINES);
+      renderVertexArray(vertices2, 2, zGL_LINES);
    }
 }
 

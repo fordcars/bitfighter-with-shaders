@@ -289,7 +289,7 @@ static void renderArrow(S32 pos, bool pointingUp)
    {
       // First create a black poly to blot out what's behind, then the arrow itself
       glColor(i ? Colors::black : Colors::blue);
-      renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, i ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
+      renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, i ? zGL_TRIANGLE_FAN : zGL_LINE_LOOP);
    }
 }
 
@@ -414,11 +414,11 @@ void MenuUserInterface::render()
 
       // Fill
       glColor(Colors::red40, alpha);
-      drawFancyBox(left, top, DisplayManager::getScreenInfo()->getGameCanvasWidth() - left, bottom, cornerInset, GL_TRIANGLE_FAN);
+      drawFancyBox(left, top, DisplayManager::getScreenInfo()->getGameCanvasWidth() - left, bottom, cornerInset, zGL_TRIANGLE_FAN);
 
       // Border
       glColor(Colors::red, alpha);
-      drawFancyBox(left, top, DisplayManager::getScreenInfo()->getGameCanvasWidth() - left, bottom, cornerInset, GL_LINE_LOOP);
+      drawFancyBox(left, top, DisplayManager::getScreenInfo()->getGameCanvasWidth() - left, bottom, cornerInset, zGL_LINE_LOOP);
 
       glColor(Colors::white, alpha);
       drawCenteredString(top + padding, textsize, mFadingNoticeMessage.c_str());

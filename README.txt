@@ -1,4 +1,4 @@
-Bitfighter READM
+Bitfighter README
 
    Many resources are found at:
 

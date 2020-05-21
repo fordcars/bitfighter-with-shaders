@@ -620,7 +620,7 @@ void InstructionsUserInterface::renderModulesPage() const
                      1, 1, 0, 1,  // Colors::yellow
                      0, 0, 0, 1,  // Colors::black
                };
-               renderColorVertexArray(vertices, colors, ARRAYSIZE(vertices) / 2, GL_LINES);
+               renderColorVertexArray(vertices, colors, ARRAYSIZE(vertices) / 2, zGL_LINES);
             }
             break;
 
@@ -973,7 +973,7 @@ void InstructionsUserInterface::renderPageCommands(U32 page, const char *msg) co
          (F32)cmdCol, (F32)ypos,
          (F32)750,    (F32)ypos
    };
-   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, GL_LINES);
+   renderVertexArray(vertices, ARRAYSIZE(vertices) / 2, zGL_LINES);
 
    ypos += 5;     // Small gap before cmds start
 

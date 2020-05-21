@@ -135,15 +135,15 @@ void UserInterface::renderConsole() const
 #ifndef BF_NO_CONSOLE
    // Temporarily disable scissors mode so we can use the full width of the screen
    // to show our console text, black bars be damned!
-   bool scissorMode = glIsEnabled(GL_SCISSOR_TEST);
+   bool scissorMode = glIsEnabled(zGL_SCISSOR_TEST);
 
    if(scissorMode) 
-      glDisable(GL_SCISSOR_TEST);
+      glDisable(zGL_SCISSOR_TEST);
 
    gConsole.render();
 
    if(scissorMode) 
-      glEnable(GL_SCISSOR_TEST);
+      glEnable(zGL_SCISSOR_TEST);
 #endif
 }
 

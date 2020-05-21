@@ -34,7 +34,7 @@ static void drawArrow(F32 *p)
 {
    p[2] = p[0] + 20; p[3] = p[1] - 10;
    p[4] = p[0] + 20; p[5] = p[1] + 10;
-   renderVertexArray(p, 3, GL_LINE_LOOP);
+   renderVertexArray(p, 3, zGL_LINE_LOOP);
 }
 
 const S32 colorWheel_x = 100;
@@ -155,39 +155,39 @@ void UIColorPicker::render()
       maxCol,      0,      0, 1,
    };
 
-   renderColorVertexArray(colorWheelPoints, colorArray, 8, GL_TRIANGLE_FAN);
+   renderColorVertexArray(colorWheelPoints, colorArray, 8, zGL_TRIANGLE_FAN);
 
 
    colorArray[0]  = r2;  colorArray[1]  = g2;  colorArray[2]  = b2;
    colorArray[4]  = r2;  colorArray[5]  = g2;  colorArray[6]  = b2; 
    colorArray[8]  = 0;   colorArray[9]  = 0;   colorArray[10] = 0; 
    colorArray[12] = 0;   colorArray[13] = 0;   colorArray[14] = 0;
-   renderColorVertexArray(colorBrightnessPoints, colorArray, 4, GL_TRIANGLE_FAN);
+   renderColorVertexArray(colorBrightnessPoints, colorArray, 4, zGL_TRIANGLE_FAN);
 
    colorArray[0]  = 1;  colorArray[1]  = g;  colorArray[2]  = b;
    colorArray[4]  = 1;  colorArray[5]  = g;  colorArray[6]  = b;
    colorArray[9]  = g;  colorArray[10] = b;
    colorArray[13] = g;  colorArray[14] = b;
-   renderColorVertexArray(colorBrightnessPointsRed, colorArray, 4, GL_TRIANGLE_FAN);
+   renderColorVertexArray(colorBrightnessPointsRed, colorArray, 4, zGL_TRIANGLE_FAN);
 
    colorArray[0]  = r; colorArray[1]  = 1;
    colorArray[4]  = r; colorArray[5]  = 1;
    colorArray[8]  = r; colorArray[9]  = 0;
    colorArray[12] = r; colorArray[13] = 0;
-   renderColorVertexArray(colorBrightnessPointsGreen, colorArray, 4, GL_TRIANGLE_FAN);
+   renderColorVertexArray(colorBrightnessPointsGreen, colorArray, 4, zGL_TRIANGLE_FAN);
 
    colorArray[1]  = g; colorArray[2]  = 1;
    colorArray[5]  = g; colorArray[6]  = 1;
    colorArray[9]  = g; colorArray[10] = 0;
    colorArray[13] = g; colorArray[14] = 0;
-   renderColorVertexArray(colorBrightnessPointsBlue, colorArray, 4, GL_TRIANGLE_FAN);
+   renderColorVertexArray(colorBrightnessPointsBlue, colorArray, 4, zGL_TRIANGLE_FAN);
 
    glColor(Colors::white);
-   renderVertexArray(&colorWheelPoints[2],       6, GL_LINE_LOOP);
-   renderVertexArray(colorBrightnessPoints,      4, GL_LINE_LOOP);
-   renderVertexArray(colorBrightnessPointsRed,   4, GL_LINE_LOOP);
-   renderVertexArray(colorBrightnessPointsGreen, 4, GL_LINE_LOOP);
-   renderVertexArray(colorBrightnessPointsBlue,  4, GL_LINE_LOOP);
+   renderVertexArray(&colorWheelPoints[2],       6, zGL_LINE_LOOP);
+   renderVertexArray(colorBrightnessPoints,      4, zGL_LINE_LOOP);
+   renderVertexArray(colorBrightnessPointsRed,   4, zGL_LINE_LOOP);
+   renderVertexArray(colorBrightnessPointsGreen, 4, zGL_LINE_LOOP);
+   renderVertexArray(colorBrightnessPointsBlue,  4, zGL_LINE_LOOP);
 
 
    F32 pointerArrow[8];
@@ -232,7 +232,7 @@ void UIColorPicker::render()
 
       glColor(maxCol > .6f ?  0.f : 1.f);
 
-      renderVertexArray(pointerArrow, 4, GL_LINES);
+      renderVertexArray(pointerArrow, 4, zGL_LINES);
    }
 
 

@@ -18,11 +18,7 @@
 #include "tnlTypes.h"
 #include "tnlVector.h"
 
-#if defined(TNL_OS_MOBILE) || defined(BF_USE_GLES)
-#  include "SDL_opengles.h"
-#else
-#  include "SDL_opengl.h"
-#endif
+#include "inclGL.h"
 
 using namespace TNL;
 
@@ -49,7 +45,7 @@ void drawRect(F32 x1, F32 y1, F32 x2, F32 y2, S32 mode);
 template<typename T, typename U, typename V, typename W>
 void drawHollowRect(T x1, U y1, V x2, W y2)
 {
-   drawRect(static_cast<F32>(x1), static_cast<F32>(y1), static_cast<F32>(x2), static_cast<F32>(y2), GL_LINE_LOOP);
+   drawRect(static_cast<F32>(x1), static_cast<F32>(y1), static_cast<F32>(x2), static_cast<F32>(y2), zGL_LINE_LOOP);
 }
 
 

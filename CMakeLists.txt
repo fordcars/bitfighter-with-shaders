@@ -17,7 +17,7 @@ endif()
 # CMake options
 #
 
-option(USE_GLES "Force usage of OpenGL ES for the bitfighter client.  Requires SDL2." NO)
+#option(USE_GLES "Force usage of OpenGL ES for the bitfighter client.  Requires SDL2." NO)
 option(ALURE_DISABLE_MP3 "Disable dynamic loading of libmpg123.  Disables mp3 completely." NO)
 option(NO_THREADS "Disable usage of threads in TNL.  May cause issues." NO)
 option(LUAJIT_BUILTIN "Use built-in LuaJIT.  Recommended." YES)
@@ -71,6 +71,9 @@ if(SDL2_FOUND)
 	set(SDL_LIBRARY ${SDL2_LIBRARY})
 endif()
 
+# GLAD
+set(GLAD_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/glad/include")
+add_subdirectory(glad)
 
 # Searches for OpenGL and enables GLES if GL isnt found in the system
 message(STATUS "Determining system GL provider")
@@ -96,6 +99,7 @@ endif()
 if(NOT NO_THREADS)
 	find_package(Threads REQUIRED)
 endif()
+find_package(glm)
 find_package(PNG)
 find_package(MySQL)
 find_package(OGG)

@@ -15,13 +15,7 @@
 #include "VideoSystem.h"   // For setting screen geom vars
 #include "stringUtils.h"
 
-#if defined(TNL_OS_MOBILE) || defined(BF_USE_GLES)
-#  include "SDL_opengles.h"
-   // Needed for GLES compatibility
-#  define glOrtho glOrthof
-#else
-#  include "SDL_opengl.h"
-#endif
+#include "inclGL.h"
 
 #include "zlib.h"
 
@@ -50,18 +44,18 @@ void ScreenShooter::resizeViewportToCanvas(UIManager *uiManager)
 
    glViewport(0, 0, width, height);
 
-   glMatrixMode(GL_PROJECTION);
+   glMatrixMode(zGL_PROJECTION);
    glLoadIdentity();
 
    glOrtho(0, width, height, 0, 0, 1);
 
-   glMatrixMode(GL_MODELVIEW);
+   glMatrixMode(zGL_MODELVIEW);
    glLoadIdentity();
 
    glScissor(0, 0, width, height);
 
    // Now render a frame to draw our new viewport to the back buffer
-   glClear(GL_COLOR_BUFFER_BIT);   // Not sure why this is needed
+   glClear(zGL_COLOR_BUFFER_BIT);   // Not sure why this is needed
    uiManager->renderCurrent();
 }
 
@@ -76,19 +70,19 @@ void ScreenShooter::resizeViewportToDrawableArea(UIManager *uiManager)
 
    glViewport(0, 0, width, height);
 
-   glMatrixMode(GL_PROJECTION);
+   glMatrixMode(zGL_PROJECTION);
    glLoadIdentity();
 
    // Stick to canvas width for orthographic projection
    glOrtho(0, canvasWidth, canvasHeight, 0, 0, 1);
 
-   glMatrixMode(GL_MODELVIEW);
+   glMatrixMode(zGL_MODELVIEW);
    glLoadIdentity();
 
    glScissor(0, 0, width, height);
 
    // Now render a frame to draw our new viewport to the back buffer
-   glClear(GL_COLOR_BUFFER_BIT);   // Not sure why this is needed
+   glClear(zGL_COLOR_BUFFER_BIT);   // Not sure why this is needed
    uiManager->renderCurrent();
 }
 
@@ -168,20 +162,20 @@ void ScreenShooter::saveScreenshot(UIManager *uiManager, GameSettings *settings,
    }
 
    // Allocate buffer
-   GLubyte *screenBuffer = new GLubyte[BytesPerPixel * width * height];  // Glubyte * 3 = 24 bits
+   U8 *screenBuffer = new U8[BytesPerPixel * width * height];  // Glubyte * 3 = 24 bits
    png_bytep *rows = new png_bytep[height];
 
    // Set alignment at smallest for compatibility
-   glPixelStorei(GL_PACK_ALIGNMENT, 1);
+   glPixelStorei(zGL_PACK_ALIGNMENT, 1);
 
    // Grab the front buffer with the new viewport
 #ifndef BF_USE_GLES
    // GLES doesn't need this?
-   glReadBuffer(GL_BACK);
+   glReadBuffer(zGL_BACK);
 #endif
 
    // Read pixels from buffer - slow operation
-   glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, screenBuffer);
+   glReadPixels(0, 0, width, height, zGL_RGB, zGL_UNSIGNED_BYTE, screenBuffer);
 
    // Change opengl viewport back to what it was
    if(resizeToDefault || resizeToDrawable)
