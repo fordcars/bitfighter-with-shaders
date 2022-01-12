@@ -11,7 +11,6 @@
 #ifdef BF_PLATFORM_3DS
 
 #include "PICARingBuffer.h"
-#include "glad/glad.h"
 
 // A larger ring buffer will allow us to reallocate buffer memory less often
 static const U32 RING_BUFFER_SIZE = 5 * 1000000U;
@@ -23,20 +22,20 @@ namespace Zap
    : mId(0)
    , mCurrentOffset(0)
 {
-   // Generate buffer and allocate initial memory
-   glGenBuffers(1, &mId);
-   glBindBuffer(GL_ARRAY_BUFFER, mId);
-   glBufferData(GL_ARRAY_BUFFER, RING_BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
+   //// Generate buffer and allocate initial memory
+   //glGenBuffers(1, &mId);
+   //glBindBuffer(GL_ARRAY_BUFFER, mId);
+   //glBufferData(GL_ARRAY_BUFFER, RING_BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
 }
 
    PICARingBuffer::~PICARingBuffer()
 {
-   glDeleteBuffers(1, &mId);
+   //glDeleteBuffers(1, &mId);
 }
 
 void PICARingBuffer::bind()
 {
-   glBindBuffer(GL_ARRAY_BUFFER, mId);
+   //glBindBuffer(GL_ARRAY_BUFFER, mId);
 }
 
 // Returns the offset of inserted data within the buffer
@@ -46,11 +45,11 @@ std::size_t PICARingBuffer::insertData(const void *data, U32 size)
    {
       // Orphan current data and allocate new memory. Any old data still being used by OpenGL will
       // continue to exist until it doesn't need it anymore.
-      glBufferData(GL_ARRAY_BUFFER, RING_BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
+      //glBufferData(GL_ARRAY_BUFFER, RING_BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
       mCurrentOffset = 0;
    }
 
-   glBufferSubData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(mCurrentOffset), size, data);
+   //glBufferSubData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(mCurrentOffset), size, data);
 
    std::size_t oldPosition = mCurrentOffset;
    mCurrentOffset += size + (4 - size%4); // Make sure we are 4-byte aligned
