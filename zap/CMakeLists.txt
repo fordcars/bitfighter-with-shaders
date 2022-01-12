@@ -254,9 +254,9 @@ BF_PLATFORM_ADD_DEFINITIONS()
 
 # Disable compiling of client and test suite if certain dependencies arent met
 set(COMPILE_CLIENT YES)
-if(NOT SDL2_FOUND AND NOT SDL_FOUND)
-	set(COMPILE_CLIENT NO)
-endif()
+# if(NOT SDL2_FOUND AND NOT SDL_FOUND)
+#	set(COMPILE_CLIENT NO)
+# endif()
 
 # Tests require the test sources, which may not be available (like in a slimmed source archive)
 set(COMPILE_TEST_SUITE YES)

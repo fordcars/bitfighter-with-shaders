@@ -60,13 +60,9 @@ endif()
 # Library searching and dependencies
 #
 
-# SDL2 is default and should be found on all platforms except possibly Linux
-find_package(SDL2)
-
-if(SDL2_FOUND)
-	set(SDL_INCLUDE_DIR ${SDL2_INCLUDE_DIR})
-	set(SDL_LIBRARY ${SDL2_LIBRARY})
-endif()
+# SDL 1.2
+set(SDL_LIBRARY ${CMAKE_SOURCE_DIR}/lib/SDLmain.lib)
+set(SDL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/lib/include/libsdl/SDL)
 
 # Searches for OpenGL and enables GLES if GL isnt found in the system
 message(STATUS "Determining system GL provider")
