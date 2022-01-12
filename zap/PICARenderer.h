@@ -3,12 +3,12 @@
 // See LICENSE.txt for full copyright information
 //------------------------------------------------------------------------------
 
-#ifndef _GL2RENDERER_H_
-#define _GL2RENDERER_H_
+#ifndef _PICARENDERER_H_
+#define _PICARENDERER_H_
 
-#include "GLRenderer.h"
-#include "Shader.h"
-#include "GL2RingBuffer.h"
+#include "Renderer.h"
+#include "PICAShader.h"
+#include "PICARingBuffer.h"
 #include "Matrix4.h"
 #include "Stack.h"
 #include "Color.h"
@@ -18,21 +18,21 @@
 namespace Zap
 {
 
-class GL2Renderer : public GLRenderer
+class PICARenderer : public Renderer
 {
 private:
    using MatrixStack = Stack<Matrix4, STACK_CAPACITY>;
 
    // Shaders
-   Shader mStaticShader;
-   Shader mDynamicShader;
-   Shader mTexturedShader;
-   Shader mColoredTextureShader;
+   PICAShader mStaticShader;
+   PICAShader mDynamicShader;
+   PICAShader mTexturedShader;
+   PICAShader mColoredTextureShader;
 
    // Reusable buffers for vertex data
-   GL2RingBuffer mPositionBuffer;
-   GL2RingBuffer mColorBuffer;
-   GL2RingBuffer mUVBuffer;
+   PICARingBuffer mPositionBuffer;
+   PICARingBuffer mColorBuffer;
+   POCARingBuffer mUVBuffer;
 
    bool mTextureEnabled;
    Color mColor;
@@ -45,19 +45,19 @@ private:
    MatrixStack mProjectionMatrixStack;
    MatrixType mMatrixMode;
 
-   GL2Renderer();
-   void useShader(const Shader &shader);
+   PICARenderer();
+   void useShader(const PICAShader &shader);
 
    template<typename T>
    void renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
       U32 start, U32 stride, U32 vertDimension);
 
-   U32 getGLRenderType(RenderType type) const;
-   U32 getGLTextureFormat(TextureFormat format) const;
-   U32 getGLDataType(DataType type) const;
+   U32 getRenderType(RenderType type) const;
+   U32 getTextureFormat(TextureFormat format) const;
+   U32 getDataType(DataType type) const;
 
 public:
-   ~GL2Renderer() override;
+   ~PICARenderer() override;
    static void create();
 
    void clear() override;
@@ -138,4 +138,4 @@ public:
 
 }
 
-#endif // _GL2RENDERER_H_
+#endif // _PICARENDERER_H_

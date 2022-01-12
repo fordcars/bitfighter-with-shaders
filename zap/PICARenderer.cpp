@@ -5,7 +5,7 @@
 
 #ifdef BF_PLATFORM_3DS
 
-#include "GL2Renderer.h"
+#include "PICARenderer.h"
 #include "Color.h"
 #include "Point.h"
 #include "tnlVector.h"
@@ -19,7 +19,7 @@
 namespace Zap
 {
 
-GL2Renderer::GL2Renderer()
+PICARenderer::PICARenderer()
    : mStaticShader("static", "static.v.glsl", "static.f.glsl")
    , mDynamicShader("dynamic", "dynamic.v.glsl", "dynamic.f.glsl")
    , mTexturedShader("textured", "textured.v.glsl", "textured.f.glsl")
@@ -56,26 +56,26 @@ GL2Renderer::GL2Renderer()
 	initRenderer();
 }
 
-GL2Renderer::~GL2Renderer()
+PICARenderer::~PICARenderer()
 {
 	// Do nothing
 }
 
-void GL2Renderer::useShader(const Shader &shader)
+void PICARenderer::useShader(const PICAShader &shader)
 {
    if(mCurrentShaderId != shader.getId())
       glUseProgram(shader.getId());
 }
 
 // Static
-void GL2Renderer::create()
+void PICARenderer::create()
 {
-   setInstance(std::unique_ptr<Renderer>(new GL2Renderer));
+   setInstance(std::unique_ptr<Renderer>(new PICARenderer));
 }
 
 // Uses static shader
 template<typename T>
-void GL2Renderer::renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
+void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
 	U32 start, U32 stride, U32 vertDimension)
 {
    useShader(mStaticShader);
@@ -111,7 +111,7 @@ void GL2Renderer::renderGenericVertexArray(DataType dataType, const T verts[], U
 	glDrawArrays(getGLRenderType(type), 0, vertCount);
 }
 
-U32 GL2Renderer::getGLRenderType(RenderType type) const
+U32 PICARenderer::getRenderType(RenderType type) const
 {
    switch(type)
    {
@@ -141,7 +141,7 @@ U32 GL2Renderer::getGLRenderType(RenderType type) const
    }
 }
 
-U32 GL2Renderer::getGLTextureFormat(TextureFormat format) const
+U32 PICARenderer::getTextureFormat(TextureFormat format) const
 {
    switch(format)
    {
@@ -159,7 +159,7 @@ U32 GL2Renderer::getGLTextureFormat(TextureFormat format) const
    }
 }
 
-U32 GL2Renderer::getGLDataType(DataType type) const
+U32 PICARenderer::getDataType(DataType type) const
 {
    switch(type)
    {
@@ -189,33 +189,33 @@ U32 GL2Renderer::getGLDataType(DataType type) const
    }
 }
 
-void GL2Renderer::clear()
+void PICARenderer::clear()
 {
    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void GL2Renderer::clearStencil()
+void PICARenderer::clearStencil()
 {
    glClear(GL_STENCIL_BUFFER_BIT);
 }
 
-void GL2Renderer::clearDepth()
+void PICARenderer::clearDepth()
 {
    glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void GL2Renderer::setClearColor(F32 r, F32 g, F32 b, F32 alpha)
+void PICARenderer::setClearColor(F32 r, F32 g, F32 b, F32 alpha)
 {
    glClearColor(r, g, b, alpha);
 }
 
-void GL2Renderer::setColor(F32 r, F32 g, F32 b, F32 alpha)
+void PICARenderer::setColor(F32 r, F32 g, F32 b, F32 alpha)
 {
 	mColor = Color(r, g, b);
 	mAlpha = alpha;
 }
 
-void GL2Renderer::setPointSize(F32 size)
+void PICARenderer::setPointSize(F32 size)
 {
    mPointSize = size;
 
@@ -225,12 +225,12 @@ void GL2Renderer::setPointSize(F32 size)
 #endif
 }
 
-void GL2Renderer::setLineWidth(F32 width)
+void PICARenderer::setLineWidth(F32 width)
 {
    glLineWidth(width);
 }
 
-void GL2Renderer::enableAntialiasing()
+void PICARenderer::enableAntialiasing()
 {
 #ifndef BF_USE_GLES
    glEnable(GL_LINE_SMOOTH);
@@ -238,78 +238,78 @@ void GL2Renderer::enableAntialiasing()
    // glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 }
 
-void GL2Renderer::disableAntialiasing()
+void PICARenderer::disableAntialiasing()
 {
 #ifndef BF_USE_GLES
    glDisable(GL_LINE_SMOOTH);
 #endif
 }
 
-void GL2Renderer::enableBlending()
+void PICARenderer::enableBlending()
 {
    glEnable(GL_BLEND);
 }
 
-void GL2Renderer::disableBlending()
+void PICARenderer::disableBlending()
 {
    glDisable(GL_BLEND);
 }
 
 // Any black pixel will become fully transparent
-void GL2Renderer::useTransparentBlackBlending()
+void PICARenderer::useTransparentBlackBlending()
 {
    glBlendFunc(GL_ONE, GL_ONE);
 }
 
-void GL2Renderer::useSpyBugBlending()
+void PICARenderer::useSpyBugBlending()
 {
    // This blending works like this, source(SRC) * GL_ONE_MINUS_DST_COLOR + destination(DST) * GL_ONE
    glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
 }
 
-void GL2Renderer::useDefaultBlending()
+void PICARenderer::useDefaultBlending()
 {
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void GL2Renderer::enableDepthTest()
+void PICARenderer::enableDepthTest()
 {
    glEnable(GL_DEPTH_TEST);
 }
 
-void GL2Renderer::disableDepthTest()
+void PICARenderer::disableDepthTest()
 {
    glDisable(GL_DEPTH_TEST);
 }
 
 /// Stencils
-void GL2Renderer::enableStencil()
+void PICARenderer::enableStencil()
 {
    glEnable(GL_STENCIL_TEST);
 }
 
-void GL2Renderer::disableStencil()
+void PICARenderer::disableStencil()
 {
    // Enable writing to stencil in case we disabled it, needed for clearing buffer
    glStencilMask(0xFF);
    glDisable(GL_STENCIL_TEST);
 }
 
-void GL2Renderer::useAndStencilTest()
+void PICARenderer::useAndStencilTest()
 {
    // Render if stencil value == 1
    glStencilFunc(GL_EQUAL, 1, 0xFF);
    mUsingAndStencilTest = true;
 }
 
-void GL2Renderer::useNotStencilTest()
+void PICARenderer::useNotStencilTest()
 {
    // Render if stencil value != 1
    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
    mUsingAndStencilTest = false;
 }
 
-void GL2Renderer::enableStencilDrawOnly()
+void PICARenderer::enableStencilDrawOnly()
 {
    // Always draw to stencil buffer; we don't care what what's in there already
    glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -318,7 +318,7 @@ void GL2Renderer::enableStencilDrawOnly()
 }
 
 // Temporarily disable drawing to stencil
-void GL2Renderer::disableStencilDraw()
+void PICARenderer::disableStencilDraw()
 {
    glStencilMask(0x00);                             // Don't draw anything in the stencil buffer
    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); // Feel free to draw in the color buffer tho!
@@ -330,12 +330,12 @@ void GL2Renderer::disableStencilDraw()
       useNotStencilTest();
 }
 
-void GL2Renderer::setViewport(S32 x, S32 y, S32 width, S32 height)
+void PICARenderer::setViewport(S32 x, S32 y, S32 width, S32 height)
 {
    glViewport(x, y, width, height);
 }
 
-Point GL2Renderer::getViewportPos()
+Point PICARenderer::getViewportPos()
 {
    GLint viewport[4];
    glGetIntegerv(GL_VIEWPORT, viewport);
@@ -343,7 +343,7 @@ Point GL2Renderer::getViewportPos()
    return Point(viewport[0], viewport[1]);
 }
 
-Point GL2Renderer::getViewportSize()
+Point PICARenderer::getViewportSize()
 {
    GLint viewport[4];
    glGetIntegerv(GL_VIEWPORT, viewport);
@@ -351,17 +351,17 @@ Point GL2Renderer::getViewportSize()
    return Point(viewport[2], viewport[3]);
 }
 
-void GL2Renderer::enableScissor()
+void PICARenderer::enableScissor()
 {
    glEnable(GL_SCISSOR_TEST);
 }
 
-void GL2Renderer::disableScissor()
+void PICARenderer::disableScissor()
 {
    glDisable(GL_SCISSOR_TEST);
 }
 
-bool GL2Renderer::isScissorEnabled()
+bool PICARenderer::isScissorEnabled()
 {
    GLboolean scissorEnabled;
    glGetBooleanv(GL_SCISSOR_TEST, &scissorEnabled);
@@ -369,12 +369,12 @@ bool GL2Renderer::isScissorEnabled()
    return scissorEnabled;
 }
 
-void GL2Renderer::setScissor(S32 x, S32 y, S32 width, S32 height)
+void PICARenderer::setScissor(S32 x, S32 y, S32 width, S32 height)
 {
    glScissor(x, y, width, height);
 }
 
-Point GL2Renderer::getScissorPos()
+Point PICARenderer::getScissorPos()
 {
    GLint scissor[4];
    glGetIntegerv(GL_SCISSOR_BOX, scissor);
@@ -382,7 +382,7 @@ Point GL2Renderer::getScissorPos()
    return Point(scissor[0], scissor[1]);
 }
 
-Point GL2Renderer::getScissorSize()
+Point PICARenderer::getScissorSize()
 {
    GLint scissor[4];
    glGetIntegerv(GL_SCISSOR_BOX, scissor);
@@ -390,7 +390,7 @@ Point GL2Renderer::getScissorSize()
    return Point(scissor[2], scissor[3]);
 }
 
-void GL2Renderer::scale(F32 x, F32 y, F32 z)
+void PICARenderer::scale(F32 x, F32 y, F32 z)
 {
 	// Choose correct stack
    MatrixStack &stack = (mMatrixMode == MatrixType::ModelView) ? mModelViewMatrixStack : mProjectionMatrixStack;
@@ -399,7 +399,7 @@ void GL2Renderer::scale(F32 x, F32 y, F32 z)
 	stack.push(newMatrix);
 }
 
-void GL2Renderer::translate(F32 x, F32 y, F32 z)
+void PICARenderer::translate(F32 x, F32 y, F32 z)
 {
    MatrixStack &stack = (mMatrixMode == MatrixType::ModelView) ? mModelViewMatrixStack : mProjectionMatrixStack;
 	Matrix4 newMatrix = stack.top().translate(x, y, z);
@@ -407,7 +407,7 @@ void GL2Renderer::translate(F32 x, F32 y, F32 z)
 	stack.push(newMatrix);
 }
 
-void GL2Renderer::rotate(F32 degAngle, F32 x, F32 y, F32 z)
+void PICARenderer::rotate(F32 degAngle, F32 x, F32 y, F32 z)
 {
    MatrixStack &stack = (mMatrixMode == MatrixType::ModelView) ? mModelViewMatrixStack : mProjectionMatrixStack;
 
@@ -416,12 +416,12 @@ void GL2Renderer::rotate(F32 degAngle, F32 x, F32 y, F32 z)
 	stack.push(newMatrix);
 }
 
-void GL2Renderer::setMatrixMode(MatrixType type)
+void PICARenderer::setMatrixMode(MatrixType type)
 {
 	mMatrixMode = type;
 }
 
-void GL2Renderer::getMatrix(MatrixType type, F32 *matrix)
+void PICARenderer::getMatrix(MatrixType type, F32 *matrix)
 {
    MatrixStack &stack = (mMatrixMode == MatrixType::ModelView) ? mModelViewMatrixStack : mProjectionMatrixStack;
 	const F32 *sourceMatrix = stack.top().getData();
@@ -430,21 +430,21 @@ void GL2Renderer::getMatrix(MatrixType type, F32 *matrix)
 		matrix[i] = sourceMatrix[i];
 }
 
-void GL2Renderer::pushMatrix()
+void PICARenderer::pushMatrix()
 {
 	// Duplicate the top matrix on top of the stack
    MatrixStack &stack = (mMatrixMode == MatrixType::ModelView) ? mModelViewMatrixStack : mProjectionMatrixStack;
 	stack.push(stack.top());
 }
 
-void GL2Renderer::popMatrix()
+void PICARenderer::popMatrix()
 {
    MatrixStack &stack = (mMatrixMode == MatrixType::ModelView) ? mModelViewMatrixStack : mProjectionMatrixStack;
 	stack.pop();
 }
 
 // m is column-major
-void GL2Renderer::loadMatrix(const F32 *m)
+void PICARenderer::loadMatrix(const F32 *m)
 {
 	// Replace top matrix
    MatrixStack &stack = (mMatrixMode == MatrixType::ModelView) ? mModelViewMatrixStack : mProjectionMatrixStack;
@@ -453,14 +453,14 @@ void GL2Renderer::loadMatrix(const F32 *m)
 }
 
 // Results in loss of precision!
-void GL2Renderer::loadMatrix(const F64 *m)
+void PICARenderer::loadMatrix(const F64 *m)
 {
    MatrixStack &stack = (mMatrixMode == MatrixType::ModelView) ? mModelViewMatrixStack : mProjectionMatrixStack;
 	stack.pop();
 	stack.push(Matrix4(m));
 }
 
-void GL2Renderer::loadIdentity()
+void PICARenderer::loadIdentity()
 {
 	// Replace the top matrix with an identity matrix
    MatrixStack &stack = (mMatrixMode == MatrixType::ModelView) ? mModelViewMatrixStack : mProjectionMatrixStack;
@@ -468,7 +468,7 @@ void GL2Renderer::loadIdentity()
 	stack.push(Matrix4());
 }
 
-void GL2Renderer::projectOrtho(F32 left, F32 right, F32 bottom, F32 top, F32 nearZ, F32 farZ)
+void PICARenderer::projectOrtho(F32 left, F32 right, F32 bottom, F32 top, F32 nearZ, F32 farZ)
 {
 	// Multiply the top matrix with an ortho matrix
    MatrixStack &stack = (mMatrixMode == MatrixType::ModelView) ? mModelViewMatrixStack : mProjectionMatrixStack;
@@ -480,7 +480,7 @@ void GL2Renderer::projectOrtho(F32 left, F32 right, F32 bottom, F32 top, F32 nea
 }
 
 // Uses "nearest pixel" filtering when useLinearFiltering is false
-U32 GL2Renderer::generateTexture(bool useLinearFiltering)
+U32 PICARenderer::generateTexture(bool useLinearFiltering)
 {
    GLuint textureHandle;
    glGenTextures(1, &textureHandle);
@@ -506,71 +506,71 @@ U32 GL2Renderer::generateTexture(bool useLinearFiltering)
    return textureHandle;
 }
 
-void GL2Renderer::bindTexture(U32 textureHandle)
+void PICARenderer::bindTexture(U32 textureHandle)
 {
    glBindTexture(GL_TEXTURE_2D, textureHandle);
 }
 
-bool GL2Renderer::isTexture(U32 textureHandle)
+bool PICARenderer::isTexture(U32 textureHandle)
 {
    return glIsTexture(textureHandle);
 }
 
-void GL2Renderer::deleteTexture(U32 textureHandle)
+void PICARenderer::deleteTexture(U32 textureHandle)
 {
    glDeleteTextures(1, &textureHandle);
 }
 
-void GL2Renderer::setTextureData(TextureFormat format, DataType dataType, U32 width, U32 height, const void *data)
+void PICARenderer::setTextureData(TextureFormat format, DataType dataType, U32 width, U32 height, const void *data)
 {
-   U32 textureFormat = getGLTextureFormat(format);
+   U32 textureFormat = getTextureFormat(format);
 
    glTexImage2D(
       GL_TEXTURE_2D, 0, textureFormat,
       width, height, 0,
-      textureFormat, getGLDataType(dataType), data);
+      textureFormat, getDataType(dataType), data);
 }
 
-void GL2Renderer::setSubTextureData(TextureFormat format, DataType dataType, S32 xOffset, S32 yOffset,
+void PICARenderer::setSubTextureData(TextureFormat format, DataType dataType, S32 xOffset, S32 yOffset,
    U32 width, U32 height, const void *data)
 {
    glTexSubImage2D(
       GL_TEXTURE_2D, 0,
       xOffset, yOffset,
       width, height,
-      getGLTextureFormat(format),
-      getGLDataType(dataType), data);
+      getTextureFormat(format),
+      getDataType(dataType), data);
 }
 
 // Fairly slow operation
-void GL2Renderer::readFramebufferPixels(TextureFormat format, DataType dataType, S32 x, S32 y, S32 width, S32 height, void *data)
+void PICARenderer::readFramebufferPixels(TextureFormat format, DataType dataType, S32 x, S32 y, S32 width, S32 height, void *data)
 {
    glReadPixels(
       x, y, width, height,
-      getGLTextureFormat(format),
-      getGLDataType(dataType),
+      getTextureFormat(format),
+      getDataType(dataType),
       data);
 }
 
-void GL2Renderer::renderVertexArray(const S8 verts[], U32 vertCount, RenderType type,
+void PICARenderer::renderVertexArray(const S8 verts[], U32 vertCount, RenderType type,
    U32 start, U32 stride, U32 vertDimension)
 {
 	renderGenericVertexArray(DataType::Byte, verts, vertCount, type, start, stride, vertDimension);
 }
 
-void GL2Renderer::renderVertexArray(const S16 verts[], U32 vertCount, RenderType type,
+void PICARenderer::renderVertexArray(const S16 verts[], U32 vertCount, RenderType type,
    U32 start, U32 stride, U32 vertDimension)
 {
 	renderGenericVertexArray(DataType::Short, verts, vertCount, type, start, stride, vertDimension);
 }
 
-void GL2Renderer::renderVertexArray(const F32 verts[], U32 vertCount, RenderType type,
+void PICARenderer::renderVertexArray(const F32 verts[], U32 vertCount, RenderType type,
    U32 start, U32 stride, U32 vertDimension)
 {
 	renderGenericVertexArray(DataType::Float, verts, vertCount, type, start, stride, vertDimension);
 }
 
-void GL2Renderer::renderColored(const F32 verts[], const F32 colors[], U32 vertCount,
+void PICARenderer::renderColored(const F32 verts[], const F32 colors[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension)
 {
    useShader(mDynamicShader);
@@ -619,10 +619,10 @@ void GL2Renderer::renderColored(const F32 verts[], const F32 colors[], U32 vertC
 	);
 
 	// Draw!
-	glDrawArrays(getGLRenderType(type), 0, vertCount);
+	glDrawArrays(getRenderType(type), 0, vertCount);
 }
 
-void GL2Renderer::renderTextured(const F32 verts[], const F32 UVs[], U32 vertCount,
+void PICARenderer::renderTextured(const F32 verts[], const F32 UVs[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension)
 {
    useShader(mTexturedShader);
@@ -671,11 +671,11 @@ void GL2Renderer::renderTextured(const F32 verts[], const F32 UVs[], U32 vertCou
 	);
 
 	// Draw!
-	glDrawArrays(getGLRenderType(type), 0, vertCount);
+	glDrawArrays(getRenderType(type), 0, vertCount);
 }
 
 // Render a texture colored by the current color:
-void GL2Renderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 vertCount,
+void PICARenderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension, bool isAlphaTexture)
 {
    useShader(mColoredTextureShader);
@@ -727,7 +727,7 @@ void GL2Renderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 v
 	);
 
 	// Draw!
-	glDrawArrays(getGLRenderType(type), 0, vertCount);
+	glDrawArrays(getRenderType(type), 0, vertCount);
 }
 
 }
