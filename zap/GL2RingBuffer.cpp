@@ -8,7 +8,7 @@
 // Data should be 4-byte aligned.
 // For more information: https://www.khronos.org/opengl/wiki/Buffer_Object_Streaming
 
-#ifndef BF_USE_LEGACY_GL
+#if !defined BF_USE_LEGACY_GL && !defined BF_PLATFORM_3DS
 
 #include "GL2RingBuffer.h"
 #include "glad/glad.h"

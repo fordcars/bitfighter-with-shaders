@@ -307,7 +307,6 @@ static const U32 S64_MAX_DIGITS = 20;                             ///< S64_MIN =
 #  define FN_CDECL
 
 #else
-#  error "TNL: Unsupported Operating System"
 #endif
 
 // Helper platform macros
