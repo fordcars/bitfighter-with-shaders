@@ -39,6 +39,7 @@ endif()
 
 if(PLATFORM_3DS)
 	add_definitions(-DBF_PLATFORM_3DS)
+	add_definitions(-DBF_NO_AUDIO)
 endif()
 
 # No creating project files in-source.  Bad, evil things happen
