@@ -143,8 +143,7 @@ public:
 
 #ifndef ZAP_DEDICATED
    // SDL information
-   SDL_Window *sdlWindow;
-   SDL_GLContext *sdlGlContext;
+   SDL_Surface *sdlSurface;
 #endif
 
 };

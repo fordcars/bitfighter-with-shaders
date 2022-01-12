@@ -464,6 +464,7 @@ static SymbolShapePtr getSymbol(InputCode inputCode, const Color *color)
    }
    else if(InputCodeManager::isControllerButton(inputCode))
    {
+#ifndef BF_PLATFORM_3DS
       // This gives us the logical SDL button that inputCode represents...
       SDL_GameControllerButton button = (SDL_GameControllerButton) InputCodeManager::inputCodeToControllerButton(inputCode);
 
@@ -477,8 +478,10 @@ static SymbolShapePtr getSymbol(InputCode inputCode, const Color *color)
       Joystick::ButtonShape buttonShape = buttonInfo.buttonShape;
 
       SymbolShapePtr symbol = getSymbol(buttonShape, buttonInfo.label, &buttonInfo.color);
-
       return symbol;
+#else
+      return getSymbol(KEY_UNKNOWN, color);
+#endif
    }
 
    else if(strcmp(InputCodeManager::inputCodeToString(inputCode), "") != 0)

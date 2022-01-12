@@ -91,9 +91,11 @@ void Event::onEvent(ClientGame *game, SDL_Event *event)
          onKeyUp(currentUI, event);
          break;
 
+#ifndef BF_PLATFORM_3DS
       case SDL_TEXTINPUT:
          if(mAllowTextInput)
             onTextInput(currentUI, event->text.text[0]);
+#endif
          break;
 
       case SDL_MOUSEMOTION:
@@ -117,6 +119,7 @@ void Event::onEvent(ClientGame *game, SDL_Event *event)
          }
          break;
 
+#ifndef BF_PLATFORM_3DS
       case SDL_MOUSEWHEEL:
          if(event->wheel.y > 0)
             onMouseWheel(currentUI, true, false);
@@ -124,6 +127,7 @@ void Event::onEvent(ClientGame *game, SDL_Event *event)
             onMouseWheel(currentUI, false, true);
 
          break;
+#endif
 
       case SDL_MOUSEBUTTONUP:
          switch(event->button.button)
@@ -142,6 +146,7 @@ void Event::onEvent(ClientGame *game, SDL_Event *event)
          }
          break;
 
+#ifndef BF_PLATFORM_3DS
       case SDL_CONTROLLERBUTTONDOWN:
          onControllerButtonDown(currentUI, event->cbutton.which, event->cbutton.button);
          break;
@@ -187,6 +192,7 @@ void Event::onEvent(ClientGame *game, SDL_Event *event)
                break;
             }
          break;
+#endif
 
       default:
          onUser(event->user.type, event->user.code, event->user.data1, event->user.data2);
@@ -215,7 +221,9 @@ void Event::onKeyDown(ClientGame *game, SDL_Event *event)
 
       DisplayManager::getScreenInfo()->setCanvasMousePos((S32)pos->x, (S32)pos->y, game->getSettings()->getIniSettings()->mSettings.getVal<DisplayMode>("WindowMode"));
 
+#ifndef BF_PLATFORM_3DS
       SDL_WarpMouseInWindow(DisplayManager::getScreenInfo()->sdlWindow, (S32)DisplayManager::getScreenInfo()->getWindowMousePos()->x, (S32)DisplayManager::getScreenInfo()->getWindowMousePos()->y);
+#endif
    }
    // The rest
    else
@@ -290,6 +298,7 @@ struct ControllerAxisInputCode {
 };
 
 
+#ifndef BF_PLATFORM_3DS
 static ControllerAxisInputCode JoystickInputData[SDL_CONTROLLER_AXIS_MAX] = {
    // Movement axes
    { SDL_CONTROLLER_AXIS_LEFTX,        STICK_1_LEFT,  STICK_1_RIGHT },
@@ -300,11 +309,24 @@ static ControllerAxisInputCode JoystickInputData[SDL_CONTROLLER_AXIS_MAX] = {
    // Triggers - shouldn't be negative
    { SDL_CONTROLLER_AXIS_TRIGGERLEFT,  BUTTON_TRIGGER_LEFT,      BUTTON_TRIGGER_LEFT      },
    { SDL_CONTROLLER_AXIS_TRIGGERRIGHT, BUTTON_TRIGGER_RIGHT,      BUTTON_TRIGGER_RIGHT      },
+#else
+static ControllerAxisInputCode JoystickInputData[6] = {
+      // Movement axes
+   { 0,        STICK_1_LEFT,  STICK_1_RIGHT },
+   { 0,        STICK_1_UP,    STICK_1_DOWN  },
+   // Shooting axes
+   { 0,       STICK_2_LEFT,  STICK_2_RIGHT },
+   { 0,       STICK_2_UP,    STICK_2_DOWN  },
+   // Triggers - shouldn't be negative
+   { 0,  BUTTON_TRIGGER_LEFT,      BUTTON_TRIGGER_LEFT      },
+   { 0, BUTTON_TRIGGER_RIGHT,      BUTTON_TRIGGER_RIGHT      },
+#endif
 };
 
 
 void Event::onControllerAxis(ClientGame *game, U8 deviceId, U8 axis, S16 value)
 {
+#ifndef BF_PLATFORM_3DS
    // Set our persistent array for raw values (used by diagnostics)
    Joystick::rawAxesValues[axis] = value;
 
@@ -387,6 +409,7 @@ void Event::onControllerAxis(ClientGame *game, U8 deviceId, U8 axis, S16 value)
       if(currentNormalizedValue < -InputCodeThreshold)
          inputCodeDown(currentUI, JoystickInputData[axis].negative);
    }
+#endif
 }
 
 

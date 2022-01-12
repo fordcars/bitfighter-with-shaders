@@ -61,7 +61,7 @@ endif()
 #
 
 # SDL 1.2
-set(SDL_LIBRARY ${CMAKE_SOURCE_DIR}/lib/SDLmain.lib)
+set(SDL_LIBRARY ${CMAKE_SOURCE_DIR}/lib/SDL.lib ${CMAKE_SOURCE_DIR}/lib/SDLmain.lib)
 set(SDL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/lib/include/libsdl/SDL)
 
 # Searches for OpenGL and enables GLES if GL isnt found in the system

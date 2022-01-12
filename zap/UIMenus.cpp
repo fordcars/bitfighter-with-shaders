@@ -2534,7 +2534,9 @@ bool LevelMenuSelectUserInterface::processMenuSpecificKeys(InputCode inputCode)
    // next mouse event that comes our way.  It might be better to handle this at the Event level, by creating a custom
    // method called WarpMouse that adds the suppression.  At this point, however, the only place we care about this
    // is here so...  well... this works.
+#ifndef BF_PLATFORM_3DS
    SDL_WarpMouseInWindow(DisplayManager::getScreenInfo()->sdlWindow, (S32)DisplayManager::getScreenInfo()->getMousePos()->x, y);
+#endif
    Cursor::disableCursor();
    mIgnoreNextMouseEvent = true;
    playBoop();

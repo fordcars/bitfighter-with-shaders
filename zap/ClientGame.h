@@ -19,7 +19,9 @@
 #include "gameConnection.h"
 #include "MasterTypes.h"
 
+#ifndef BF_PLATFORM_3DS
 #include "SDL_gamecontroller.h"
+#endif
 
 #ifdef TNL_OS_WIN32
 #  include <windows.h>           // For screensaver... windows only feature, I'm afraid!
@@ -145,7 +147,9 @@ public:
 
    // A place to store input from the joysticks while we are composing our moves
    // Why is this there in ClientGame?
+#ifndef BF_PLATFORM_3DS
    F32 normalizedAxesValues[SDL_CONTROLLER_AXIS_MAX];
+#endif
 
    void resetCommandersMap();
    F32 getCommanderZoomFraction() const;

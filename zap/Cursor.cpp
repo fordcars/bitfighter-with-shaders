@@ -165,8 +165,10 @@ void Cursor::reverseBits()
 
 void Cursor::enableCursor()
 {
+#ifndef BF_PLATFORM_3DS
    // Untrap mouse
    SDL_SetWindowGrab(DisplayManager::getScreenInfo()->sdlWindow, SDL_FALSE);
+#endif
 
    SDL_ShowCursor(1);
 }
@@ -177,7 +179,9 @@ void Cursor::disableCursor()
    SDL_ShowCursor(0);
 
    // Trap mouse
+#ifndef BF_PLATFORM_3DS
    SDL_SetWindowGrab(DisplayManager::getScreenInfo()->sdlWindow, SDL_TRUE);
+#endif
 }
 
 

@@ -855,6 +855,7 @@ InputCode InputCodeManager::sdlKeyToInputCode(SDL_Keycode key)
 		// TODO: SDL2 replacement for international keys, see SDL_Scancode
 
 	   // Numeric keypad
+#ifndef BF_PLATFORM_3DS
 	   case SDLK_KP_0:
 		   return KEY_KEYPAD0;
 	   case SDLK_KP_1:
@@ -875,6 +876,7 @@ InputCode InputCodeManager::sdlKeyToInputCode(SDL_Keycode key)
 		   return KEY_KEYPAD8;
 	   case SDLK_KP_9:
 		   return KEY_KEYPAD9;
+#endif
 	   case SDLK_KP_PERIOD:
 		   return KEY_KEYPAD_PERIOD;
 	   case SDLK_KP_DIVIDE:
@@ -943,12 +945,16 @@ InputCode InputCodeManager::sdlKeyToInputCode(SDL_Keycode key)
 		   return KEY_F15;
 
 	   // Key state modifier keys
+#ifndef BF_PLATFORM_3DS
 	   case SDLK_NUMLOCKCLEAR:
 		   return KEY_NUMLOCK;
+#endif
 	   case SDLK_CAPSLOCK:
 		   return KEY_CAPSLOCK;
+#ifndef BF_PLATFORM_3DS
 	   case SDLK_SCROLLLOCK:
 		   return KEY_SCROLLOCK;
+#endif
 	   case SDLK_RSHIFT:
 	   case SDLK_LSHIFT:
 		   return KEY_SHIFT;
@@ -958,19 +964,25 @@ InputCode InputCodeManager::sdlKeyToInputCode(SDL_Keycode key)
 	   case SDLK_RALT:
 	   case SDLK_LALT:
 		   return KEY_ALT;
+#ifndef BF_PLATFORM_3DS
 	   case SDLK_RGUI:
 	   case SDLK_LGUI:
 		   return KEY_META;
+#endif
 	   case SDLK_MODE:
 		   return KEY_MODE;
+#ifndef BF_PLATFORM_3DS
 	   case SDLK_APPLICATION:
 		   return KEY_COMPOSE;
+#endif
 
 	   // Miscellaneous function keys
 	   case SDLK_HELP:
 		   return KEY_HELP;
+#ifndef BF_PLATFORM_3DS
 	   case SDLK_PRINTSCREEN:
 		   return KEY_PRINT;
+#endif
 	   case SDLK_SYSREQ:
 		   return KEY_SYSREQ;
       case SDLK_MENU:
@@ -981,6 +993,7 @@ InputCode InputCodeManager::sdlKeyToInputCode(SDL_Keycode key)
 		   return KEY_UNDO;
 
       // Identify some other keys we want to explicitly ignore without triggering the warning below
+#ifndef BF_PLATFORM_3DS
       case SDLK_VOLUMEUP:        
       case SDLK_VOLUMEDOWN:
       case SDLK_MUTE:
@@ -989,6 +1002,7 @@ InputCode InputCodeManager::sdlKeyToInputCode(SDL_Keycode key)
       case SDLK_AUDIOSTOP:
       case SDLK_AUDIOPLAY:
          return KEY_UNKNOWN;
+#endif
 
       default:
          logprintf(LogConsumer::LogWarning, "Unknown key detected: %d", key);
@@ -1149,6 +1163,7 @@ SDL_Keycode InputCodeManager::inputCodeToSDLKey(InputCode inputCode)
 		// TODO: SDL2 replacement for international keys, see SDL_Scancode
 
 	   // Numeric keypad
+#ifndef BF_PLATFORM_3DS
 	   case KEY_KEYPAD0:
 		   return SDLK_KP_0;
 	   case KEY_KEYPAD1:
@@ -1169,6 +1184,7 @@ SDL_Keycode InputCodeManager::inputCodeToSDLKey(InputCode inputCode)
 		   return SDLK_KP_8;
 	   case KEY_KEYPAD9:
 		   return SDLK_KP_9;
+#endif
 	   case KEY_KEYPAD_PERIOD:
 		   return SDLK_KP_PERIOD;
 	   case KEY_KEYPAD_DIVIDE:
@@ -1237,6 +1253,7 @@ SDL_Keycode InputCodeManager::inputCodeToSDLKey(InputCode inputCode)
 		   return SDLK_F15;
 
 	   // Key state modifier keys
+#ifndef BF_PLATFORM_3DS
 	   case KEY_NUMLOCK:
 		   return SDLK_NUMLOCKCLEAR;
 	   case KEY_CAPSLOCK:
@@ -1247,12 +1264,15 @@ SDL_Keycode InputCodeManager::inputCodeToSDLKey(InputCode inputCode)
 		   return SDLK_MODE;
 	   case KEY_COMPOSE:
 		   return SDLK_APPLICATION;
+#endif
 
 	   // Miscellaneous function keys
 	   case KEY_HELP:
 		   return SDLK_HELP;
+#ifndef BF_PLATFORM_3DS
 	   case KEY_PRINT:
 		   return SDLK_PRINTSCREEN;
+#endif
 	   case KEY_SYSREQ:
 		   return SDLK_SYSREQ;
 	   case KEY_MENU:
@@ -1270,6 +1290,7 @@ SDL_Keycode InputCodeManager::inputCodeToSDLKey(InputCode inputCode)
 
 InputCode InputCodeManager::sdlControllerButtonToInputCode(U8 button)
 {
+#ifndef BF_PLATFORM_3DS
    switch((SDL_GameControllerButton)button)
    {
       case SDL_CONTROLLER_BUTTON_A:
@@ -1306,6 +1327,9 @@ InputCode InputCodeManager::sdlControllerButtonToInputCode(U8 button)
       default:
          return BUTTON_UNKNOWN;
    }
+#endif
+
+   return BUTTON_UNKNOWN;
 }
 
 
@@ -1313,6 +1337,7 @@ InputCode InputCodeManager::sdlControllerButtonToInputCode(U8 button)
 //    SDL_CONTROLLER_BUTTON_INVALID = -1
 S16 InputCodeManager::inputCodeToControllerButton(InputCode inputCode)
 {
+#ifndef BF_PLATFORM_3DS
    switch(inputCode)
    {
       case BUTTON_1:
@@ -1355,6 +1380,9 @@ S16 InputCodeManager::inputCodeToControllerButton(InputCode inputCode)
       default:
          return SDL_CONTROLLER_BUTTON_INVALID;
    }
+#endif
+
+   return -1;
 }
 #endif
 

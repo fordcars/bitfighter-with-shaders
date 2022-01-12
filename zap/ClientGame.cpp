@@ -72,8 +72,10 @@ ClientGame::ClientGame(const Address &bindAddress, GameSettingsPtr settings, UIM
    // TODO: Make this a ref instead of a pointer
    mClientInfo = new FullClientInfo(this, NULL, mSettings->getPlayerName(), ClientInfo::ClassHuman);  // Deleted in destructor
 
+#ifndef BF_PLATFORM_3DS
    for(S32 i = 0; i < SDL_CONTROLLER_AXIS_MAX; i++)
       normalizedAxesValues[i] = 0;
+#endif
 
    initializeHelpItemForObjects();
 

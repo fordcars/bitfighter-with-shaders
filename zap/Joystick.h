@@ -16,7 +16,9 @@
 #include "tnlTypes.h"
 #include "tnlVector.h"
 
-#include "SDL_gamecontroller.h"
+#ifndef BF_PLATFORM_3DS
+# include "SDL_gamecontroller.h"
+#endif
 
 #include <string>
 
@@ -67,7 +69,11 @@ public:
 
    // Added buttons we want to use in addition to SDL's
    enum ControllerButton {
+#ifndef BF_PLATFORM_3DS
       ControllerButtonTriggerLeft = SDL_CONTROLLER_BUTTON_MAX,
+#else
+      ControllerButtonTriggerLeft = 10, // Random number
+#endif
       ControllerButtonTriggerRight,
       ControllerButtonMax
    };
@@ -89,8 +95,10 @@ public:
 
    static U32 ButtonMask;    // Holds what buttons are current pressed down - can support up to 32
 
+#ifndef BF_PLATFORM_3DS
    // Current state of all controller axes; raw values
    static S16 rawAxesValues[SDL_CONTROLLER_AXIS_MAX];
+#endif
 
    // static data
    static S16 LowerSensitivityThreshold;

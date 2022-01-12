@@ -68,6 +68,7 @@ include (replaces require)
 */
 
 
+
 #ifdef _MSC_VER
 #  pragma warning (disable: 4996)     // Disable POSIX deprecation, certain security warnings that seem to be specific to VC++
 #endif
@@ -260,7 +261,12 @@ void display()
    // back-buffer, and to set all rendering operations to occur on what was the front-buffer.
    // Double buffering prevents nasty visual tearing from the application drawing on areas of the
    // screen that are being updated at the same time.
+#ifndef BF_PLATFORM_3DS
    SDL_GL_SwapWindow(DisplayManager::getScreenInfo()->sdlWindow);
+#else
+   SDL_GL_SwapBuffers();
+#endif
+
 }
 
 #endif // ZAP_DEDICATED
@@ -1250,7 +1256,9 @@ int main(int argc, char **argv)
       if(!VideoSystem::init())                // Initialize video and window system
          shutdownBitfighter();
 
+#ifndef BF_PLATFORM_3DS
       SDL_StartTextInput();
+#endif
 
       Cursor::init();
 

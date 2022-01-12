@@ -144,8 +144,13 @@ bool JoystickRender::renderControllerButton(F32 centerX, F32 centerY, InputCode 
    S16 button = InputCodeManager::inputCodeToControllerButton(inputCode);
 
    // Don't render if button doesn't exist
+#ifndef BF_PLATFORM_3DS
    if(button == SDL_CONTROLLER_BUTTON_INVALID)
       return false;
+#else
+   if(button == -1)
+      return false;
+#endif
 
    Joystick::ButtonInfo buttonInfo = Joystick::getButtonInfo(button);
    Joystick::ButtonShape buttonShape = buttonInfo.buttonShape;

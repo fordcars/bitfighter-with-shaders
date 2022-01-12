@@ -414,6 +414,7 @@ void DiagnosticUserInterface::render()
 
       ypos += 6 * (textsize + gap);
 
+#ifndef BF_PLATFORM_3DS
       if(joystickDetected)
       {
          S32 x = 500;
@@ -442,6 +443,7 @@ void DiagnosticUserInterface::render()
             }
          }
       }
+#endif
 
       // Key states
       r.setColor(Colors::yellow);
@@ -494,6 +496,7 @@ void DiagnosticUserInterface::render()
       }
 
 
+#ifndef BF_PLATFORM_3DS
       if(joystickDetected)
       {
          ypos += textsize + gap + 10;
@@ -550,6 +553,7 @@ void DiagnosticUserInterface::render()
 
          UI::SymbolString(symbols).render(Point(DisplayManager::getScreenInfo()->getGameCanvasWidth() / 2 + 60, ypos + 50));
       }
+#endif
    }
    else if(mCurPage == 1)
    {

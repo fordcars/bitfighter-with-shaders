@@ -73,7 +73,7 @@ bool VideoSystem::init()
    //SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
    //SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 8 );
 
-#ifndef BF_USE_LEGACY_GL
+#if !defined BF_USE_LEGACY_GL && !defined BF_PLATFORM_3DS
    // Tell SDL which OpenGL version we will use
    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, BF_GL_MAJOR_VERSION);
    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, BF_GL_MINOR_VERSION);
@@ -86,13 +86,20 @@ bool VideoSystem::init()
    // Get information about the current desktop video settings and initialize
    // our ScreenInfo class with with current width and height
 
+#ifndef BF_PLATFORM_3DS
    SDL_DisplayMode mode;
 
    SDL_GetCurrentDisplayMode(0, &mode);  // We only have one display..  for now
-
    DisplayManager::getScreenInfo()->init(mode.w, mode.h);
+#else
+   DisplayManager::getScreenInfo()->init(800, 600);
+#endif
 
+   
+
+#ifndef BF_PLATFORM_3DS
    S32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN;
+#endif
 
    // Fake fullscreen might not be needed with SDL2 - I think it does the fast switching
    // on platforms that support it
@@ -109,6 +116,7 @@ bool VideoSystem::init()
 #  endif
 #endif
 
+#ifndef BF_PLATFORM_3DS
    // No minimizing when ALT-TAB away
    SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 
@@ -125,6 +133,15 @@ bool VideoSystem::init()
    // Create our OpenGL context; save it in case we ever need it
    SDL_GLContext context = SDL_GL_CreateContext(DisplayManager::getScreenInfo()->sdlWindow);
    DisplayManager::getScreenInfo()->sdlGlContext = &context;
+#else
+   DisplayManager::getScreenInfo()->sdlSurface = SDL_SetVideoMode(800, 600, 0, SDL_FULLSCREEN | SDL_OPENGL);
+
+   if(!DisplayManager::getScreenInfo()->sdlSurface)
+   {
+      logprintf(LogConsumer::LogFatalError, "SDL surface creation failed: %s", SDL_GetError());
+      return false;
+   }
+#endif
 
    // Initialize renderer
 #ifdef BF_PLATFORM_3DS
@@ -145,7 +162,7 @@ bool VideoSystem::init()
    SDL_Surface *icon = SDL_LoadBMP(iconPath.c_str());
 
    // OSX handles icons better with its native .icns file
-#ifndef TNL_OS_MAC_OSX
+#if !defined TNL_OS_MAC_OSX && !defined BF_PLATFORM_3DS
    if(icon != NULL)
       SDL_SetWindowIcon(DisplayManager::getScreenInfo()->sdlWindow, icon);
 #endif
@@ -167,14 +184,21 @@ void VideoSystem::shutdown()
 
 void VideoSystem::setWindowPosition(S32 left, S32 top)
 {
+#ifndef BF_PLATFORM_3DS
    SDL_SetWindowPosition(DisplayManager::getScreenInfo()->sdlWindow, left, top);
+#endif
 }
 
 
 void VideoSystem::saveWindowPostion(GameSettings *settings)
 {
    S32 x, y;
+#ifndef BF_PLATFORM_3DS
    SDL_GetWindowPosition(DisplayManager::getScreenInfo()->sdlWindow, &x, &y);
+#else
+   x = 100;
+   y = 100;
+#endif
 
 #ifdef TNL_OS_LINUX
    // Sometimes X11 in Linux will save position with window decorations in
@@ -197,8 +221,10 @@ void VideoSystem::saveWindowPostion(GameSettings *settings)
 
 bool VideoSystem::isFullscreen()
 {
+#ifndef BF_PLATFORM_3DS
    if(SDL_GetWindowFlags(DisplayManager::getScreenInfo()->sdlWindow) & SDL_WINDOW_FULLSCREEN)
       return true;
+#endif
 
    return false;
 }
@@ -209,7 +235,9 @@ void VideoSystem::saveUpdateWindowScale(GameSettings *settings)
    ScreenInfo *screen = DisplayManager::getScreenInfo();
 
    S32 windowWidth, windowHeight;
+#ifndef BF_PLATFORM_3DS
    SDL_GetWindowSize(screen->sdlWindow, &windowWidth, &windowHeight);
+#endif
 
    S32 canvasHeight = screen->getGameCanvasHeight();
    S32 canvasWidth = screen->getGameCanvasWidth();
@@ -431,9 +459,11 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
          if(settings->getIniSettings()->winXPos != 0 || settings->getIniSettings()->winYPos != 0)
             setWindowPosition(settings->getIniSettings()->winXPos, settings->getIniSettings()->winYPos);
 
+#ifndef BF_PLATFORM_3DS
          // Leave fullscreen before setting size
          SDL_SetWindowFullscreen(screen->sdlWindow, SDL_DISABLE);
          SDL_SetWindowSize(screen->sdlWindow, windowWidth, windowHeight);
+#endif
 
          // Save the new window dimensions in ScreenInfo
          screen->setWindowSize(windowWidth, windowHeight);
@@ -449,8 +479,10 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
          windowWidth = screen->getPhysicalScreenWidth();
          windowHeight = screen->getPhysicalScreenHeight();
 
+#ifndef BF_PLATFORM_3DS
          SDL_SetWindowSize(screen->sdlWindow, windowWidth, windowHeight);
          SDL_SetWindowFullscreen(screen->sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+#endif
 
          // Save the new window dimensions in ScreenInfo
          screen->setWindowSize(windowWidth, windowHeight);
@@ -466,8 +498,10 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
          windowWidth = screen->getPhysicalScreenWidth();
          windowHeight = screen->getPhysicalScreenHeight();
 
+#ifndef BF_PLATFORM_3DS
          SDL_SetWindowSize(screen->sdlWindow, windowWidth, windowHeight);
          SDL_SetWindowFullscreen(screen->sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+#endif
 
          // Save the new window dimensions in ScreenInfo
          screen->setWindowSize(windowWidth, windowHeight);
@@ -502,8 +536,10 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
          if(settings->getIniSettings()->winXPos != 0 || settings->getIniSettings()->winYPos != 0)
             setWindowPosition(settings->getIniSettings()->winXPos, settings->getIniSettings()->winYPos);
 
+#ifndef BF_PLATFORM_3DS
          SDL_SetWindowFullscreen(screen->sdlWindow, SDL_DISABLE);
          SDL_SetWindowSize(screen->sdlWindow, windowWidth, windowHeight);
+#endif
 
          // Save the new window dimensions in ScreenInfo
          screen->setWindowSize(windowWidth, windowHeight);
@@ -523,8 +559,10 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
 
          setWindowPosition(0, 0);
 
+#ifndef BF_PLATFORM_3DS
          SDL_SetWindowSize(screen->sdlWindow, windowWidth, windowHeight);
          SDL_SetWindowFullscreen(screen->sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+#endif
 
          // Save the new window dimensions in ScreenInfo
          screen->setWindowSize(windowWidth, windowHeight);
@@ -559,6 +597,7 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
    // Save normal display mode
    settings->getIniSettings()->mSettings.setVal("WindowMode", displayMode);
 
+#ifndef BF_PLATFORM_3DS
    // Disable screensaver
    if(settings->getIniSettings()->disableScreenSaver)
       SDL_DisableScreenSaver();
@@ -567,6 +606,7 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
 
    // Set Vsync
    SDL_GL_SetSwapInterval(settings->getIniSettings()->mSettings.getVal<YesNo>("Vsync") ? 1 : 0);
+#endif
 
    // Now update the viewport with any state change
    redrawViewport(settings);
@@ -590,6 +630,7 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
 // Redraw's the OpenGL display; the actual SDL window size should have been set
 void VideoSystem::redrawViewport(GameSettings *settings)
 {
+#ifndef BF_PLATFORM_3DS
    // Get the window's size in screen coordinates.
    S32 windowWidth, windowHeight;
    SDL_GetWindowSize(DisplayManager::getScreenInfo()->sdlWindow, &windowWidth, &windowHeight);
@@ -598,6 +639,12 @@ void VideoSystem::redrawViewport(GameSettings *settings)
    // be larger than the window.
    S32 drawWidth, drawHeight;
    SDL_GL_GetDrawableSize(DisplayManager::getScreenInfo()->sdlWindow, &drawWidth, &drawHeight);
+#else
+   S32 windowWidth = 800;
+   S32 windowHeight = 600;
+   S32 drawWidth = windowWidth;
+   S32 drawHeight = windowHeight;
+#endif
 
    // Get renderer
    Renderer& r = Renderer::get();

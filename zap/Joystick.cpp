@@ -27,7 +27,9 @@ SDL_GameController *Joystick::sdlController = NULL;
 
 // public
 U32 Joystick::ButtonMask = 0;
+#ifndef BF_PLATFORM_3DS
 S16 Joystick::rawAxesValues[SDL_CONTROLLER_AXIS_MAX]; // Array of the current axes values
+#endif
 S16 Joystick::LowerSensitivityThreshold = 4900;   // out of 32767, ~15%, any less than this is ends up as zero
 S16 Joystick::UpperSensitivityThreshold = 30000;  // out of 32767, ~91%, any more than this is full amount
 
@@ -49,12 +51,14 @@ Joystick::ButtonInfo Joystick::controllerButtonInfos[ControllerButtonMax] =
       { "L",   Colors::white, ButtonShapeRect, ButtonSymbolNone },
       { "R",   Colors::white, ButtonShapeRect, ButtonSymbolNone },
       { "",    Colors::white, ButtonShapeDPadUp, ButtonSymbolNone },
+#ifndef BF_PLATFORM_3DS
       { "",    Colors::white, ButtonShapeDPadDown, ButtonSymbolNone },
       { "",    Colors::white, ButtonShapeDPadLeft, ButtonSymbolNone },
       { "",    Colors::white, ButtonShapeDPadRight, ButtonSymbolNone },
       // Additional hybrid buttons (start at index SDL_CONTROLLER_BUTTON_MAX)
       { "LT",  Colors::white, ButtonShapeRect, ButtonSymbolNone },
       { "RT",  Colors::white, ButtonShapeRect, ButtonSymbolNone },
+#endif
 };
 
 
@@ -78,6 +82,7 @@ bool Joystick::initJoystick(GameSettings *settings)
    GameSettings::DetectedControllerList.clear();
    GameSettings::UseControllerIndex = -1;
 
+#ifndef BF_PLATFORM_3DS
    // Allows multiple joysticks with each using a copy of Bitfighter
    SDL_setenv("SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS", "1", 0);
 
@@ -155,6 +160,7 @@ bool Joystick::initJoystick(GameSettings *settings)
 
       GameSettings::UseControllerIndex = GameSettings::DetectedControllerList.begin()->first;
    }
+#endif
 
    return true;
 }
@@ -162,6 +168,7 @@ bool Joystick::initJoystick(GameSettings *settings)
 
 bool Joystick::enableJoystick(GameSettings *settings, bool hasBeenOpenedBefore)
 {
+#ifndef BF_PLATFORM_3DS
    // Need to close the controller to avoid having 2 being active at the same time
    if(sdlController != NULL) {
       SDL_GameControllerClose(sdlController);
@@ -195,6 +202,7 @@ bool Joystick::enableJoystick(GameSettings *settings, bool hasBeenOpenedBefore)
    // Set primary input to joystick if any controllers were found
    if(!hasBeenOpenedBefore)
       settings->getInputCodeManager()->setInputMode(InputModeJoystick);
+#endif
 
    return true;
 }
@@ -202,6 +210,7 @@ bool Joystick::enableJoystick(GameSettings *settings, bool hasBeenOpenedBefore)
 
 void Joystick::shutdownJoystick()
 {
+#ifndef BF_PLATFORM_3DS
    if(sdlController != NULL) {
       SDL_GameControllerClose(sdlController);
       sdlController = NULL;
@@ -209,6 +218,7 @@ void Joystick::shutdownJoystick()
 
    if(SDL_WasInit(SDL_INIT_GAMECONTROLLER))
       SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
+#endif
 }
 
 

@@ -1757,6 +1757,7 @@ bool GameUserInterface::isInScoreboardMode()
 
 static void joystickUpdateMove(ClientGame *game, GameSettings *settings, Move *theMove)
 {
+#ifndef BF_PLATFORM_3DS
    // Set the move coordinates to the joystick normalized values
    theMove->x = game->normalizedAxesValues[SDL_CONTROLLER_AXIS_LEFTX];
    theMove->y =  game->normalizedAxesValues[SDL_CONTROLLER_AXIS_LEFTY];
@@ -1780,6 +1781,7 @@ static void joystickUpdateMove(ClientGame *game, GameSettings *settings, Move *t
    }
    else
       theMove->fire = false;
+#endif
 }
 
 
