@@ -200,7 +200,7 @@ void VideoSystem::saveWindowPostion(GameSettings *settings)
    y = 100;
 #endif
 
-#ifdef TNL_OS_LINUX
+#if defined TNL_OS_LINUX && !defined BF_PLATFORM_3DS
    // Sometimes X11 in Linux will save position with window decorations in
    // certain cases.  This creates an offset and the window will creep
    S32 top = 0, left = 0;
@@ -234,7 +234,8 @@ void VideoSystem::saveUpdateWindowScale(GameSettings *settings)
 {
    ScreenInfo *screen = DisplayManager::getScreenInfo();
 
-   S32 windowWidth, windowHeight;
+   S32 windowWidth = 800;
+   S32 windowHeight = 600;
 #ifndef BF_PLATFORM_3DS
    SDL_GetWindowSize(screen->sdlWindow, &windowWidth, &windowHeight);
 #endif

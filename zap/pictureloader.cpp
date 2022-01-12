@@ -183,8 +183,9 @@ PictureLoader *LoadPicture(const char* path){
 
 
 
-GLuint loadGLTex(PictureLoader *picture)
+U32 loadGLTex(PictureLoader *picture)
 {
+#ifndef BF_PLATFORM_3DS
    GLuint outputGL;
 
    /* Get a font index from OpenGL */
@@ -212,5 +213,8 @@ GLuint loadGLTex(PictureLoader *picture)
          GL_RGBA, GL_UNSIGNED_BYTE, picture->data);
    {int err=glGetError();if(err)printf("glBindTexture() error: %i\n",err);}
    return outputGL;
+#endif
+
+   return 1;
 }
 

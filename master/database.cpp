@@ -192,12 +192,11 @@ static U64 insertStatsGame(const DbQuery &query, const GameStats *gameStats, U64
    return gameId;
 }
 
-
 static U64 insertStatsServer(const DbQuery &query, const string &serverName, const string &serverIP)
 {
    string sql = "INSERT INTO server(server_name, ip_address) "
                 "VALUES('" + sanitizeForSql(serverName) + "', '" + serverIP + "');";
-
+#ifndef BF_PLATFORM_3DS
    if(query.query)
      return query.runQuery(sql);
 
@@ -206,10 +205,9 @@ static U64 insertStatsServer(const DbQuery &query, const string &serverName, con
       query.runQuery(sql);
       return sqlite3_last_insert_rowid(query.sqliteDb);
    }
-
+#endif
    return U64_MAX;
 }
-
 
 // Looks in database to find server mathcing the one in gameStats... returns server_id, or -1 if no match was found
 S32 DatabaseWriter::getServerIdFromDatabase(const DbQuery &query, const string &serverName, const string &serverIP)
@@ -535,6 +533,8 @@ void DatabaseWriter::selectHandler(const string &sql, S32 cols, Vector<Vector<st
       }
       else
 #endif
+
+#ifndef BF_PLATFORM_3DS
       if(query.sqliteDb)
       {
          char *err = 0;
@@ -555,6 +555,7 @@ void DatabaseWriter::selectHandler(const string &sql, S32 cols, Vector<Vector<st
          sqlite3_free_table(results);
          sqlite3_free(err);
       }
+#endif
    }
    catch(const Exception &ex)
    {
@@ -566,6 +567,7 @@ void DatabaseWriter::selectHandler(const string &sql, S32 cols, Vector<Vector<st
 
 void DatabaseWriter::createStatsDatabase() 
 {
+#ifndef BF_PLATFORM_3DS
    DbQuery query(mDb, mServer, mUser, mPassword);
 
    // Create empty file on file system
@@ -584,6 +586,7 @@ void DatabaseWriter::createStatsDatabase()
 
    if(sqliteDb)
       sqlite3_close(sqliteDb);
+#endif
 }
 
 
@@ -602,7 +605,9 @@ bool DbQuery::dumpSql = false;
 DbQuery::DbQuery(const char *db, const char *server, const char *user, const char *password)
 {
    query = NULL;
+#ifndef BF_PLATFORM_3DS
    sqliteDb = NULL;
+#endif
    isValid = true;
 
    TNLAssert(db && db[0] != 0, "must have a database");
@@ -627,12 +632,15 @@ DbQuery::DbQuery(const char *db, const char *server, const char *user, const cha
    }
    else
 #endif
+
+#ifndef BF_PLATFORM_3DS
       if(sqlite3_open(db, &sqliteDb))    // Returns true if an error occurred
       {
          logprintf("ERROR: Can't open stats database %s: %s", db, sqlite3_errmsg(sqliteDb));
          sqlite3_close(sqliteDb);
          isValid = false;
       }
+#endif
 }
 
 // Destructor
@@ -641,8 +649,10 @@ DbQuery::~DbQuery()
    if(query)
       delete query;
 
+#ifndef BF_PLATFORM_3DS
    if(sqliteDb)
       sqlite3_close(sqliteDb);
+#endif
 }
 
 
@@ -663,6 +673,7 @@ U64 DbQuery::runQuery(const string &sql) const
          throw std::exception();    // Should be impossible
 #endif
 
+#ifndef BF_PLATFORM_3DS
    if(sqliteDb)
    {
       char *err = 0;
@@ -675,6 +686,7 @@ U64 DbQuery::runQuery(const string &sql) const
 
       return sqlite3_last_insert_rowid(sqliteDb);  
    }
+#endif
 
    return U64_MAX;
 }

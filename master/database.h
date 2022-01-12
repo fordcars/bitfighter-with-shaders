@@ -13,7 +13,9 @@
 #include "tnlTypes.h"
 #include "tnlVector.h"
 #include "tnlNonce.h"
+#ifndef BF_PLATFORM_3DS
 #include <sqlite3.h>
+#endif
 #include <string>
 
 
@@ -66,7 +68,9 @@ class DbQuery
 
 public:
    Query *query;
+#ifndef BF_PLATFORM_3DS
    sqlite3 *sqliteDb;
+#endif
 
    bool isValid;
    static bool dumpSql;
