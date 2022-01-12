@@ -3,7 +3,7 @@
 // See LICENSE.txt for full copyright information
 //------------------------------------------------------------------------------
 
-#ifndef BF_USE_LEGACY_GL
+#if !defined BF_USE_LEGACY_GL && !defined BF_PLATFORM_3DS
 
 #include "Shader.h"
 #include "GameSettings.h"

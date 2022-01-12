@@ -3,6 +3,8 @@
 // See LICENSE.txt for full copyright information
 //------------------------------------------------------------------------------
 
+#ifndef BF_PLATFORM_3DS
+
 #include "GLRenderer.h"
 #include "DisplayManager.h"
 #include "Color.h"
@@ -388,3 +390,5 @@ void GLRenderer::readFramebufferPixels(TextureFormat format, DataType dataType, 
 }
 
 }
+
+#endif // BF_PLATFORM_3DS

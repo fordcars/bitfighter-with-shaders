@@ -7,6 +7,7 @@ cmake_policy(SET CMP0043 OLD)
 # CMake options
 #
 
+option(PLATFORM_3DS "Build for 3DS." YES)
 option(USE_LEGACY_GL "Use legacy OpenGL (OpenGL 1.0) instead of modern OpenGL." NO)
 option(USE_GLES "Force usage of OpenGL ES for the bitfighter client.  Requires SDL2." NO)
 option(ALURE_DISABLE_MP3 "Disable dynamic loading of libmpg123.  Disables mp3 completely." NO)
@@ -36,6 +37,9 @@ elseif(UNIX)
 	include(${CMAKE_SOURCE_DIR}/cmake/Platform/Linux.cmake)
 endif()
 
+if(PLATFORM_3DS)
+	add_definitions(-DBF_PLATFORM_3DS)
+endif()
 
 # No creating project files in-source.  Bad, evil things happen
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" _insource)

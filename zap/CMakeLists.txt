@@ -149,6 +149,7 @@ set(CLIENT_SOURCES
 	loadoutHelper.cpp
 	Matrix4.cpp
 	oglconsole.cpp
+	PICARenderer.cpp
 	quickChatHelper.cpp
     Renderer.cpp
 	RenderUtils.cpp
