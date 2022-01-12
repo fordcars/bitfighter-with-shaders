@@ -12,8 +12,8 @@
 
 #include "tnlLog.h"
 
-#include "SDL.h"
-#include "SDL_stdinc.h"
+#include "SDL/SDL.h"
+#include "SDL/SDL_stdinc.h"
 
 #include <map>
 

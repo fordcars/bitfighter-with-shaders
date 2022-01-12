@@ -11,7 +11,7 @@
 #include "tnlLog.h"              // For logprintf
 
 #ifndef ZAP_DEDICATED
-#  include "SDL.h"
+#  include "SDL/SDL.h"
 #  include "Joystick.h"
 #endif
 

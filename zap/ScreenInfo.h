@@ -11,7 +11,7 @@
 #include "ConfigEnum.h"
 
 #ifndef ZAP_DEDICATED
-#  include "SDL.h"
+#  include "SDL/SDL.h"
 #endif
 
 

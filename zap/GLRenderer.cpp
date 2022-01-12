@@ -13,9 +13,9 @@
 
 #ifdef BF_USE_LEGACY_GL
 #  ifdef BF_USE_GLES
-#     include "SDL_opengles.h"
+#     include "SDL/SDL_opengles.h"
 #  else
-#     include "SDL_opengl.h"
+#     include "SDL/SDL_opengl.h"
 #  endif
 #else
 #  include "glad/glad.h"

@@ -15,7 +15,7 @@
 #include "Cursor.h"
 #include "VideoSystem.h"
 
-#include "SDL.h"
+#include "SDL/SDL.h"
 
 #include "Renderer.h"
 

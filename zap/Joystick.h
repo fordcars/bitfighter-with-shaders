@@ -17,7 +17,7 @@
 #include "tnlVector.h"
 
 #ifndef BF_PLATFORM_3DS
-# include "SDL_gamecontroller.h"
+# include "SDL/SDL_gamecontroller.h"
 #endif
 
 #include <string>

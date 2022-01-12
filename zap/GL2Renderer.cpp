@@ -8,7 +8,7 @@
 #include "GL2Renderer.h"
 #include "MathUtils.h"
 #include "glad/glad.h"
-#include "SDL.h"
+#include "SDL/SDL.h"
 
 #include <memory>
 #include <cstddef> // For size_t

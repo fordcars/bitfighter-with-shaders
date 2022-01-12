@@ -8,7 +8,7 @@
 #include "PICARenderer.h"
 #include "Color.h"
 #include "Point.h"
-#include "SDL.h"
+#include "SDL/SDL.h"
 #include "tnlVector.h"
 #include "MathUtils.h"
 

@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <vector>
 #include <cstddef> // For std::size_t
-#include "SDL.h"
+#include "SDL/SDL.h"
 #include "Renderer.h"
 #include "Point.h"
 

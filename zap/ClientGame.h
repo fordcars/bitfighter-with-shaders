@@ -20,7 +20,7 @@
 #include "MasterTypes.h"
 
 #ifndef BF_PLATFORM_3DS
-#include "SDL_gamecontroller.h"
+#include "SDL/SDL_gamecontroller.h"
 #endif
 
 #ifdef TNL_OS_WIN32

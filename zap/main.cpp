@@ -98,7 +98,7 @@ using namespace TNL;
 #  include "Cursor.h"          // For cursor defs
 #  include "Joystick.h"
 #  include "Event.h"
-#  include "SDL.h"
+#  include "SDL/SDL.h"
 
 #  include "Renderer.h"
 #  include "VideoSystem.h"
