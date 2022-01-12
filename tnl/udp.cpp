@@ -75,7 +75,7 @@ typedef in_addr IN_ADDR;
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/poll.h>
+#include <poll.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -574,10 +574,14 @@ void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
+
+#ifndef BF_PLATFORM_3DS
 #include <net/if.h>
+#endif
 
 void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
 {
+#ifndef BF_PLATFORM_3DS
    int sfd = socket(AF_INET, SOCK_STREAM, 0);
    if(sfd < 0)
      return;
@@ -618,6 +622,7 @@ void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
    }
    fclose(f);
    close(sfd);
+#endif
 }
 #endif
 
