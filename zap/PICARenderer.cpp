@@ -3,7 +3,7 @@
 // See LICENSE.txt for full copyright information
 //------------------------------------------------------------------------------
 
-#ifndef BF_USE_LEGACY_GL
+#ifdef BF_PLATFORM_3DS
 
 #include "GL2Renderer.h"
 #include "Color.h"
@@ -732,4 +732,4 @@ void GL2Renderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 v
 
 }
 
-#endif // BF_USE_LEGACY_GL
+#endif // BF_PLATFORM_3DS

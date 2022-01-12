@@ -150,6 +150,7 @@ set(CLIENT_SOURCES
 	Matrix4.cpp
 	oglconsole.cpp
 	PICARenderer.cpp
+	PICAShader.cpp
 	quickChatHelper.cpp
     Renderer.cpp
 	RenderUtils.cpp
