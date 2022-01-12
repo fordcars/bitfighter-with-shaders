@@ -9,6 +9,7 @@
 #include "GameSettings.h"
 
 #include "glad/glad.h"
+#include "SDL.h" // TEMP!
 #include "tnlAssert.h"
 #include "tnlLog.h"
 #include "stringUtils.h"
@@ -45,6 +46,10 @@ PICAShader::PICAShader(const std::string& name, const std::string& vertexShaderF
    , mLastIsAlphaTexture(false)
    , mLastTextureSampler(0)
 {
+   // TEMP!
+   bool success = gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
+   TNLAssert(success, "Unable to load GL functions!");
+
    buildProgram(vertexShaderFile, fragmentShaderFile);
    registerUniforms();
    registerAttributes();

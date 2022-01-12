@@ -32,7 +32,7 @@ private:
    // Reusable buffers for vertex data
    PICARingBuffer mPositionBuffer;
    PICARingBuffer mColorBuffer;
-   POCARingBuffer mUVBuffer;
+   PICARingBuffer mUVBuffer;
 
    bool mTextureEnabled;
    Color mColor;

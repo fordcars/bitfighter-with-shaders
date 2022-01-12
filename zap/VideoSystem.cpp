@@ -19,7 +19,9 @@
 
 #include "tnlLog.h"
 
-#ifdef BF_USE_LEGACY_GL
+#ifdef BF_PLATFORM_3DS
+#  include "PICARenderer.h"
+#elif defined BF_USE_LEGACY_GL
 #  include "GLLegacyRenderer.h"
 #else
 #  include "GL2Renderer.h"
@@ -125,7 +127,9 @@ bool VideoSystem::init()
    DisplayManager::getScreenInfo()->sdlGlContext = &context;
 
    // Initialize renderer
-#ifdef BF_USE_LEGACY_GL
+#ifdef BF_PLATFORM_3DS
+   PICARenderer::create();
+#elif defined BF_USE_LEGACY_GL
    GLLegacyRenderer::create();
 #else
    GL2Renderer::create();

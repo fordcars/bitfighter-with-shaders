@@ -101,14 +101,14 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
 	glVertexAttribPointer(
 		attribLocation,	       // Attribute index
 		vertDimension,				 // Number of values per vertex
-		getGLDataType(dataType), // Data type
+		getDataType(dataType), // Data type
 		GL_FALSE,			       // Normalized?
 		stride,				       // Stride
 		(void *)positionOffset	 // Array buffer offset
 	);
 
 	// Draw!
-	glDrawArrays(getGLRenderType(type), 0, vertCount);
+	glDrawArrays(getRenderType(type), 0, vertCount);
 }
 
 U32 PICARenderer::getRenderType(RenderType type) const
