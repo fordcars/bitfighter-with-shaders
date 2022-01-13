@@ -134,7 +134,7 @@ bool VideoSystem::init()
    SDL_GLContext context = SDL_GL_CreateContext(DisplayManager::getScreenInfo()->sdlWindow);
    DisplayManager::getScreenInfo()->sdlGlContext = &context;
 #else
-   DisplayManager::getScreenInfo()->sdlSurface = SDL_SetVideoMode(800, 600, 0, SDL_FULLSCREEN | SDL_OPENGL);
+   DisplayManager::getScreenInfo()->sdlSurface = SDL_SetVideoMode(400, 240, 0, SDL_FULLSCREEN | SDL_CONSOLEBOTTOM | SDL_HWSURFACE);
 
    if(!DisplayManager::getScreenInfo()->sdlSurface)
    {

@@ -1,7 +1,7 @@
 add_library(poly2tri STATIC
-	${CMAKE_CURRENT_SOURCE_DIR}/common/shapes.cc
-	${CMAKE_CURRENT_SOURCE_DIR}/sweep/advancing_front.cc
-	${CMAKE_CURRENT_SOURCE_DIR}/sweep/cdt.cc
-	${CMAKE_CURRENT_SOURCE_DIR}/sweep/sweep.cc
-	${CMAKE_CURRENT_SOURCE_DIR}/sweep/sweep_context.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/common/shapes.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sweep/advancing_front.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sweep/cdt.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sweep/sweep.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sweep/sweep_context.cpp
 )
