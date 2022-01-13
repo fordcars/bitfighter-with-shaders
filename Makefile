@@ -52,7 +52,7 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-ffunction-sections \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -Iinclude -D__3DS__ -DBF_PLATFORM_3DS -DBF_NO_AUDIO -Dlinux -DTNL_NO_THREADS -DLTC_SOURCE -DLTC_NO_ROLC
+CFLAGS	+=	$(INCLUDE) -Iinclude -D__3DS__ -DBF_PLATFORM_3DS -DBF_NO_AUDIO -Dlinux -DTNL_NO_THREADS -DLTC_SOURCE -DLTC_NO_ROLC -DTNL_ENABLE_ASSERTS
 
 CXXFLAGS	:= $(CFLAGS) -std=gnu++11
 
