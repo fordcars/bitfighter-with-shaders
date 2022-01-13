@@ -280,3 +280,10 @@ doc/html-final/
 .vs/slnx.sqlite
 
 .vs/VSWorkspaceState.json
+
+#############
+## 3DS
+#############
+*.elf
+*.3dsx
+*.smdh
