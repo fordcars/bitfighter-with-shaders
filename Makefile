@@ -59,7 +59,7 @@ CXXFLAGS	:= $(CFLAGS) -std=gnu++11
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map) 
 
-LIBS	:= -lSDL -lcitro2d -lcitro3d -lctru -lm -lluajit-5.1
+LIBS	:= -lSDL -lcitro2d -lcitro3d -lctru -lm -lluajit-5.1 -lpng -lz
 
 
 # To build LuaJIT

@@ -843,9 +843,13 @@ string getExecutableDir()
    string path;
 
 #if defined(TNL_OS_LINUX)
-   char buffer[1024] = {0};
-   readlink("/proc/self/exe", buffer, sizeof(buffer));
-   path = extractDirectory(string(buffer));
+#  ifndef BF_PLATFORM_3DS
+      char buffer[1024] = {0};
+      readlink("/proc/self/exe", buffer, sizeof(buffer));
+      path = extractDirectory(string(buffer));
+#  else
+	  path = "";
+#endif
 
 #elif defined(TNL_OS_MAC_OSX) || defined(TNL_OS_IOS)
    getExecutablePath(path);  // Directory.h
