@@ -28,6 +28,7 @@
 /**
   @file aes.c
   Implementation of AES
-*/   
+*/
 
+#define ENCRYPT_ONLY
 #include "aes.c"
