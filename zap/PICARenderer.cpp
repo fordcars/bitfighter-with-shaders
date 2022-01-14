@@ -9,17 +9,26 @@
 #include "Color.h"
 #include "Point.h"
 #include "SDL/SDL.h"
-#include "tnlVector.h"
 #include "MathUtils.h"
 
+#undef BIT
+#include <3ds.h>
+#include <citro3d.h>
 #include <memory>
 #include <cstddef> // For size_t
+
+// From https://github.com/devkitPro/3ds-examples/blob/master/graphics/gpu/textured_cube/source/main.c
+#define DISPLAY_TRANSFER_FLAGS \
+   (GX_TRANSFER_FLIP_VERT(0) | GX_TRANSFER_OUT_TILED(0) | GX_TRANSFER_RAW_COPY(0) | \
+   GX_TRANSFER_IN_FORMAT(GX_TRANSFER_FMT_RGBA8) | GX_TRANSFER_OUT_FORMAT(GX_TRANSFER_FMT_RGB8) | \
+   GX_TRANSFER_SCALING(GX_TRANSFER_SCALE_NO))
 
 namespace Zap
 {
 
 PICARenderer::PICARenderer()
-   : mStaticShader("static", "static.v.glsl", "static.f.glsl")
+   : mTarget(0)
+   , mStaticShader("static", "static.v.glsl", "static.f.glsl")
    , mDynamicShader("dynamic", "dynamic.v.glsl", "dynamic.f.glsl")
    , mTexturedShader("textured", "textured.v.glsl", "textured.f.glsl")
    , mColoredTextureShader("coloredTexture", "coloredTexture.v.glsl", "coloredTexture.f.glsl")
@@ -38,6 +47,10 @@ PICARenderer::PICARenderer()
 
    //glPixelStorei(GL_PACK_ALIGNMENT, 1);
    //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+   // Create target
+   mTarget = C3D_RenderTargetCreate(240, 400, GPU_RB_RGBA8, GPU_RB_DEPTH24_STENCIL8);
+   C3D_RenderTargetSetOutput(mTarget, GFX_TOP, GFX_LEFT, DISPLAY_TRANSFER_FLAGS);
 
    // Give each stack an identity matrix
    mModelViewMatrixStack.push(Matrix4());
@@ -186,6 +199,7 @@ U32 PICARenderer::getDataType(DataType type) const
 void PICARenderer::clear()
 {
    //glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   C3D_RenderTargetClear(mTarget, C3D_CLEAR_ALL, 0x68B0D8FF, 0);
 }
 
 void PICARenderer::clearStencil()

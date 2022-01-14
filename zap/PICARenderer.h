@@ -15,6 +15,7 @@
 
 #define STACK_CAPACITY 100
 
+struct C3D_RenderTarget_tag;
 namespace Zap
 {
 
@@ -22,6 +23,8 @@ class PICARenderer : public Renderer
 {
 private:
    using MatrixStack = Stack<Matrix4, STACK_CAPACITY>;
+
+   C3D_RenderTarget_tag *mTarget;
 
    // Shaders
    PICAShader mStaticShader;
