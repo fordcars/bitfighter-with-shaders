@@ -553,7 +553,7 @@ void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
    free(pIPAddrTable);
 }
 
-//#elif defined BF_PLATFORM_3DS
+#elif defined BF_PLATFORM_3DS
 void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
 {
    Address theAddress;
