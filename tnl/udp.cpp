@@ -776,7 +776,7 @@ bool Address::set(const char *addressString)
          ipAddr.sin_addr.s_addr = inet_addr(remoteAddr);
          if(ipAddr.sin_addr.s_addr == INADDR_NONE)
          {
-#if defined (TNL_OS_XBOX) || defined (BF_PLATFORM_3DS)
+#if defined (TNL_OS_XBOX)
             mIsValid = false;
             return false;
 #else
