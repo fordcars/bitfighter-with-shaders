@@ -67,8 +67,6 @@ include (replaces require)
 
 */
 
-
-
 #ifdef _MSC_VER
 #  pragma warning (disable: 4996)     // Disable POSIX deprecation, certain security warnings that seem to be specific to VC++
 #endif
@@ -151,6 +149,10 @@ extern "C" { FILE __iob_func[3] = { *stdin,*stdout,*stderr }; }
 
 #ifdef __MINGW32__
 #  undef main
+#endif
+
+#ifdef BF_PLATFORM_3DS
+#include "Interface3ds.h"
 #endif
 
 
@@ -751,22 +753,26 @@ string getUserDataDir()
 {
    string path;
 
-#if defined(TNL_OS_LINUX)
-   path = string(getenv("HOME")) + "/.bitfighter";  // TODO: migrate to XDG standards?  Too much work for now!
-
-#elif defined(TNL_OS_MAC_OSX)
-   getApplicationSupportPath(path);  // Directory.h
-   path += "/Bitfighter";
-
-#elif defined(TNL_OS_IOS)
-   // iOS uses the resources straight from the bundle
-   getAppResourcePath(path);  // Directory.h
-   
-#elif defined(TNL_OS_WIN32)
-   path = string(getenv("APPDATA")) + "\\Bitfighter";
-
+#ifdef BF_PLATFORM_3DS
+   path = "";
 #else
-#  error "Path needs to be defined for this platform"
+   #if defined(TNL_OS_LINUX)
+      path = string(getenv("HOME")) + "/.bitfighter";  // TODO: migrate to XDG standards?  Too much work for now!
+
+   #elif defined(TNL_OS_MAC_OSX)
+      getApplicationSupportPath(path);  // Directory.h
+      path += "/Bitfighter";
+
+   #elif defined(TNL_OS_IOS)
+      // iOS uses the resources straight from the bundle
+      getAppResourcePath(path);  // Directory.h
+   
+   #elif defined(TNL_OS_WIN32)
+      path = string(getenv("APPDATA")) + "\\Bitfighter";
+
+   #else
+   #  error "Path needs to be defined for this platform"
+   #endif
 #endif
    
    return path;
@@ -1031,34 +1037,39 @@ void checkIfThisIsAnUpdate(GameSettings *settings, bool isStandalone)
  
 static bool standaloneDetected()
 {
-#if defined(TNL_OS_MAC_OSX) || defined(TNL_OS_MOBILE)
-   return false;   // Standalone unavailable on Mac and mobile platforms
+#ifdef BF_PLATFORM_3DS
+   return true;
 #else
 
-   bool isStandalone = false;
+   #if defined(TNL_OS_MAC_OSX) || defined(TNL_OS_MOBILE)
+      return false;   // Standalone unavailable on Mac and mobile platforms
+   #else
 
-   // If we did a debug compile, default standalone mode
-#ifdef TNL_DEBUG
-   isStandalone = true;   // XXX Comment this out to test resource copying in debug build
-#endif
+      bool isStandalone = false;
 
-   FILE *fp;
-   if(fileExists("bitfighter.ini"))       // Check if bitfighter.ini exists locally
-   {
-      fp = fopen("bitfighter.ini", "a");  // if this file can be open as append mode, we can use this local one to load and save our configuration.
-      if(fp)
+      // If we did a debug compile, default standalone mode
+   #ifdef TNL_DEBUG
+      isStandalone = true;   // XXX Comment this out to test resource copying in debug build
+   #endif
+
+      FILE *fp;
+      if(fileExists("bitfighter.ini"))       // Check if bitfighter.ini exists locally
       {
-         fclose(fp);
-         isStandalone = true;
+         fp = fopen("bitfighter.ini", "a");  // if this file can be open as append mode, we can use this local one to load and save our configuration.
+         if(fp)
+         {
+            fclose(fp);
+            isStandalone = true;
+         }
       }
-   }
 
-   // Or, if no INI, specify it will be a standalone install with a predefined file
-   // This way an INI can still be built from scratch and we won't have to distribute one
-   if(fileExists(".standalone") || fileExists("standalone.txt"))
-      isStandalone = true;
+      // Or, if no INI, specify it will be a standalone install with a predefined file
+      // This way an INI can still be built from scratch and we won't have to distribute one
+      if(fileExists(".standalone") || fileExists("standalone.txt"))
+         isStandalone = true;
 
-   return isStandalone;
+      return isStandalone;
+   #endif
 #endif
 }
 
@@ -1138,6 +1149,9 @@ int main(int argc, char **argv)
 // Enable some heap checking stuff for Windows... slow... do not include in release version!!
 //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF );
 
+   //consoleDebugInit(debugDevice_CONSOLE);
+   interface3ds.initConsole();
+   printf("Welcome to Bitfighter 3DS!");
 
 #ifdef USE_EXCEPTION_BACKTRACE
    signal(SIGSEGV, exceptionHandler);   // install our handler
@@ -1148,11 +1162,15 @@ int main(int argc, char **argv)
 
    GameSettingsPtr settings = GameSettingsPtr(new GameSettings());      // Autodeleted
 
+#ifndef BF_PLATFORM_3DS
    // Put all cmd args into a Vector for easier processing
-   Vector<string> argVector(argc - 1);
+   Vector<string> argVector(argc+5 - 1);
 
    for(S32 i = 1; i < argc; i++)
       argVector.push_back(argv[i]);
+#else
+   Vector<string> argVector;
+#endif
 
    // We change our current directory to be useful, usually to the location the executable resides
    normalizeWorkingDirectory();
@@ -1176,8 +1194,8 @@ int main(int argc, char **argv)
       // Set the default paths
       setDefaultPaths(argVector);
    }
-   //else
-   //   printf("Standalone run detected\n");
+   else
+      printf("Standalone run detected\n");
 
    settings->readCmdLineParams(argVector);      // Read cmd line params, needed to resolve folder locations
    settings->resolveDirs();                     // Figures out where all our folders are (except leveldir)
@@ -1212,111 +1230,115 @@ int main(int argc, char **argv)
    // Load Lua stuff
    LuaScriptRunner::startLua(folderManager->luaDir);  // Create single "L" instance which all scripts will use
    // TODO: What should we do if this fails?  Quit the game?
+//
+//   setupLogging(settings->getIniSettings());    // Turns various logging options on and off
+//
+//   Ship::computeMaxFireDelay();                 // Look over weapon info and get some ranges, which we'll need before we start sending data
+//
+//   settings->runCmdLineDirectives();            // If we specified a directive on the cmd line, like -help, attend to that now
+//
+//   // Even dedicated server needs sound these days
+//   SoundSystem::init(folderManager->sfxDir,
+//                     folderManager->musicDir, settings->getIniSettings()->getMusicVolLevel());  
+//   
+//   if(settings->isDedicatedServer())
+//   {
+//#ifndef ZAP_DEDICATED
+//      // Dedicated ClientGame needs fonts, but not external ones
+//      FontManager::initialize(settings.get(), false);
+//#endif
+//      ServerGame *serverGame = GameManager::getServerGame();
+//      
+//      // Now even the dedicated server can make use of playlist files...
+//      // TODO: test if playlist files work with the dedicated server
+//      LevelSourcePtr levelSource = LevelSourcePtr(settings->chooseLevelSource(serverGame));
+//
+//      // Figure out what levels we'll be playing with, and start hosting  
+//      initHosting(settings, levelSource, false, true, settings->getSpecified(HOST_ON_DEDICATED));
+//   }
+//   else
+//   {
+//#ifndef ZAP_DEDICATED
+//
+//      InputCodeManager::resetStates();    // Reset keyboard state mapping to show no keys depressed
+//
+//      SDL_Init(0);                                       // Allows Joystick and VideoSystem to work.
+//      Joystick::initJoystick(settings.get());            // Initialize joystick system
+//      Joystick::enableJoystick(settings.get(), false);   
+//
+//#ifdef TNL_OS_MAC_OSX
+//      // On OS X, make sure we're in the right directory (again)
+//      moveToAppPath();
+//#endif
+//
+//      if(!VideoSystem::init())                // Initialize video and window system
+//         shutdownBitfighter();
+//
+//#ifndef BF_PLATFORM_3DS
+//      SDL_StartTextInput();
+//#endif
+//
+//      Cursor::init();
+//
+//      settings->getIniSettings()->oldDisplayMode = DISPLAY_MODE_UNKNOWN;   // We don't know what the old one was
+//
+//      // Reason doesn't matter on startup since we're in the init state
+//      VideoSystem::updateDisplayState(settings.get(), VideoSystem::StateReasonInterfaceChange);
+//
+//      // Instantiate ClietGame -- this should be done after updateDisplayState() because the client game in turn instantiates some of the
+//      // user interface code which triggers a long series of cascading events culminating in something somewhere determining the width
+//      // of a string.  Which will crash if the fonts haven't been loaded, which happens as part of updateDisplayState.  So there.
+//      createClientGame(settings);         
+//
+//      gConsole.initialize();     // Initialize console *after* the screen mode has been actualized
+//
+//      // Fonts are initialized in VideoSystem::updateDisplayState because of OpenGL + texture loss/creation
+//      FontManager::setFont(FontDefault);     // Default font
+//
+//      // Now show any error messages from start-up
+//      Vector<string> configurationErrors = settings->getConfigurationErrors();
+//      if(configurationErrors.size() > 0)
+//      {
+//         const Vector<ClientGame *> *clientGames = GameManager::getClientGames();
+//         for(S32 i = 0; i < clientGames->size(); i++)
+//         {
+//            UIManager *uiManager = clientGames->get(i)->getUIManager();
+//            ErrorMessageUserInterface *ui = uiManager->getUI<ErrorMessageUserInterface>();
+//
+//            ui->reset();
+//            ui->setTitle("CONFIGURATION ERROR");
+//
+//            string msg = "";
+//            for(S32 i = 0; i < configurationErrors.size(); i++)
+//               msg += itos(i + 1) + ".  " + configurationErrors[i] + "\n";
+//
+//            ui->setMessage(msg);
+//
+//            uiManager->activate(ui);
+//         }
+//      }
+//
+//      // Init 3rd-party app integrations
+//      AppIntegrationController::init();
+//
+//#endif   // !ZAP_DEDICATED
+//
+//#if defined(USE_HIDING_CONSOLE) && !defined(TNL_DEBUG)
+//      // This basically hides the newly created console window only if double-clicked from icon
+//      // No freeConsole when started from command (cmd) to continues outputting text to console
+//      if(thisProgramHasCreatedConsoleWindow())
+//         FreeConsole();
+//#endif
+//   }
+//
+//   // We made it!
+//   gStdoutLog.logprintf("Welcome to Bitfighter!");
+//
+//   dedicatedServerLoop();              // Loop forever, running the idle command endlessly
 
-   setupLogging(settings->getIniSettings());    // Turns various logging options on and off
-
-   Ship::computeMaxFireDelay();                 // Look over weapon info and get some ranges, which we'll need before we start sending data
-
-   settings->runCmdLineDirectives();            // If we specified a directive on the cmd line, like -help, attend to that now
-
-   // Even dedicated server needs sound these days
-   SoundSystem::init(folderManager->sfxDir,
-                     folderManager->musicDir, settings->getIniSettings()->getMusicVolLevel());  
-   
-   if(settings->isDedicatedServer())
+   for(;;)
    {
-#ifndef ZAP_DEDICATED
-      // Dedicated ClientGame needs fonts, but not external ones
-      FontManager::initialize(settings.get(), false);
-#endif
-      ServerGame *serverGame = GameManager::getServerGame();
-      
-      // Now even the dedicated server can make use of playlist files...
-      // TODO: test if playlist files work with the dedicated server
-      LevelSourcePtr levelSource = LevelSourcePtr(settings->chooseLevelSource(serverGame));
-
-      // Figure out what levels we'll be playing with, and start hosting  
-      initHosting(settings, levelSource, false, true, settings->getSpecified(HOST_ON_DEDICATED));
    }
-   else
-   {
-#ifndef ZAP_DEDICATED
-
-      InputCodeManager::resetStates();    // Reset keyboard state mapping to show no keys depressed
-
-      SDL_Init(0);                                       // Allows Joystick and VideoSystem to work.
-      Joystick::initJoystick(settings.get());            // Initialize joystick system
-      Joystick::enableJoystick(settings.get(), false);   
-
-#ifdef TNL_OS_MAC_OSX
-      // On OS X, make sure we're in the right directory (again)
-      moveToAppPath();
-#endif
-
-      if(!VideoSystem::init())                // Initialize video and window system
-         shutdownBitfighter();
-
-#ifndef BF_PLATFORM_3DS
-      SDL_StartTextInput();
-#endif
-
-      Cursor::init();
-
-      settings->getIniSettings()->oldDisplayMode = DISPLAY_MODE_UNKNOWN;   // We don't know what the old one was
-
-      // Reason doesn't matter on startup since we're in the init state
-      VideoSystem::updateDisplayState(settings.get(), VideoSystem::StateReasonInterfaceChange);
-
-      // Instantiate ClietGame -- this should be done after updateDisplayState() because the client game in turn instantiates some of the
-      // user interface code which triggers a long series of cascading events culminating in something somewhere determining the width
-      // of a string.  Which will crash if the fonts haven't been loaded, which happens as part of updateDisplayState.  So there.
-      createClientGame(settings);         
-
-      gConsole.initialize();     // Initialize console *after* the screen mode has been actualized
-
-      // Fonts are initialized in VideoSystem::updateDisplayState because of OpenGL + texture loss/creation
-      FontManager::setFont(FontDefault);     // Default font
-
-      // Now show any error messages from start-up
-      Vector<string> configurationErrors = settings->getConfigurationErrors();
-      if(configurationErrors.size() > 0)
-      {
-         const Vector<ClientGame *> *clientGames = GameManager::getClientGames();
-         for(S32 i = 0; i < clientGames->size(); i++)
-         {
-            UIManager *uiManager = clientGames->get(i)->getUIManager();
-            ErrorMessageUserInterface *ui = uiManager->getUI<ErrorMessageUserInterface>();
-
-            ui->reset();
-            ui->setTitle("CONFIGURATION ERROR");
-
-            string msg = "";
-            for(S32 i = 0; i < configurationErrors.size(); i++)
-               msg += itos(i + 1) + ".  " + configurationErrors[i] + "\n";
-
-            ui->setMessage(msg);
-
-            uiManager->activate(ui);
-         }
-      }
-
-      // Init 3rd-party app integrations
-      AppIntegrationController::init();
-
-#endif   // !ZAP_DEDICATED
-
-#if defined(USE_HIDING_CONSOLE) && !defined(TNL_DEBUG)
-      // This basically hides the newly created console window only if double-clicked from icon
-      // No freeConsole when started from command (cmd) to continues outputting text to console
-      if(thisProgramHasCreatedConsoleWindow())
-         FreeConsole();
-#endif
-   }
-
-   // We made it!
-   gStdoutLog.logprintf("Welcome to Bitfighter!");
-
-   dedicatedServerLoop();              // Loop forever, running the idle command endlessly
 
    return 0;
 }

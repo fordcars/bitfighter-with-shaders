@@ -113,7 +113,7 @@ set(EXTRA_SOURCES
 )
 
 # Client-only classes
-set(CLIENT_SOURCES 
+set(CLIENT_SOURCES
 	AppIntegrator.cpp
 	AToBScroller.cpp
 	ChatCommands.cpp
@@ -138,6 +138,7 @@ set(CLIENT_SOURCES
 	HelpItemManager.cpp
 	HelperManager.cpp
 	helperMenu.cpp
+	Interface3ds.cpp
 	Joystick.cpp
 	JoystickRender.cpp
     LevelDatabaseCommentThread.cpp
