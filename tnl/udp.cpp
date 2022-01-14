@@ -554,11 +554,9 @@ void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
 #elif defined BF_PLATFORM_3DS
 void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
 {
-   Address theAddress(IPProtocol, Address::Localhost, 0);
+   Address theAddress;
    SOCKADDR_IN socketAddr;
-   socketAddr.sin_family = AF_INET;
-   socketAddr.sin_port = 0;
-   socketAddr.sin_addr.s_addr = 0x7F000001; // 127.0.0.1
+   inet_pton(AF_INET, "127.0.0.1", &(socketAddr.sin_addr)); // IPv4
 
    SocketToTNLAddress((SOCKADDR*)&socketAddr, &theAddress);
    addressVector->push_back(theAddress);
