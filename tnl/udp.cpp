@@ -254,6 +254,10 @@ Socket::Socket(const Address &bindAddress, U32 sendBufferSize, U32 recvBufferSiz
       socklen_t addressSize = sizeof(address);
 
       TNLToSocketAddress(bindAddress, &address, &addressSize);
+#ifdef BF_PLATFORM_3DS
+      // Always bind to gethostid() on 3DS
+      ((SOCKADDR_IN *)&address)->sin_addr.s_addr = gethostid();
+#endif
       error = bind(mPlatformSocket, &address, addressSize);
 
       Address boundAddress;
