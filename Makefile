@@ -39,7 +39,7 @@ ADDITIONAL_CPP_SOURCES := master/database.cpp master/masterInterface.cpp
 INCLUDES           := lib/include/luajit-2.1 zap clipper fontstash poly2tri poly2tri/sweep poly2tri/common tnl tomcrypt/src/headers recast
 GRAPHICS           := gfx
 GFXBUILD           := $(BUILD)
-#ROMFS             := romfs
+ROMFS              := resource
 #GFXBUILD          := $(ROMFS)/gfx
 
 #---------------------------------------------------------------------------------

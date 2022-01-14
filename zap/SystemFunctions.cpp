@@ -177,25 +177,29 @@ string getInstalledDataDir()
 {
    string path;
 
-#if defined(TNL_OS_LINUX)
-   // In Linux, the data dir can be anywhere!  Usually in something like /usr/share/bitfighter
-   // or /usr/local/share/bitfighter.  Ignore if compiling DEBUG
-#if defined(LINUX_DATA_DIR) && !defined(TNL_DEBUG)
-   path = string(LINUX_DATA_DIR) + "/bitfighter";
+#ifdef BF_PLATFORM_3DS
+   path = "romfs:/";
 #else
-   // We'll default to the directory the executable is in
-   path = getExecutableDir();
-#endif
+   #if defined(TNL_OS_LINUX)
+      // In Linux, the data dir can be anywhere!  Usually in something like /usr/share/bitfighter
+      // or /usr/local/share/bitfighter.  Ignore if compiling DEBUG
+   #if defined(LINUX_DATA_DIR) && !defined(TNL_DEBUG)
+      path = string(LINUX_DATA_DIR) + "/bitfighter";
+   #else
+      // We'll default to the directory the executable is in
+      path = getExecutableDir();
+   #endif
 
-#elif defined(TNL_OS_MAC_OSX) || defined(TNL_OS_IOS)
-   getAppResourcePath(path);  // Directory.h
+   #elif defined(TNL_OS_MAC_OSX) || defined(TNL_OS_IOS)
+      getAppResourcePath(path);  // Directory.h
 
-#elif defined(TNL_OS_WIN32)
-   // On Windows, the installed data dir is always where the executable is
-   path = getExecutableDir();
+   #elif defined(TNL_OS_WIN32)
+      // On Windows, the installed data dir is always where the executable is
+      path = getExecutableDir();
 
-#else
-#  error "Path needs to be defined for this platform"
+   #else
+   #  error "Path needs to be defined for this platform"
+   #endif
 #endif
 
    return path;

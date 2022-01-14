@@ -733,17 +733,19 @@ void checkOnlineUpdate(GameSettings *settings)
 // Make sure we're in a sane working directory.  Mostly for properly running standalone builds
 void normalizeWorkingDirectory()
 {
-#if defined(TNL_OS_MAC_OSX) || defined(TNL_OS_IOS)
-   // Move to the application bundle's path (RDW)
-   moveToAppPath();  // Directory.h
-#elif defined(TNL_OS_WIN32)
-   // Windows needs a separate function to move to the executable directory or path names
-   // get all messed up
-   SetCurrentDirectory(getExecutableDir().c_str());
-#else
-   // Move to the executable directory.  Good for Windows.  Not so good for Linux since it
-   // usually has the executable placed far from the installed resources
-   chdir(getExecutableDir().c_str());
+#ifndef BF_PLATFORM_3DS
+   #if defined(TNL_OS_MAC_OSX) || defined(TNL_OS_IOS)
+      // Move to the application bundle's path (RDW)
+      moveToAppPath();  // Directory.h
+   #elif defined(TNL_OS_WIN32)
+      // Windows needs a separate function to move to the executable directory or path names
+      // get all messed up
+      SetCurrentDirectory(getExecutableDir().c_str());
+   #else
+      // Move to the executable directory.  Good for Windows.  Not so good for Linux since it
+      // usually has the executable placed far from the installed resources
+      chdir(getExecutableDir().c_str());
+   #endif
 #endif
 }
 
@@ -754,7 +756,7 @@ string getUserDataDir()
    string path;
 
 #ifdef BF_PLATFORM_3DS
-   path = "";
+   path = "romfs:/";
 #else
    #if defined(TNL_OS_LINUX)
       path = string(getenv("HOME")) + "/.bitfighter";  // TODO: migrate to XDG standards?  Too much work for now!
@@ -1150,8 +1152,8 @@ int main(int argc, char **argv)
 //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF );
 
    //consoleDebugInit(debugDevice_CONSOLE);
-   interface3ds.initConsole();
-   printf("Welcome to Bitfighter 3DS!");
+   interface3ds.init();
+   printf("Welcome to Bitfighter 3DS!\n");
 
 #ifdef USE_EXCEPTION_BACKTRACE
    signal(SIGSEGV, exceptionHandler);   // install our handler
@@ -1196,6 +1198,10 @@ int main(int argc, char **argv)
    }
    else
       printf("Standalone run detected\n");
+
+#ifdef BF_PLATFORM_3DS
+   setDefaultPaths(argVector); // Set default paths anyways for 3DS; they are special
+#endif
 
    settings->readCmdLineParams(argVector);      // Read cmd line params, needed to resolve folder locations
    settings->resolveDirs();                     // Figures out where all our folders are (except leveldir)

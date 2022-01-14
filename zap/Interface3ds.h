@@ -6,13 +6,21 @@
 #ifndef _INTERFACE3DS_
 #define _INTERFACE3DS_
 
+#include <string>
+
 namespace Zap
 {
 
 class Interface3ds
 {
+private:
+   static std::string getResultSummary(int summaryCode);
+   void initGFX();
+   void initFS();
+
 public:
-   void initConsole();
+   void init();
+   void shutdown();
 };
 
 extern Interface3ds interface3ds;
