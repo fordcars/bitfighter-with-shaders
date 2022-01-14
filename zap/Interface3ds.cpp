@@ -7,6 +7,7 @@
 #include <3ds.h>
 #include <citro3d.h>
 #include <stdio.h>
+#include <malloc.h>
 
 // From https://github.com/devkitPro/3ds-examples/blob/master/network/sockets/source/sockets.c
 #define SOC_ALIGN       0x1000
@@ -85,7 +86,7 @@ void Interface3ds::initFS()
 void Interface3ds::initSocket()
 {
    static u32 *SOC_buffer = NULL;
-   SOC_buffer = (u32 *)aligned_alloc(SOC_ALIGN, SOC_BUFFERSIZE);
+   SOC_buffer = (u32 *)memalign(SOC_ALIGN, SOC_BUFFERSIZE);
    Result rc = socInit(SOC_buffer, SOC_BUFFERSIZE);
    
    if(rc)
@@ -99,10 +100,12 @@ void Interface3ds::init()
 {
    initGFX();
    initFS();
+   initSocket();
 }
 
 void Interface3ds::shutdown()
 {
+   socExit();
    romfsExit();
    gfxExit();
 }
