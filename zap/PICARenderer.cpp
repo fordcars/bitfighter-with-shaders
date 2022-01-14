@@ -199,7 +199,7 @@ U32 PICARenderer::getDataType(DataType type) const
 void PICARenderer::clear()
 {
    //glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   C3D_RenderTargetClear(mTarget, C3D_CLEAR_ALL, 0x68B0D8FF, 0);
+   //C3D_RenderTargetClear(mTarget, C3D_CLEAR_ALL, 0x68B0D8FF, 0);
 }
 
 void PICARenderer::clearStencil()
