@@ -259,7 +259,9 @@ Socket::Socket(const Address &bindAddress, U32 sendBufferSize, U32 recvBufferSiz
       Address boundAddress;
       addressSize = sizeof(address);
 
+#ifndef BF_PLATFORM_3DS
       getsockname(mPlatformSocket, (PSOCKADDR) &address, &addressSize);
+#endif
       SocketToTNLAddress(&address, &boundAddress);
 
       logprintf(LogConsumer::LogUDP, "%s socket created - bound to address: %s", socketType, boundAddress.toString());
@@ -282,7 +284,10 @@ Socket::Socket(const Address &bindAddress, U32 sendBufferSize, U32 recvBufferSiz
          {
             // set the broadcast allowed flag
             S32 bc = acceptsBroadcast;
+
+#ifndef BF_PLATFORM_3DS
             error = setsockopt(mPlatformSocket, SOL_SOCKET, SO_BROADCAST, (char*)&bc, sizeof(bc));
+#endif
          }
       }
       else
@@ -546,6 +551,20 @@ void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
    free(pIPAddrTable);
 }
 
+#elif defined BF_PLATFORM_3DS
+void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
+{
+   Address theAddress(IPProtocol, Address::Localhost, 0);
+   SOCKADDR_IN socketAddr;
+   socketAddr.sin_family = AF_INET;
+   socketAddr.sin_port = 0;
+   socketAddr.sin_addr.s_addr = 0x7F000001; // 127.0.0.1
+
+   SocketToTNLAddress((SOCKADDR*)&socketAddr, &theAddress);
+   addressVector->push_back(theAddress);
+}
+
+
 #elif defined (TNL_OS_MAC_OSX) || defined (TNL_OS_IOS)
 #include <ifaddrs.h>
 
@@ -568,20 +587,16 @@ void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
    freeifaddrs(addrs);
 }
 
-#elif defined (TNL_OS_LINUX) || defined (TNL_OS_ANDROID)
+#elif !defined BF_PLATFORM_3DS && (defined (TNL_OS_LINUX) || defined (TNL_OS_ANDROID))
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
-
-#ifndef BF_PLATFORM_3DS
 #include <net/if.h>
-#endif
 
 void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
 {
-#ifndef BF_PLATFORM_3DS
    int sfd = socket(AF_INET, SOCK_STREAM, 0);
    if(sfd < 0)
      return;
@@ -622,7 +637,6 @@ void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
    }
    fclose(f);
    close(sfd);
-#endif
 }
 #endif
 
@@ -759,7 +773,7 @@ bool Address::set(const char *addressString)
          ipAddr.sin_addr.s_addr = inet_addr(remoteAddr);
          if(ipAddr.sin_addr.s_addr == INADDR_NONE)
          {
-#if defined (TNL_OS_XBOX)
+#if defined (TNL_OS_XBOX) || defined (BF_PLATFORM_3DS)
             mIsValid = false;
             return false;
 #else
