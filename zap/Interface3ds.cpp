@@ -8,6 +8,10 @@
 #include <citro3d.h>
 #include <stdio.h>
 
+// From https://github.com/devkitPro/3ds-examples/blob/master/network/sockets/source/sockets.c
+#define SOC_ALIGN       0x1000
+#define SOC_BUFFERSIZE  0x100000
+
 namespace Zap
 {
 
@@ -74,6 +78,19 @@ void Interface3ds::initFS()
    if(rc)
    {
       std::string msg = "romfsInit error: " + getResultSummary(R_SUMMARY(rc)) + "\n";
+      printf(msg.c_str());
+   }
+}
+
+void Interface3ds::initSocket()
+{
+   static u32 *SOC_buffer = NULL;
+   SOC_buffer = (u32 *)aligned_alloc(SOC_ALIGN, SOC_BUFFERSIZE);
+   Result rc = socInit(SOC_buffer, SOC_BUFFERSIZE);
+   
+   if(rc)
+   {
+      std::string msg = "socInit error: " + getResultSummary(R_SUMMARY(rc)) + "\n";
       printf(msg.c_str());
    }
 }

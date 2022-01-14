@@ -1236,115 +1236,111 @@ int main(int argc, char **argv)
    // Load Lua stuff
    LuaScriptRunner::startLua(folderManager->luaDir);  // Create single "L" instance which all scripts will use
    // TODO: What should we do if this fails?  Quit the game?
-//
-//   setupLogging(settings->getIniSettings());    // Turns various logging options on and off
-//
-//   Ship::computeMaxFireDelay();                 // Look over weapon info and get some ranges, which we'll need before we start sending data
-//
-//   settings->runCmdLineDirectives();            // If we specified a directive on the cmd line, like -help, attend to that now
-//
-//   // Even dedicated server needs sound these days
-//   SoundSystem::init(folderManager->sfxDir,
-//                     folderManager->musicDir, settings->getIniSettings()->getMusicVolLevel());  
-//   
-//   if(settings->isDedicatedServer())
-//   {
-//#ifndef ZAP_DEDICATED
-//      // Dedicated ClientGame needs fonts, but not external ones
-//      FontManager::initialize(settings.get(), false);
-//#endif
-//      ServerGame *serverGame = GameManager::getServerGame();
-//      
-//      // Now even the dedicated server can make use of playlist files...
-//      // TODO: test if playlist files work with the dedicated server
-//      LevelSourcePtr levelSource = LevelSourcePtr(settings->chooseLevelSource(serverGame));
-//
-//      // Figure out what levels we'll be playing with, and start hosting  
-//      initHosting(settings, levelSource, false, true, settings->getSpecified(HOST_ON_DEDICATED));
-//   }
-//   else
-//   {
-//#ifndef ZAP_DEDICATED
-//
-//      InputCodeManager::resetStates();    // Reset keyboard state mapping to show no keys depressed
-//
-//      SDL_Init(0);                                       // Allows Joystick and VideoSystem to work.
-//      Joystick::initJoystick(settings.get());            // Initialize joystick system
-//      Joystick::enableJoystick(settings.get(), false);   
-//
-//#ifdef TNL_OS_MAC_OSX
-//      // On OS X, make sure we're in the right directory (again)
-//      moveToAppPath();
-//#endif
-//
-//      if(!VideoSystem::init())                // Initialize video and window system
-//         shutdownBitfighter();
-//
-//#ifndef BF_PLATFORM_3DS
-//      SDL_StartTextInput();
-//#endif
-//
-//      Cursor::init();
-//
-//      settings->getIniSettings()->oldDisplayMode = DISPLAY_MODE_UNKNOWN;   // We don't know what the old one was
-//
-//      // Reason doesn't matter on startup since we're in the init state
-//      VideoSystem::updateDisplayState(settings.get(), VideoSystem::StateReasonInterfaceChange);
-//
-//      // Instantiate ClietGame -- this should be done after updateDisplayState() because the client game in turn instantiates some of the
-//      // user interface code which triggers a long series of cascading events culminating in something somewhere determining the width
-//      // of a string.  Which will crash if the fonts haven't been loaded, which happens as part of updateDisplayState.  So there.
-//      createClientGame(settings);         
-//
-//      gConsole.initialize();     // Initialize console *after* the screen mode has been actualized
-//
-//      // Fonts are initialized in VideoSystem::updateDisplayState because of OpenGL + texture loss/creation
-//      FontManager::setFont(FontDefault);     // Default font
-//
-//      // Now show any error messages from start-up
-//      Vector<string> configurationErrors = settings->getConfigurationErrors();
-//      if(configurationErrors.size() > 0)
-//      {
-//         const Vector<ClientGame *> *clientGames = GameManager::getClientGames();
-//         for(S32 i = 0; i < clientGames->size(); i++)
-//         {
-//            UIManager *uiManager = clientGames->get(i)->getUIManager();
-//            ErrorMessageUserInterface *ui = uiManager->getUI<ErrorMessageUserInterface>();
-//
-//            ui->reset();
-//            ui->setTitle("CONFIGURATION ERROR");
-//
-//            string msg = "";
-//            for(S32 i = 0; i < configurationErrors.size(); i++)
-//               msg += itos(i + 1) + ".  " + configurationErrors[i] + "\n";
-//
-//            ui->setMessage(msg);
-//
-//            uiManager->activate(ui);
-//         }
-//      }
-//
-//      // Init 3rd-party app integrations
-//      AppIntegrationController::init();
-//
-//#endif   // !ZAP_DEDICATED
-//
-//#if defined(USE_HIDING_CONSOLE) && !defined(TNL_DEBUG)
-//      // This basically hides the newly created console window only if double-clicked from icon
-//      // No freeConsole when started from command (cmd) to continues outputting text to console
-//      if(thisProgramHasCreatedConsoleWindow())
-//         FreeConsole();
-//#endif
-//   }
-//
-//   // We made it!
-//   gStdoutLog.logprintf("Welcome to Bitfighter!");
-//
-//   dedicatedServerLoop();              // Loop forever, running the idle command endlessly
 
-   for(;;)
+   setupLogging(settings->getIniSettings());    // Turns various logging options on and off
+
+   Ship::computeMaxFireDelay();                 // Look over weapon info and get some ranges, which we'll need before we start sending data
+
+   settings->runCmdLineDirectives();            // If we specified a directive on the cmd line, like -help, attend to that now
+
+   // Even dedicated server needs sound these days
+   SoundSystem::init(folderManager->sfxDir,
+                     folderManager->musicDir, settings->getIniSettings()->getMusicVolLevel());  
+   
+   if(settings->isDedicatedServer())
    {
+#ifndef ZAP_DEDICATED
+      // Dedicated ClientGame needs fonts, but not external ones
+      FontManager::initialize(settings.get(), false);
+#endif
+      ServerGame *serverGame = GameManager::getServerGame();
+      
+      // Now even the dedicated server can make use of playlist files...
+      // TODO: test if playlist files work with the dedicated server
+      LevelSourcePtr levelSource = LevelSourcePtr(settings->chooseLevelSource(serverGame));
+
+      // Figure out what levels we'll be playing with, and start hosting  
+      initHosting(settings, levelSource, false, true, settings->getSpecified(HOST_ON_DEDICATED));
    }
+   else
+   {
+#ifndef ZAP_DEDICATED
+
+      InputCodeManager::resetStates();    // Reset keyboard state mapping to show no keys depressed
+
+      SDL_Init(0);                                       // Allows Joystick and VideoSystem to work.
+      Joystick::initJoystick(settings.get());            // Initialize joystick system
+      Joystick::enableJoystick(settings.get(), false);   
+
+#ifdef TNL_OS_MAC_OSX
+      // On OS X, make sure we're in the right directory (again)
+      moveToAppPath();
+#endif
+
+      if(!VideoSystem::init())                // Initialize video and window system
+         shutdownBitfighter();
+
+#ifndef BF_PLATFORM_3DS
+      SDL_StartTextInput();
+#endif
+
+      Cursor::init();
+
+      settings->getIniSettings()->oldDisplayMode = DISPLAY_MODE_UNKNOWN;   // We don't know what the old one was
+
+      // Reason doesn't matter on startup since we're in the init state
+      VideoSystem::updateDisplayState(settings.get(), VideoSystem::StateReasonInterfaceChange);
+
+      // Instantiate ClietGame -- this should be done after updateDisplayState() because the client game in turn instantiates some of the
+      // user interface code which triggers a long series of cascading events culminating in something somewhere determining the width
+      // of a string.  Which will crash if the fonts haven't been loaded, which happens as part of updateDisplayState.  So there.
+      createClientGame(settings);         
+
+      gConsole.initialize();     // Initialize console *after* the screen mode has been actualized
+
+      // Fonts are initialized in VideoSystem::updateDisplayState because of OpenGL + texture loss/creation
+      FontManager::setFont(FontDefault);     // Default font
+
+      // Now show any error messages from start-up
+      Vector<string> configurationErrors = settings->getConfigurationErrors();
+      if(configurationErrors.size() > 0)
+      {
+         const Vector<ClientGame *> *clientGames = GameManager::getClientGames();
+         for(S32 i = 0; i < clientGames->size(); i++)
+         {
+            UIManager *uiManager = clientGames->get(i)->getUIManager();
+            ErrorMessageUserInterface *ui = uiManager->getUI<ErrorMessageUserInterface>();
+
+            ui->reset();
+            ui->setTitle("CONFIGURATION ERROR");
+
+            string msg = "";
+            for(S32 i = 0; i < configurationErrors.size(); i++)
+               msg += itos(i + 1) + ".  " + configurationErrors[i] + "\n";
+
+            ui->setMessage(msg);
+
+            uiManager->activate(ui);
+         }
+      }
+
+      // Init 3rd-party app integrations
+      AppIntegrationController::init();
+
+#endif   // !ZAP_DEDICATED
+
+#if defined(USE_HIDING_CONSOLE) && !defined(TNL_DEBUG)
+      // This basically hides the newly created console window only if double-clicked from icon
+      // No freeConsole when started from command (cmd) to continues outputting text to console
+      if(thisProgramHasCreatedConsoleWindow())
+         FreeConsole();
+#endif
+   }
+
+   // We made it!
+   gStdoutLog.logprintf("Welcome to Bitfighter!");
+
+   dedicatedServerLoop();              // Loop forever, running the idle command endlessly
 
    return 0;
 }

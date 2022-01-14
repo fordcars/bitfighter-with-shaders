@@ -17,6 +17,7 @@ private:
    static std::string getResultSummary(int summaryCode);
    void initGFX();
    void initFS();
+   void initSocket();
 
 public:
    void init();
