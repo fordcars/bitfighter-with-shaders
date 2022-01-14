@@ -263,9 +263,7 @@ Socket::Socket(const Address &bindAddress, U32 sendBufferSize, U32 recvBufferSiz
       Address boundAddress;
       addressSize = sizeof(address);
 
-#ifndef BF_PLATFORM_3DS
       getsockname(mPlatformSocket, (PSOCKADDR) &address, &addressSize);
-#endif
       SocketToTNLAddress(&address, &boundAddress);
 
       logprintf(LogConsumer::LogUDP, "%s socket created - bound to address: %s", socketType, boundAddress.toString());
@@ -555,12 +553,15 @@ void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
    free(pIPAddrTable);
 }
 
-#elif defined BF_PLATFORM_3DS
+//#elif defined BF_PLATFORM_3DS
 void Socket::getInterfaceAddresses(Vector<Address> *addressVector)
 {
    Address theAddress;
    SOCKADDR_IN socketAddr;
-   inet_pton(AF_INET, "127.0.0.1", &(socketAddr.sin_addr)); // IPv4
+
+   memset(&socketAddr, 0, sizeof(socketAddr));
+   socketAddr.sin_addr.s_addr = gethostid();
+   socketAddr.sin_family = AF_INET;
 
    SocketToTNLAddress((SOCKADDR*)&socketAddr, &theAddress);
    addressVector->push_back(theAddress);
