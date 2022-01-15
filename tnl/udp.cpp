@@ -108,6 +108,11 @@ typedef in_addr IN_ADDR;
 
 #include "tnlLog.h"
 
+#if defined BF_3DS_EMULATOR
+// Needed to connect to master when using emulator
+#define gethostid() htonl(2130706433); // 127.0.0.1
+#endif
+
 namespace TNL {
 
 static NetError getLastError();
