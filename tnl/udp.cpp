@@ -108,9 +108,14 @@ typedef in_addr IN_ADDR;
 
 #include "tnlLog.h"
 
-#if defined BF_3DS_EMULATOR
+#ifdef BF_3DS_EMULATOR
 // Needed to connect to master when using emulator
 #define gethostid() htonl(2130706433); // 127.0.0.1
+#endif
+
+#ifdef BF_PLATFORM_3DS
+// See https://github.com/devkitPro/libctru/issues/489
+static_assert(sizeof(sockaddr) == 16, "sockaddr is incorrectly defined! See https://github.com/devkitPro/libctru/issues/489");
 #endif
 
 namespace TNL {
