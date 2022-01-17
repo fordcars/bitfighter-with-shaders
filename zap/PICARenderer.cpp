@@ -201,19 +201,18 @@ U32 PICARenderer::getDataType(DataType type) const
 
 void PICARenderer::frameBegin()
 {
-   //C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+   C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 }
 
 void PICARenderer::frameEnd()
 {
-   //C3D_FrameEnd(0);
+   C3D_FrameEnd(0);
 }
 
 void PICARenderer::clear()
 {
-   //glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   //C3D_RenderTargetClear(mTarget, C3D_CLEAR_ALL, 0x68B0D8FF, 0);
-   //C3D_FrameDrawOn(mTarget);
+   C3D_RenderTargetClear(mTarget, C3D_CLEAR_ALL, 0x00000000, 0);
+   C3D_FrameDrawOn(mTarget);
    
 }
 
