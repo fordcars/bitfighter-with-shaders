@@ -38,6 +38,8 @@ private:
    PICARingBuffer mUVBuffer;
 
    bool mTextureEnabled;
+   Color mClearColor;
+   F32 mClearAlpha;
    Color mColor;
    F32 mAlpha;
    F32 mPointSize;

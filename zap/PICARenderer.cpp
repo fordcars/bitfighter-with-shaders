@@ -26,6 +26,21 @@
 namespace Zap
 {
 
+U32 colorToHex(const Color &color, F32 alpha)
+{
+   U32 r = color.r * 255;
+   U32 g = color.g * 255;
+   U32 b = color.b * 255;
+   U32 a = alpha * 255;
+
+   return (
+      r << 24 |
+      g << 16 |
+      b << 8  |
+      a
+   );
+}
+
 PICARenderer::PICARenderer()
    : mTarget(0)
    , mStaticShader("static", "static.v.glsl", "static.f.glsl")
@@ -33,6 +48,8 @@ PICARenderer::PICARenderer()
    , mTexturedShader("textured", "textured.v.glsl", "textured.f.glsl")
    , mColoredTextureShader("coloredTexture", "coloredTexture.v.glsl", "coloredTexture.f.glsl")
    , mTextureEnabled(false)
+   , mClearColor(0.0f, 0.0f, 0.0f)
+   , mClearAlpha(1.0f)
    , mAlpha(1.0f)
    , mPointSize(1.0f)
    , mCurrentShaderId(0)
@@ -211,24 +228,25 @@ void PICARenderer::frameEnd()
 
 void PICARenderer::clear()
 {
-   C3D_RenderTargetClear(mTarget, C3D_CLEAR_ALL, 0x00000000, 0);
+   C3D_RenderTargetClear(mTarget, C3D_CLEAR_ALL, colorToHex(mClearColor, mClearAlpha), 0);
    C3D_FrameDrawOn(mTarget);
-   
 }
 
 void PICARenderer::clearStencil()
 {
-   //glClear(GL_STENCIL_BUFFER_BIT);
+   // How can we clear stencil buffer?? Does this do anything?
+   C3D_RenderTargetClear(mTarget, C3D_CLEAR_DEPTH, 0x00000000, 0);
 }
 
 void PICARenderer::clearDepth()
 {
-   //glClear(GL_DEPTH_BUFFER_BIT);
+   C3D_RenderTargetClear(mTarget, C3D_CLEAR_DEPTH, 0x00000000, 0);
 }
 
 void PICARenderer::setClearColor(F32 r, F32 g, F32 b, F32 alpha)
 {
-   //glClearColor(r, g, b, alpha);
+   mClearColor = Color(r, g, b);
+   mClearAlpha = alpha;
 }
 
 void PICARenderer::setColor(F32 r, F32 g, F32 b, F32 alpha)
