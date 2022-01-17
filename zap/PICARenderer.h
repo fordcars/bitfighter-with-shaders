@@ -63,6 +63,8 @@ public:
    ~PICARenderer() override;
    static void create();
 
+   void frameBegin();
+   void frameEnd();
    void clear() override;
    void clearStencil() override;
    void clearDepth() override;

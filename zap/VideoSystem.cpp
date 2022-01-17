@@ -54,17 +54,18 @@ static string WINDOW_TITLE = "Bitfighter " + string(ZAP_GAME_RELEASE);
 // Returns true if everything went ok, false otherwise
 bool VideoSystem::init()
 {
+#ifndef BF_PLATFORM_3DS
    // Make sure "SDL_Init(0)" was done before calling this function
 
-   // First, initialize SDL's video subsystem
-   if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
+     // First, initialize SDL's video subsystem
+   if(SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
    {
       // Failed, exit
       logprintf(LogConsumer::LogFatalError, "SDL Video initialization failed: %s", SDL_GetError());
       return false;
    }
 
-   
+
    // Now, we want to setup our requested
    // window attributes for our OpenGL window.
    // Note on SDL_GL_RED/GREEN/BLUE/ALPHA_SIZE: On windows, it is better to not set them at all, or risk going extremely slow software rendering including if your desktop graphics set to 16 bit color.
@@ -73,33 +74,26 @@ bool VideoSystem::init()
    //SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
    //SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 8 );
 
-#if !defined BF_USE_LEGACY_GL && !defined BF_PLATFORM_3DS
+#ifndef BF_USE_LEGACY_GL
    // Tell SDL which OpenGL version we will use
    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, BF_GL_MAJOR_VERSION);
    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, BF_GL_MINOR_VERSION);
 #endif
 
-   SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );  // depth used in editor to display spybug visible area non-overlap
-   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);  // depth used in editor to display spybug visible area non-overlap
+   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 1);
 
    // Get information about the current desktop video settings and initialize
    // our ScreenInfo class with with current width and height
 
-#ifndef BF_PLATFORM_3DS
    SDL_DisplayMode mode;
 
    SDL_GetCurrentDisplayMode(0, &mode);  // We only have one display..  for now
+
    DisplayManager::getScreenInfo()->init(mode.w, mode.h);
-#else
-   DisplayManager::getScreenInfo()->init(800, 600);
-#endif
 
-   
-
-#ifndef BF_PLATFORM_3DS
    S32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN;
-#endif
 
    // Fake fullscreen might not be needed with SDL2 - I think it does the fast switching
    // on platforms that support it
@@ -112,17 +106,16 @@ bool VideoSystem::init()
 
 #  ifdef TNL_OS_IOS
    // This hint should be only for phones, tablets could rotate freely
-   SDL_SetHint("SDL_IOS_ORIENTATIONS","LandscapeLeft LandscapeRight");
+   SDL_SetHint("SDL_IOS_ORIENTATIONS", "LandscapeLeft LandscapeRight");
 #  endif
 #endif
 
-#ifndef BF_PLATFORM_3DS
    // No minimizing when ALT-TAB away
    SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 
    // SDL 2.0 lets us create the window first, only once
    DisplayManager::getScreenInfo()->sdlWindow = SDL_CreateWindow(WINDOW_TITLE.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-         DisplayManager::getScreenInfo()->getWindowWidth(), DisplayManager::getScreenInfo()->getWindowHeight(), flags);
+      DisplayManager::getScreenInfo()->getWindowWidth(), DisplayManager::getScreenInfo()->getWindowHeight(), flags);
 
    if(!DisplayManager::getScreenInfo()->sdlWindow)
    {
@@ -133,20 +126,9 @@ bool VideoSystem::init()
    // Create our OpenGL context; save it in case we ever need it
    SDL_GLContext context = SDL_GL_CreateContext(DisplayManager::getScreenInfo()->sdlWindow);
    DisplayManager::getScreenInfo()->sdlGlContext = &context;
-#else
-   DisplayManager::getScreenInfo()->sdlSurface = SDL_SetVideoMode(400, 240, 0, SDL_FULLSCREEN | SDL_CONSOLEBOTTOM | SDL_HWSURFACE);
-
-   if(!DisplayManager::getScreenInfo()->sdlSurface)
-   {
-      logprintf(LogConsumer::LogFatalError, "SDL surface creation failed: %s", SDL_GetError());
-      return false;
-   }
-#endif
 
    // Initialize renderer
-#ifdef BF_PLATFORM_3DS
-   PICARenderer::create();
-#elif defined BF_USE_LEGACY_GL
+#ifdef BF_USE_LEGACY_GL
    GLLegacyRenderer::create();
 #else
    GL2Renderer::create();
@@ -162,15 +144,17 @@ bool VideoSystem::init()
    SDL_Surface *icon = SDL_LoadBMP(iconPath.c_str());
 
    // OSX handles icons better with its native .icns file
-#if !defined TNL_OS_MAC_OSX && !defined BF_PLATFORM_3DS
+#ifndef TNL_OS_MAC_OSX
    if(icon != NULL)
       SDL_SetWindowIcon(DisplayManager::getScreenInfo()->sdlWindow, icon);
 #endif
 
    if(icon != NULL)
       SDL_FreeSurface(icon);
-
-   // We will set the resolution, position, and flags in updateDisplayState()
+#else
+   DisplayManager::getScreenInfo()->init(400, 240);
+   PICARenderer::create();
+#endif
 
    return true;
 }
@@ -179,7 +163,9 @@ bool VideoSystem::init()
 void VideoSystem::shutdown()
 {
    Renderer::shutdown();
+#ifndef BF_PLATFORM_3DS
    SDL_QuitSubSystem(SDL_INIT_VIDEO);
+#endif
 }
 
 void VideoSystem::setWindowPosition(S32 left, S32 top)

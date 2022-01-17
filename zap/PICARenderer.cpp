@@ -48,8 +48,11 @@ PICARenderer::PICARenderer()
    //glPixelStorei(GL_PACK_ALIGNMENT, 1);
    //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-   // Create target
+   C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
    mTarget = C3D_RenderTargetCreate(240, 400, GPU_RB_RGBA8, GPU_RB_DEPTH24_STENCIL8);
+   if(!mTarget)
+      printf("Could not create C3D target!\n");
+
    C3D_RenderTargetSetOutput(mTarget, GFX_TOP, GFX_LEFT, DISPLAY_TRANSFER_FLAGS);
 
    // Give each stack an identity matrix
@@ -196,10 +199,22 @@ U32 PICARenderer::getDataType(DataType type) const
    return 0;
 }
 
+void PICARenderer::frameBegin()
+{
+   //C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+}
+
+void PICARenderer::frameEnd()
+{
+   //C3D_FrameEnd(0);
+}
+
 void PICARenderer::clear()
 {
    //glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    //C3D_RenderTargetClear(mTarget, C3D_CLEAR_ALL, 0x68B0D8FF, 0);
+   //C3D_FrameDrawOn(mTarget);
+   
 }
 
 void PICARenderer::clearStencil()

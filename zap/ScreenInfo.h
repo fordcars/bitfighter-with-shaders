@@ -141,9 +141,9 @@ public:
    void setScissor(S32 x, S32 y, S32 width, S32 height);
    void resetScissor();
 
-#ifndef ZAP_DEDICATED
+#if !defined ZAP_DEDICATED && !defined BF_PLATFORM_3DS
    // SDL information
-   SDL_Surface *sdlSurface;
+   SDL_Window *sdlWindow;
 #endif
 
 };

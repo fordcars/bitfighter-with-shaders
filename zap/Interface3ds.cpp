@@ -69,7 +69,6 @@ std::string Interface3ds::getResultSummary(int summaryCode)
 void Interface3ds::initGFX()
 {
    gfxInitDefault();
-   C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
    consoleInit(GFX_BOTTOM, consoleGetDefault());
    consoleDebugInit(debugDevice_CONSOLE);
 }

@@ -152,6 +152,7 @@ extern "C" { FILE __iob_func[3] = { *stdin,*stdout,*stderr }; }
 #endif
 
 #ifdef BF_PLATFORM_3DS
+#include "PICARenderer.h"
 #include "Interface3ds.h"
 #endif
 
@@ -242,6 +243,9 @@ static void clearScreen()
 void display()
 {
    Renderer &r = Renderer::get();
+#ifdef BF_PLATFORM_3DS
+   dynamic_cast<PICARenderer &>(r).frameBegin();
+#endif
    clearScreen();
 
    r.setMatrixMode(MatrixType::ModelView);
@@ -263,8 +267,9 @@ void display()
    // back-buffer, and to set all rendering operations to occur on what was the front-buffer.
    // Double buffering prevents nasty visual tearing from the application drawing on areas of the
    // screen that are being updated at the same time.
-#ifndef BF_PLATFORM_3DS
-   SDL_GL_SwapWindow(DisplayManager::getScreenInfo()->sdlWindow);
+#ifdef BF_PLATFORM_3DS
+   // SDL_GL_SwapWindow(DisplayManager::getScreenInfo()->sdlWindow);
+   dynamic_cast<PICARenderer &>(r).frameEnd();
 #else
    SDL_GL_SwapBuffers();
 #endif
@@ -1151,9 +1156,7 @@ int main(int argc, char **argv)
 // Enable some heap checking stuff for Windows... slow... do not include in release version!!
 //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF );
 
-   //consoleDebugInit(debugDevice_CONSOLE);
    interface3ds.init();
-   printf("Welcome to Bitfighter 3DS!\n");
 
 #ifdef USE_EXCEPTION_BACKTRACE
    signal(SIGSEGV, exceptionHandler);   // install our handler
