@@ -362,25 +362,17 @@ void PICARenderer::disableStencilDraw()
 
 void PICARenderer::setViewport(S32 x, S32 y, S32 width, S32 height)
 {
-   //glViewport(x, y, width, height);
+   // Do nothing
 }
 
 Point PICARenderer::getViewportPos()
 {
-   //GLint viewport[4];
-   //glGetIntegerv(GL_VIEWPORT, viewport);
-
-   //return Point(viewport[0], viewport[1]);
    return Point(0, 0);
 }
 
 Point PICARenderer::getViewportSize()
 {
-   //GLint viewport[4];
-   //glGetIntegerv(GL_VIEWPORT, viewport);
-
-   //return Point(viewport[2], viewport[3]);
-   return Point(800, 600);
+   return Point(400, 240);
 }
 
 void PICARenderer::enableScissor()
