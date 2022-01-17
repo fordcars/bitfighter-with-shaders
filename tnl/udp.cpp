@@ -108,8 +108,8 @@ typedef in_addr IN_ADDR;
 
 #include "tnlLog.h"
 
-#ifdef BF_3DS_EMULATOR
-// Needed to connect to master when using emulator
+#ifdef BF_3DS_LOCAL_MASTER
+// Needed to connect to a local master server when using a 3DS emulator
 #define gethostid() htonl(2130706433); // 127.0.0.1
 #endif
 
@@ -292,15 +292,14 @@ Socket::Socket(const Address &bindAddress, U32 sendBufferSize, U32 recvBufferSiz
       {
          logprintf(LogConsumer::LogUDP, "%s socket send buffer size set to %d.", socketType, recvBufferSize);
 
+#ifndef BF_PLATFORM_3DS
          if(mTransportProtocol != TCPProtocol)
          {
             // set the broadcast allowed flag
             S32 bc = acceptsBroadcast;
-
-#ifndef BF_PLATFORM_3DS
             error = setsockopt(mPlatformSocket, SOL_SOCKET, SO_BROADCAST, (char*)&bc, sizeof(bc));
-#endif
          }
+#endif
       }
       else
          logprintf(LogConsumer::LogError, "%s socket error: unable to set the send buffer size on socket.", socketType);
