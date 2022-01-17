@@ -43,6 +43,7 @@ private:
    Color mColor;
    F32 mAlpha;
    F32 mPointSize;
+   F32 mLineWidth;
    U32 mCurrentShaderId;
    bool mUsingAndStencilTest;
 

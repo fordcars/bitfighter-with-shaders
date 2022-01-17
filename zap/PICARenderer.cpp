@@ -52,14 +52,11 @@ PICARenderer::PICARenderer()
    , mClearAlpha(1.0f)
    , mAlpha(1.0f)
    , mPointSize(1.0f)
+   , mLineWidth(1.0f)
    , mCurrentShaderId(0)
    , mUsingAndStencilTest(false)
    , mMatrixMode(MatrixType::ModelView)
 {
-   //glDepthFunc(GL_LESS);
-   //glDepthMask(true);   // Always enable writing to depth buffer, needed for glClearing depth buffer
-
-   //glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
    //glStencilMask(0xFF); // Always enable writing to stencil buffer, needed for glClearing stencil buffer
 
    //glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -71,6 +68,7 @@ PICARenderer::PICARenderer()
       printf("Could not create C3D target!\n");
 
    C3D_RenderTargetSetOutput(mTarget, GFX_TOP, GFX_LEFT, DISPLAY_TRANSFER_FLAGS);
+   C3D_StencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_REPLACE);
 
    // Give each stack an identity matrix
    mModelViewMatrixStack.push(Matrix4());
@@ -258,12 +256,11 @@ void PICARenderer::setColor(F32 r, F32 g, F32 b, F32 alpha)
 void PICARenderer::setPointSize(F32 size)
 {
    mPointSize = size;
-   //glPointSize(size);
 }
 
 void PICARenderer::setLineWidth(F32 width)
 {
-   //glLineWidth(width);
+   mLineWidth = width;
 }
 
 void PICARenderer::enableAntialiasing()
@@ -278,12 +275,13 @@ void PICARenderer::disableAntialiasing()
 
 void PICARenderer::enableBlending()
 {
-   //glEnable(GL_BLEND);
+   useDefaultBlending();
 }
 
 void PICARenderer::disableBlending()
 {
-   //glDisable(GL_BLEND);
+   // C3D_AlphaBlend(colorEq        alphaEq     srcClr   dstClr    srcAlpha  dstAlpha)
+   C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_ONE, GPU_ZERO, GPU_ONE, GPU_ZERO);
 }
 
 // Any black pixel will become fully transparent
@@ -296,69 +294,70 @@ void PICARenderer::useSpyBugBlending()
 {
    // This blending works like this, source(SRC) * GL_ONE_MINUS_DST_COLOR + destination(DST) * GL_ONE
    //glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
+   // C3D_AlphaBlend(colorEq        alphaEq             srcClr            dstClr   srcAlpha  dstAlpha)
+   //C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_ONE_MINUS_DST_COLOR, GPU_ONE, GPU_ZERO, GPU_ONE);
 }
 
 void PICARenderer::useDefaultBlending()
 {
    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   // C3D_AlphaBlend(colorEq        alphaEq         srcClr               dstClr         srcAlpha  dstAlpha)
+   //C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA, GPU_ONE, GPU_ZERO);
 }
 
 void PICARenderer::enableDepthTest()
 {
-   //glEnable(GL_DEPTH_TEST);
+   C3D_DepthTest(true, GPU_LESS, GPU_WRITE_DEPTH);
 }
 
 void PICARenderer::disableDepthTest()
 {
-   //glDisable(GL_DEPTH_TEST);
+   C3D_DepthTest(false, GPU_LESS, GPU_WRITE_DEPTH);
 }
 
 /// Stencils
 void PICARenderer::enableStencil()
 {
-   //glEnable(GL_STENCIL_TEST);
+   // Do nothing
 }
 
 void PICARenderer::disableStencil()
 {
-   // Enable writing to stencil in case we disabled it, needed for clearing buffer
-   //glStencilMask(0xFF);
-   //glDisable(GL_STENCIL_TEST);
+   //C3D_StencilTest(false, GPU_EQUAL, 1, 0xFFFFFFFF, 0x00000000);
+   //C3D_StencilTest(false, GPU_NOTEQUAL, 1, 0xFFFFFFFF, 0x00000000);
 }
 
 void PICARenderer::useAndStencilTest()
 {
    // Render if stencil value == 1
-   //glStencilFunc(GL_EQUAL, 1, 0xFF);
-   mUsingAndStencilTest = true;
+   //C3D_StencilTest(true, GPU_EQUAL, 1, 0xFFFFFFFF, 0x00000000);
+   //mUsingAndStencilTest = true;
 }
 
 void PICARenderer::useNotStencilTest()
 {
    // Render if stencil value != 1
-   //glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-   mUsingAndStencilTest = false;
+   //C3D_StencilTest(true, GPU_NOTEQUAL, 1, 0xFFFFFFFF, 0x00000000);
+   //mUsingAndStencilTest = false;
 }
 
 void PICARenderer::enableStencilDrawOnly()
 {
-   // Always draw to stencil buffer; we don't care what what's in there already
-   //glStencilFunc(GL_ALWAYS, 1, 0xFF);
-   //glStencilMask(0xFF);                                 // Draw 1s everywhere in stencil buffer
-   //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // Don't draw to color buffer!
+   //if(mUsingAndStencilTest)
+   //   C3D_StencilTest(true, GPU_EQUAL, 1, 0xFFFFFFFF, 0xFFFFFFFF);
+   //else
+   //   C3D_StencilTest(true, GPU_NOTEQUAL, 1, 0xFFFFFFFF, 0xFFFFFFFF);
 }
 
 // Temporarily disable drawing to stencil
 void PICARenderer::disableStencilDraw()
 {
-   //glStencilMask(0x00);                             // Don't draw anything in the stencil buffer
    //glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); // Feel free to draw in the color buffer tho!
-
    // Restore stencil test, it was probably modified by enableStencilDrawOnly()
-   if(mUsingAndStencilTest)
-      useAndStencilTest();
-   else
-      useNotStencilTest();
+   //if(mUsingAndStencilTest)
+   //   C3D_StencilTest(true, GPU_EQUAL, 1, 0xFFFFFFFF, 0x00000000);
+   //else
+   //   C3D_StencilTest(true, GPU_NOTEQUAL, 1, 0xFFFFFFFF, 0x00000000);
 }
 
 void PICARenderer::setViewport(S32 x, S32 y, S32 width, S32 height)
