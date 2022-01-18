@@ -6,165 +6,81 @@
 #ifdef BF_PLATFORM_3DS
 
 #include "PICAShader.h"
-#include "GameSettings.h"
-#include "tnlAssert.h"
-#include "tnlLog.h"
-#include "stringUtils.h"
-#include <limits>
-#include <array>
+#undef BIT
+#include <3ds.h>
+#include <citro3d.h>
 
 namespace Zap
 {
 
-PICAShader::PICAShader(const std::string& name, const std::string& vertexShaderFile, const std::string& fragmentShaderFile)
+PICAShader::PICAShader(const std::string &name, U32 *shbinData, U32 shbinSize)
    : mName(name)
-   , mId(0)
    , mUniformLocations()
    , mLastAlpha(0)
    , mLastPointSize(0)
    , mLastTime(0)
-   , mLastIsAlphaTexture(false)
-   , mLastTextureSampler(0)
 {
 
-   buildProgram(vertexShaderFile, fragmentShaderFile);
+   buildProgram(shbinData, shbinSize);
+   bind();
    registerUniforms();
    registerAttributes();
 
    // Set initial uniform values
-   // glUseProgram(mId);
    setMVP(Matrix4());
    setColor(Color(), 1.0f);
    setPointSize(1.0f);
    setTime(0);
-   setIsAlphaTexture(false);
-   setTextureSampler(0);
 }
 
 PICAShader::~PICAShader()
 {
-   //glDeleteProgram(static_cast<GLuint>(mId));
+   shaderProgramFree((shaderProgram_s *)&mProgram);
+   DVLB_Free((DVLB_s *)mDVLB);
 }
 
-// Static
-std::string PICAShader::getShaderSource(const std::string &fileName)
+void PICAShader::buildProgram(U32 *shbinData, U32 shbinSize)
 {
-   std::string filePath = GameSettings::getFolderManager()->findShaderFile(fileName);
-   TNLAssert(filePath != "", "Expected a shader path here!");
+   // Load the vertex shader, create a shader program and bind it
+   mDVLB = DVLB_ParseFile((u32*)shbinData, shbinSize);
+   if(!mDVLB)
+      printf("Could not parse '%s' shader file!\n", mName.c_str());
 
-   return readFile(filePath);
-}
+   shaderProgram_s *program = (shaderProgram_s *)&mProgram;
+   shaderProgramInit(program);
+   shaderProgramSetVsh(program, &(((DVLB_s*)mDVLB)->DVLE[0]));
 
-// Static
-U32 PICAShader::compileShader(const std::string& shaderPath, const std::string& shaderCode, U32 type)
-{
-   //GLint shaderLength = static_cast<GLint>(shaderCode.length());
-   //GLuint shader = glCreateShader(static_cast<GLuint>(type));
-
-   //// Verify shader code
-   //TNLAssert(shaderCode.length() < std::numeric_limits<int>::max(),
-   //   ("Overflow! Shader '" + shaderPath + "' too long! How is this possible?!").c_str());
-   //TNLAssert(shaderLength > 0, ("Shader '" + shaderPath + "' is empty!").c_str());
-
-   //const char *shaderFiles[] = { shaderCode.c_str() };
-   //const GLint shaderFilesLength[] = { shaderLength };
-   //
-   //// Compile
-   //glShaderSource(shader, 1, shaderFiles, shaderFilesLength);
-   //glCompileShader(shader);
-
-   //// Verify compilation
-   //GLint shaderOk;
-   //glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderOk);
-   //if(!shaderOk)
-   //{
-   //   std::string shaderLog = getGLShaderDebugLog(shader, glGetShaderiv, glGetShaderInfoLog);
-   //   glDeleteShader(shader);
-
-   //   logprintf(shaderLog.c_str());
-   //   TNLAssert(false, ("Failed to compile shader at '" + shaderPath + "'.").c_str());
-   //}
-
-   //return static_cast<U32>(shader);
-   return 0;
-}
-
-// Static
-U32 PICAShader::linkShader(const std::string& shaderProgramName, U32 vertexShader, U32 fragmentShader)
-{
-   //GLint programOk;
-
-   //GLuint program = glCreateProgram();
-   //glAttachShader(program, static_cast<GLuint>(vertexShader));
-   //glAttachShader(program, static_cast<GLuint>(fragmentShader));
-   //glLinkProgram(program);
-
-   //glGetProgramiv(program, GL_LINK_STATUS, &programOk);
-
-   //if(!programOk)
-   //{
-   //   std::string shaderLog = getGLShaderDebugLog(program, glGetProgramiv, glGetProgramInfoLog);
-   //   glDeleteProgram(program);
-
-   //   logprintf(shaderLog.c_str());
-   //   TNLAssert(false, ("Failed to link shader program '" + shaderProgramName + "'.").c_str());
-   //   return 0;
-   //}
-
-   //return program;
-   return 0;
-}
-
-void PICAShader::buildProgram(const std::string &vertexShaderFile, const std::string &fragmentShaderFile)
-{
-   //std::string vertexShaderCode = getShaderSource(vertexShaderFile);
-   //std::string fragmentShaderCode = getShaderSource(fragmentShaderFile);
-
-   //U32 vertexShader = compileShader(vertexShaderFile, vertexShaderCode, GL_VERTEX_SHADER);
-   //U32 fragmentShader = compileShader(fragmentShaderFile, fragmentShaderCode, GL_FRAGMENT_SHADER);
-
-   //if(vertexShader != 0 && fragmentShader != 0)
-   //   mId = linkShader(mName, static_cast<GLuint>(vertexShader), static_cast<GLuint>(fragmentShader));
-
-   //// Delete shader objects; they are no longer needed
-   //glDeleteShader(static_cast<GLuint>(vertexShader));
-   //glDeleteShader(static_cast<GLuint>(fragmentShader));
+   if(!program)
+      printf("Could not initialize '%s' shader!\n", mName.c_str());
 }
 
 void PICAShader::registerUniforms()
 {
-   //// glGetUniformLocation returns -1 if uniform was not found
-   //mUniformLocations[static_cast<unsigned>(UniformName::MVP)] = glGetUniformLocation(mId, "MVP");
-   //mUniformLocations[static_cast<unsigned>(UniformName::Color)] = glGetUniformLocation(mId, "color");
-   //mUniformLocations[static_cast<unsigned>(UniformName::PointSize)] = glGetUniformLocation(mId, "pointSize");
-   //mUniformLocations[static_cast<unsigned>(UniformName::TextureSampler)] = glGetUniformLocation(mId, "textureSampler");
-   //mUniformLocations[static_cast<unsigned>(UniformName::IsAlphaTexture)] = glGetUniformLocation(mId, "isAlphaTexture");
-   //mUniformLocations[static_cast<unsigned>(UniformName::Time)] = glGetUniformLocation(mId, "time");
+   shaderProgram_s *program = (shaderProgram_s *)&mProgram;
+
+   // -1 if uniform was not found
+   mUniformLocations[static_cast<unsigned>(UniformName::MVP)] = shaderInstanceGetUniformLocation(program->vertexShader, "MVP");
+   mUniformLocations[static_cast<unsigned>(UniformName::Color)] = shaderInstanceGetUniformLocation(program->vertexShader, "color");
+   mUniformLocations[static_cast<unsigned>(UniformName::PointSize)] = shaderInstanceGetUniformLocation(program->vertexShader, "pointSize");
+   mUniformLocations[static_cast<unsigned>(UniformName::Time)] = shaderInstanceGetUniformLocation(program->vertexShader, "time");
 }
 
 void PICAShader::registerAttributes()
 {
-   //// glGetAttribLocation returns -1 if attribute was not found
-   //mAttributeLocations[static_cast<unsigned>(AttributeName::VertexPosition)] = glGetAttribLocation(mId, "vertexPosition_modelspace");
-   //mAttributeLocations[static_cast<unsigned>(AttributeName::VertexColor)] = glGetAttribLocation(mId, "vertexColor");
-   //mAttributeLocations[static_cast<unsigned>(AttributeName::VertexUV)] = glGetAttribLocation(mId, "vertexUV");
+   // glGetAttribLocation returns -1 if attribute was not found
+   mAttributeLocations[static_cast<unsigned>(AttributeName::VertexPosition)] = 0;
+   mAttributeLocations[static_cast<unsigned>(AttributeName::VertexColor)] = 1;
+   mAttributeLocations[static_cast<unsigned>(AttributeName::VertexUV)] = 2;
 
-   //// Enable all used attributes
-   //for(unsigned i = 0; i < static_cast<unsigned>(AttributeName::AttributeName_LAST); ++i)
-   //{
-   //   if(mAttributeLocations[i] != -1)
-   //      glEnableVertexAttribArray(mAttributeLocations[i]);
-   //}
+   C3D_AttrInfo *attrInfo = C3D_GetAttrInfo();
+   AttrInfo_Init(attrInfo);
+   if(mName == "static")
+      AttrInfo_AddLoader(attrInfo, 0, GPU_FLOAT, 3); // v0=position
 }
 
 std::string PICAShader::getName() const
 {
    return mName;
-}
-
-U32 PICAShader::getId() const
-{
-   return mId;
 }
 
 S32 PICAShader::getUniformLocation(UniformName uniformName) const
@@ -177,16 +93,24 @@ S32 PICAShader::getAttributeLocation(AttributeName attributeName) const
    return mAttributeLocations[static_cast<unsigned>(attributeName)];
 }
 
+void PICAShader::bind() const
+{
+   C3D_BindProgram((shaderProgram_s *)&mProgram);
+}
+
 void PICAShader::setMVP(const Matrix4 &MVP)
 {
-   //glUniformMatrix4fv(getUniformLocation(UniformName::MVP), 1, GL_FALSE, MVP.getData());
+   S32 loc = getUniformLocation(UniformName::MVP);
+   if(loc != -1)
+      C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, loc, (C3D_Mtx*)MVP.getData());
 }
 
 void PICAShader::setColor(const Color &color, F32 alpha)
 {
-   if(color != mLastColor || alpha != mLastAlpha)
+   S32 loc = getUniformLocation(UniformName::Color);
+   if(loc != -1 && (color != mLastColor || alpha != mLastAlpha))
    {
-      //glUniform4f(getUniformLocation(UniformName::Color), color.r, color.g, color.b, alpha);
+      C3D_FVUnifSet(GPU_VERTEX_SHADER, loc, color.r, color.g, color.b, alpha);
       mLastColor = color;
       mLastAlpha = alpha;
    }
@@ -194,37 +118,21 @@ void PICAShader::setColor(const Color &color, F32 alpha)
 
 void PICAShader::setPointSize(F32 size)
 {
-   if(size != mLastPointSize)
+   S32 loc = getUniformLocation(UniformName::PointSize);
+   if(loc != -1 && size != mLastPointSize)
    {
-      //glUniform1f(getUniformLocation(UniformName::PointSize), size);
+      C3D_FVUnifSet(GPU_VERTEX_SHADER, loc, size, 0.0f, 0.0f, 0.0f);
       mLastPointSize = size;
    }
 }
 
 void PICAShader::setTime(U32 time)
 {
-   if(time != mLastTime)
+   S32 loc = getUniformLocation(UniformName::Time);
+   if(loc != -1 && time != mLastTime)
    {
-      //glUniform1i(getUniformLocation(UniformName::Time), time);
+      C3D_IVUnifSet(GPU_VERTEX_SHADER, loc, time, 0, 0, 0);
       mLastTime = time;
-   }
-}
-
-void PICAShader::setIsAlphaTexture(bool isAlphaTexture)
-{
-   if(isAlphaTexture != mLastIsAlphaTexture)
-   {
-      //glUniform1i(getUniformLocation(UniformName::IsAlphaTexture), isAlphaTexture ? 1 : 0);
-      mLastIsAlphaTexture = isAlphaTexture;
-   }
-}
-
-void PICAShader::setTextureSampler(U32 textureSampler)
-{
-   if(textureSampler != mLastTextureSampler)
-   {
-      //glUniform1i(getUniformLocation(UniformName::TextureSampler), textureSampler);
-      mLastTextureSampler = textureSampler;
    }
 }
 

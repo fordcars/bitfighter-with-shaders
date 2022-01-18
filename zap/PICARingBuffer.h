@@ -17,14 +17,16 @@ namespace Zap
 class PICARingBuffer
 {
 private:
-   U32 mId;
+   void *mBufferInfo;
+   void *mData;
    std::size_t mCurrentOffset;
 
 public:
    PICARingBuffer();
    ~PICARingBuffer();
 
-   void bind();
+   void init();
+   void reset();
    std::size_t insertData(const void* data, U32 size);
 };
 

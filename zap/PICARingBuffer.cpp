@@ -11,6 +11,10 @@
 #ifdef BF_PLATFORM_3DS
 
 #include "PICARingBuffer.h"
+#undef BIT
+#include <3ds.h>
+#include <citro3d.h>
+#include <stdio.h>
 
 // A larger ring buffer will allow us to reallocate buffer memory less often
 static const U32 RING_BUFFER_SIZE = 5 * 1000000U;
@@ -18,24 +22,36 @@ static const U32 RING_BUFFER_SIZE = 5 * 1000000U;
 namespace Zap
 {
 
-   PICARingBuffer::PICARingBuffer()
-   : mId(0)
+PICARingBuffer::PICARingBuffer()
+   : mBufferInfo(0)
+   , mData(0)
    , mCurrentOffset(0)
 {
-   //// Generate buffer and allocate initial memory
-   //glGenBuffers(1, &mId);
-   //glBindBuffer(GL_ARRAY_BUFFER, mId);
-   //glBufferData(GL_ARRAY_BUFFER, RING_BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
+   // Do nothing
 }
 
-   PICARingBuffer::~PICARingBuffer()
+PICARingBuffer::~PICARingBuffer()
 {
-   //glDeleteBuffers(1, &mId);
+   linearFree(mData);
 }
 
-void PICARingBuffer::bind()
+void PICARingBuffer::init()
 {
-   //glBindBuffer(GL_ARRAY_BUFFER, mId);
+   // Generate buffer and allocate initial memory
+   mBufferInfo = C3D_GetBufInfo();
+   if(!mBufferInfo)
+      printf("Could not get buffer info!\n");
+
+   mData = linearAlloc(RING_BUFFER_SIZE);
+   if(!mData)
+      printf("Could not allocate buffer memory!\n");
+
+   reset();
+}
+
+void PICARingBuffer::reset()
+{
+   BufInfo_Init((C3D_BufInfo *)mBufferInfo);
 }
 
 // Returns the offset of inserted data within the buffer
@@ -49,7 +65,8 @@ std::size_t PICARingBuffer::insertData(const void *data, U32 size)
       mCurrentOffset = 0;
    }
 
-   //glBufferSubData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(mCurrentOffset), size, data);
+   // Copy data
+   memcpy(mData, data, size);
 
    std::size_t oldPosition = mCurrentOffset;
    mCurrentOffset += size + (4 - size%4); // Make sure we are 4-byte aligned

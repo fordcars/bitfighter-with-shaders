@@ -7,7 +7,6 @@
 
 #include "PICARenderer.h"
 #include "Color.h"
-#include "Point.h"
 #include "SDL/SDL.h"
 #include "MathUtils.h"
 
@@ -16,6 +15,9 @@
 #include <citro3d.h>
 #include <memory>
 #include <cstddef> // For size_t
+
+// Shaders
+#include "static_shbin.h"
 
 // From https://github.com/devkitPro/3ds-examples/blob/master/graphics/gpu/textured_cube/source/main.c
 #define DISPLAY_TRANSFER_FLAGS \
@@ -43,22 +45,25 @@ U32 colorToHex(const Color &color, F32 alpha)
 
 PICARenderer::PICARenderer()
    : mTarget(0)
-   , mStaticShader("static", "static.v.glsl", "static.f.glsl")
-   , mDynamicShader("dynamic", "dynamic.v.glsl", "dynamic.f.glsl")
-   , mTexturedShader("textured", "textured.v.glsl", "textured.f.glsl")
-   , mColoredTextureShader("coloredTexture", "coloredTexture.v.glsl", "coloredTexture.f.glsl")
+   , mStaticShader("static", (U32 *)static_shbin, static_shbin_size)
+   //, mDynamicShader("dynamic", "dynamic.v.glsl", "dynamic.f.glsl")
+   //, mTexturedShader("textured", "textured.v.glsl", "textured.f.glsl")
+   //, mColoredTextureShader("coloredTexture", "coloredTexture.v.glsl", "coloredTexture.f.glsl")
    , mTextureEnabled(false)
    , mClearColor(0.0f, 0.0f, 0.0f)
    , mClearAlpha(1.0f)
    , mAlpha(1.0f)
    , mPointSize(1.0f)
    , mLineWidth(1.0f)
-   , mCurrentShaderId(0)
+   , mCurrentShader(0)
    , mUsingAndStencilTest(false)
+   , mViewportPos(0.0f, 0.0f)
+   , mViewportSize(400.0f, 240.0f)
+   , mScissorPos(0.0f, 0.0f)
+   , mScissorSize(400.0f, 240.0f)
+   , mScissorEnabled(false)
    , mMatrixMode(MatrixType::ModelView)
 {
-   //glStencilMask(0xFF); // Always enable writing to stencil buffer, needed for glClearing stencil buffer
-
    //glPixelStorei(GL_PACK_ALIGNMENT, 1);
    //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -69,6 +74,7 @@ PICARenderer::PICARenderer()
 
    C3D_RenderTargetSetOutput(mTarget, GFX_TOP, GFX_LEFT, DISPLAY_TRANSFER_FLAGS);
    C3D_StencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_REPLACE);
+   mVertexBuffer.init();
 
    // Give each stack an identity matrix
    mModelViewMatrixStack.push(Matrix4());
@@ -83,8 +89,8 @@ PICARenderer::~PICARenderer()
 
 void PICARenderer::useShader(const PICAShader &shader)
 {
-   //if(mCurrentShaderId != shader.getId())
-   //   glUseProgram(shader.getId());
+   if(mCurrentShader != &shader)
+      shader.bind();
 }
 
 // Static
@@ -217,6 +223,7 @@ U32 PICARenderer::getDataType(DataType type) const
 void PICARenderer::frameBegin()
 {
    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+   mVertexBuffer.reset();
 }
 
 void PICARenderer::frameEnd()
@@ -362,59 +369,66 @@ void PICARenderer::disableStencilDraw()
 
 void PICARenderer::setViewport(S32 x, S32 y, S32 width, S32 height)
 {
-   // Do nothing
+   //C3D_SetViewport((u32)x, (u32)y, (u32)width, (u32)height);
+   mViewportPos = Point(x, y);
+   mViewportSize = Point(width, height);
 }
 
 Point PICARenderer::getViewportPos()
 {
-   return Point(0, 0);
+   return mViewportPos;
 }
 
 Point PICARenderer::getViewportSize()
 {
-   return Point(400, 240);
+   return mViewportSize;
 }
 
 void PICARenderer::enableScissor()
 {
-   //glEnable(GL_SCISSOR_TEST);
+   //C3D_SetScissor(
+   //   GPU_SCISSOR_NORMAL,
+   //   (u32)mScissorPos.x,
+   //   (u32)mScissorPos.y,
+   //   (u32)(mScissorPos.x + mScissorSize.x),
+   //   (u32)(mScissorPos.y + mScissorSize.y)
+   //);
+
+   mScissorEnabled = true;
 }
 
 void PICARenderer::disableScissor()
 {
-   //glDisable(GL_SCISSOR_TEST);
+   C3D_SetScissor(
+      GPU_SCISSOR_DISABLE,
+      (u32)mScissorPos.x,
+      (u32)mScissorPos.y,
+      (u32)(mScissorPos.x + mScissorSize.x),
+      (u32)(mScissorPos.y + mScissorSize.y)
+   );
+
+   mScissorEnabled = false;
 }
 
 bool PICARenderer::isScissorEnabled()
 {
-   //GLboolean scissorEnabled;
-   //glGetBooleanv(GL_SCISSOR_TEST, &scissorEnabled);
-
-   //return scissorEnabled;
-   return true;
+   return mScissorEnabled;
 }
 
 void PICARenderer::setScissor(S32 x, S32 y, S32 width, S32 height)
 {
-   //glScissor(x, y, width, height);
+   mScissorPos = Point(x, y);
+   mScissorSize = Point(width, height);
 }
 
 Point PICARenderer::getScissorPos()
 {
-   //GLint scissor[4];
-   //glGetIntegerv(GL_SCISSOR_BOX, scissor);
-
-   //return Point(scissor[0], scissor[1]);
-   return Point(0, 0);
+   return mScissorPos;
 }
 
 Point PICARenderer::getScissorSize()
 {
-   //GLint scissor[4];
-   //glGetIntegerv(GL_SCISSOR_BOX, scissor);
-
-   //return Point(scissor[2], scissor[3]);
-   return Point(800, 600);
+   return mScissorSize;
 }
 
 void PICARenderer::scale(F32 x, F32 y, F32 z)
@@ -603,12 +617,12 @@ void PICARenderer::renderVertexArray(const F32 verts[], U32 vertCount, RenderTyp
 void PICARenderer::renderColored(const F32 verts[], const F32 colors[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension)
 {
-   useShader(mDynamicShader);
+   //useShader(mDynamicShader);
 
 	Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();
-   mDynamicShader.setMVP(MVP);
-   mDynamicShader.setPointSize(mPointSize);
-   mDynamicShader.setTime(static_cast<unsigned>(SDL_GetTicks()));
+   //mDynamicShader.setMVP(MVP);
+   //mDynamicShader.setPointSize(mPointSize);
+   //mDynamicShader.setTime(static_cast<unsigned>(SDL_GetTicks()));
 
 	//// Attribute locations
 	//GLint vertexPositionAttrib = mDynamicShader.getAttributeLocation(AttributeName::VertexPosition);
@@ -655,12 +669,12 @@ void PICARenderer::renderColored(const F32 verts[], const F32 colors[], U32 vert
 void PICARenderer::renderTextured(const F32 verts[], const F32 UVs[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension)
 {
-   useShader(mTexturedShader);
+   //useShader(mTexturedShader);
 
 	Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();
-   mTexturedShader.setMVP(MVP);
-   mTexturedShader.setTextureSampler(0); // Default texture unit
-   mTexturedShader.setTime(static_cast<unsigned>(SDL_GetTicks()));
+   //mTexturedShader.setMVP(MVP);
+   //mTexturedShader.setTextureSampler(0); // Default texture unit
+   //mTexturedShader.setTime(static_cast<unsigned>(SDL_GetTicks()));
 
 	//// Attribute locations
 	//GLint vertexPositionAttrib = mTexturedShader.getAttributeLocation(AttributeName::VertexPosition);
@@ -708,15 +722,15 @@ void PICARenderer::renderTextured(const F32 verts[], const F32 UVs[], U32 vertCo
 void PICARenderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension, bool isAlphaTexture)
 {
-   useShader(mColoredTextureShader);
+   //useShader(mColoredTextureShader);
 
 	// Uniforms
 	Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();
-   mColoredTextureShader.setMVP(MVP);
-   mColoredTextureShader.setColor(mColor, mAlpha);
-   mColoredTextureShader.setIsAlphaTexture(isAlphaTexture);
-   mColoredTextureShader.setTextureSampler(0); // Default texture unit
-   mColoredTextureShader.setTime(static_cast<unsigned>(SDL_GetTicks()));
+   //mColoredTextureShader.setMVP(MVP);
+   //mColoredTextureShader.setColor(mColor, mAlpha);
+   //mColoredTextureShader.setIsAlphaTexture(isAlphaTexture);
+   //mColoredTextureShader.setTextureSampler(0); // Default texture unit
+   //mColoredTextureShader.setTime(static_cast<unsigned>(SDL_GetTicks()));
 
 	//// Attribute locations
 	//GLint vertexPositionAttrib = mColoredTextureShader.getAttributeLocation(AttributeName::VertexPosition);

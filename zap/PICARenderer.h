@@ -12,6 +12,7 @@
 #include "Matrix4.h"
 #include "Stack.h"
 #include "Color.h"
+#include "Point.h"
 
 #define STACK_CAPACITY 100
 
@@ -28,14 +29,12 @@ private:
 
    // Shaders
    PICAShader mStaticShader;
-   PICAShader mDynamicShader;
-   PICAShader mTexturedShader;
-   PICAShader mColoredTextureShader;
+   //PICAShader mDynamicShader;
+   //PICAShader mTexturedShader;
+   //PICAShader mColoredTextureShader;
 
-   // Reusable buffers for vertex data
-   PICARingBuffer mPositionBuffer;
-   PICARingBuffer mColorBuffer;
-   PICARingBuffer mUVBuffer;
+   // Reusable buffer for vertex data
+   PICARingBuffer mVertexBuffer;
 
    bool mTextureEnabled;
    Color mClearColor;
@@ -44,8 +43,14 @@ private:
    F32 mAlpha;
    F32 mPointSize;
    F32 mLineWidth;
-   U32 mCurrentShaderId;
+   void *mCurrentShader;
    bool mUsingAndStencilTest;
+
+   Point mViewportPos;
+   Point mViewportSize;
+   Point mScissorPos;
+   Point mScissorSize;
+   bool mScissorEnabled;
 
    MatrixStack mModelViewMatrixStack;
    MatrixStack mProjectionMatrixStack;

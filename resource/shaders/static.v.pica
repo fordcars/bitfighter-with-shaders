@@ -1,0 +1,32 @@
+; Static vertex shader
+
+; Uniforms
+.fvec MVP[4]
+.fvec vertColor
+
+; Constants
+.constf myconst(0.0, 1.0, -1.0, -0.5)
+.alias  zeros myconst.xxxx ; Vector full of zeros
+.alias  ones  myconst.yyyy ; Vector full of ones
+
+; Outputs
+.out outpos position
+.out outclr color
+
+; Inputs (defined as aliases for convenience)
+.alias inpos v0
+
+.proc main
+	; Force the w component of inpos to be 1.0
+	mov r0.xyz, inpos
+	mov r0.w,   ones
+
+	; outpos = MVP * inpos
+	dp4 outpos.x, MVP[0], r0
+	dp4 outpos.y, MVP[1], r0
+	dp4 outpos.z, MVP[2], r0
+	dp4 outpos.w, MVP[3], r0
+	
+	mov outclr, vertColor
+	end
+.end

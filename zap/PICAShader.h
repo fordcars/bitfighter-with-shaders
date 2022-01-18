@@ -10,8 +10,18 @@
 #include "Color.h"
 #include "tnlTypes.h"
 #include <string>
+#include <stdint.h>
 
 using namespace TNL;
+
+// Declare this here to avoid including citro3D.h here.
+typedef struct
+{
+   void *vertexShader;   ///< Vertex shader.
+   void *geometryShader; ///< Geometry shader.
+   uint32_t geoShaderInputPermutation[2]; ///< Geometry shader input permutation.
+   uint8_t geoShaderInputStride;          ///< Geometry shader input stride.
+} shaderProgramStub;
 
 namespace Zap
 {
@@ -21,8 +31,6 @@ enum class UniformName
    MVP = 0,
    Color,
    PointSize,
-   TextureSampler,
-   IsAlphaTexture,
    Time,
    UniformName_LAST // Keep this at the end
 };
@@ -39,7 +47,8 @@ class PICAShader
 {
 private:
    std::string mName;
-   U32 mId;
+   shaderProgramStub mProgram;
+   void *mDVLB;
 
    S32 mUniformLocations[static_cast<unsigned>(UniformName::UniformName_LAST)];
    S32 mAttributeLocations[static_cast<unsigned>(AttributeName::AttributeName_LAST)];
@@ -48,26 +57,19 @@ private:
    F32 mLastAlpha;
    F32 mLastPointSize;
    U32 mLastTime;
-   bool mLastIsAlphaTexture;
-   U32 mLastTextureSampler;
 
-   static std::string getShaderSource(const std::string &fileName);
-   static U32 compileShader(const std::string& shaderPath, const std::string& shaderCode, U32 type);
-   static U32 linkShader(const std::string& shaderProgramName, U32 vertexShader, U32 fragmentShader);
-
-   void buildProgram(const std::string &vertexShaderFile, const std::string &fragmentShaderFile);
+   void buildProgram(U32 *shbinData, U32 shbinSize);
    void registerUniforms();
    void registerAttributes();
 
 public:
-   PICAShader(const std::string &name, const std::string &vertexShaderFile, const std::string &fragmentShaderFile);
+   PICAShader(const std::string &name, U32 *shbinData, U32 shbinSize);
    ~PICAShader();
 
    std::string getName() const;
-   U32 getId() const;
-
    S32 getUniformLocation(UniformName uniformName) const;
    S32 getAttributeLocation(AttributeName attributeName) const;
+   void bind() const;
 
    // Defined for all shaders, even if unused.
    // Shader must be active when called!
@@ -75,8 +77,6 @@ public:
    void setColor(const Color &color, F32 alpha);
    void setPointSize(F32 size);
    void setTime(U32 time);
-   void setIsAlphaTexture(bool isAlphaTexture);
-   void setTextureSampler(U32 textureSampler);
 };
 
 }
