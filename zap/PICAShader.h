@@ -63,9 +63,10 @@ private:
    void registerAttributes();
 
 public:
-   PICAShader(const std::string &name, U32 *shbinData, U32 shbinSize);
+   PICAShader();
    ~PICAShader();
 
+   void init(const std::string &name, U32 *shbinData, U32 shbinSize);
    std::string getName() const;
    S32 getUniformLocation(UniformName uniformName) const;
    S32 getAttributeLocation(AttributeName attributeName) const;

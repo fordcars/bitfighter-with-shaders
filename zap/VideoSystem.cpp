@@ -152,7 +152,7 @@ bool VideoSystem::init()
    if(icon != NULL)
       SDL_FreeSurface(icon);
 #else
-   DisplayManager::getScreenInfo()->init(400, 240);
+   DisplayManager::getScreenInfo()->init(ScreenInfo::GAME_WIDTH, ScreenInfo::GAME_HEIGHT);
    PICARenderer::create();
 #endif
 
@@ -430,6 +430,7 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
 
    // Perform state actions
    // Now that we're in the state we want, alter the video params accordingly
+#ifndef BF_PLATFORM_3DS
    switch(currentState)
    {
       // We should have moved on by now!
@@ -446,11 +447,9 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
          if(settings->getIniSettings()->winXPos != 0 || settings->getIniSettings()->winYPos != 0)
             setWindowPosition(settings->getIniSettings()->winXPos, settings->getIniSettings()->winYPos);
 
-#ifndef BF_PLATFORM_3DS
          // Leave fullscreen before setting size
          SDL_SetWindowFullscreen(screen->sdlWindow, SDL_DISABLE);
          SDL_SetWindowSize(screen->sdlWindow, windowWidth, windowHeight);
-#endif
 
          // Save the new window dimensions in ScreenInfo
          screen->setWindowSize(windowWidth, windowHeight);
@@ -466,10 +465,8 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
          windowWidth = screen->getPhysicalScreenWidth();
          windowHeight = screen->getPhysicalScreenHeight();
 
-#ifndef BF_PLATFORM_3DS
          SDL_SetWindowSize(screen->sdlWindow, windowWidth, windowHeight);
          SDL_SetWindowFullscreen(screen->sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
-#endif
 
          // Save the new window dimensions in ScreenInfo
          screen->setWindowSize(windowWidth, windowHeight);
@@ -485,10 +482,8 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
          windowWidth = screen->getPhysicalScreenWidth();
          windowHeight = screen->getPhysicalScreenHeight();
 
-#ifndef BF_PLATFORM_3DS
          SDL_SetWindowSize(screen->sdlWindow, windowWidth, windowHeight);
          SDL_SetWindowFullscreen(screen->sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
-#endif
 
          // Save the new window dimensions in ScreenInfo
          screen->setWindowSize(windowWidth, windowHeight);
@@ -523,10 +518,8 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
          if(settings->getIniSettings()->winXPos != 0 || settings->getIniSettings()->winYPos != 0)
             setWindowPosition(settings->getIniSettings()->winXPos, settings->getIniSettings()->winYPos);
 
-#ifndef BF_PLATFORM_3DS
          SDL_SetWindowFullscreen(screen->sdlWindow, SDL_DISABLE);
          SDL_SetWindowSize(screen->sdlWindow, windowWidth, windowHeight);
-#endif
 
          // Save the new window dimensions in ScreenInfo
          screen->setWindowSize(windowWidth, windowHeight);
@@ -546,10 +539,8 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
 
          setWindowPosition(0, 0);
 
-#ifndef BF_PLATFORM_3DS
          SDL_SetWindowSize(screen->sdlWindow, windowWidth, windowHeight);
          SDL_SetWindowFullscreen(screen->sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
-#endif
 
          // Save the new window dimensions in ScreenInfo
          screen->setWindowSize(windowWidth, windowHeight);
@@ -576,6 +567,26 @@ void VideoSystem::updateDisplayState(GameSettings *settings, StateReason reason)
       default:
          break;
    }
+#else
+   // Always same settings for 3DS
+   windowWidth = screen->getPhysicalScreenWidth();
+   windowHeight = screen->getPhysicalScreenHeight();
+
+   screen->setWindowSize(windowWidth, windowHeight);
+   screen->setOrtho(
+      0,//-1 * screen->getHorizDrawMargin(),
+      screen->getGameCanvasWidth(),// + screen->getHorizDrawMargin(),
+      0,//-1 * screen->getVertDrawMargin()
+      screen->getGameCanvasHeight()// + screen->getVertDrawMargin(),
+   );
+
+   screen->setScissor(
+      screen->getHorizPhysicalMargin(),
+      screen->getVertPhysicalMargin(),
+      screen->getDrawAreaWidth(),
+      screen->getDrawAreaHeight()
+   );
+#endif
 
    //
    // END STATE MACHINE

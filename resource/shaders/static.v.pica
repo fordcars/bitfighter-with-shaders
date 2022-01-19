@@ -1,6 +1,7 @@
 ; Static vertex shader
 
 ; Uniforms
+; IMPORTANT: our MVP has inverted rows (vertical mirrored).
 .fvec MVP[4]
 .fvec vertColor
 
@@ -17,16 +18,19 @@
 .alias inpos v0
 
 .proc main
-	; Force the w component of inpos to be 1.0
-	mov r0.xyz, inpos
-	mov r0.w,   ones
+	; Since our MVP has inverted rows, we invert the input vertex
+	; and set its .z to 0 and .w to 1
+	mov r0.x, ones
+	mov r0.y, zeros ;inpos.z
+	mov r0.z, inpos.y
+	mov r0.w, inpos.x
 
 	; outpos = MVP * inpos
 	dp4 outpos.x, MVP[0], r0
 	dp4 outpos.y, MVP[1], r0
-	dp4 outpos.z, MVP[2], r0
-	dp4 outpos.w, MVP[3], r0
 	
+	mov outpos.z, myconst.z
+	mov outpos.w, ones
 	mov outclr, vertColor
 	end
 .end

@@ -7,7 +7,6 @@
 #define _PICARINGBUFFER_H_
 
 #include "tnlTypes.h"
-#include <cstddef> // For size_t
 
 using namespace TNL;
 
@@ -27,7 +26,7 @@ public:
 
    void init();
    void reset();
-   std::size_t insertData(const void* data, U32 size);
+   void insertData(const void *data, U32 size, U32 stride, U32 attribPerVert, U64 permutation);
 };
 
 }

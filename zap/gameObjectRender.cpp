@@ -2823,7 +2823,7 @@ const S32 LetterLoc13 = 22;  // R hole
 const S32 LogoLetterCount = LetterLoc1 + LetterLoc2 + LetterLoc3 + LetterLoc4 + LetterLoc5 + LetterLoc6 + LetterLoc7 +
                             LetterLoc8 + LetterLoc9 + LetterLoc10 + LetterLoc11 + LetterLoc12 + LetterLoc13;
 
-S16 gLogoPoints[LogoLetterCount][2] =
+F32 gLogoPoints[LogoLetterCount][2] =
 {
 { 498,265 }, { 498,31  }, { 500,21  }, { 506,11  }, { 516,3   }, { 526,0   }, { 536,3   }, { 546,11  }, { 551,21  },
 { 554,31  }, { 554,554 }, { 551,569 }, { 546,577 }, { 539,582 }, { 457,582 }, { 442,580 }, { 434,575 }, { 429,567 },
@@ -2930,7 +2930,7 @@ void renderBitfighterLogo(U32 mask)
 {
    Renderer& r = Renderer::get();
 
-   S16* points = &gLogoPoints[0][0];
+   F32* points = &gLogoPoints[0][0];
    U32 pos = 0;
 
    if (mask & 1 << 0)

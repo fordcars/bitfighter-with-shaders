@@ -45,7 +45,6 @@ U32 colorToHex(const Color &color, F32 alpha)
 
 PICARenderer::PICARenderer()
    : mTarget(0)
-   , mStaticShader("static", (U32 *)static_shbin, static_shbin_size)
    //, mDynamicShader("dynamic", "dynamic.v.glsl", "dynamic.f.glsl")
    //, mTexturedShader("textured", "textured.v.glsl", "textured.f.glsl")
    //, mColoredTextureShader("coloredTexture", "coloredTexture.v.glsl", "coloredTexture.f.glsl")
@@ -74,12 +73,20 @@ PICARenderer::PICARenderer()
 
    C3D_RenderTargetSetOutput(mTarget, GFX_TOP, GFX_LEFT, DISPLAY_TRANSFER_FLAGS);
    C3D_StencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_REPLACE);
+
+   mStaticShader.init("static", (U32 *)static_shbin, static_shbin_size);
    mVertexBuffer.init();
 
    // Give each stack an identity matrix
    mModelViewMatrixStack.push(Matrix4());
    mProjectionMatrixStack.push(Matrix4());
 	initRenderer();
+
+   // Setup texture environment (needed for proper rendering)
+   C3D_TexEnv *env = C3D_GetTexEnv(0);
+   C3D_TexEnvInit(env);
+   C3D_TexEnvSrc(env, C3D_Both, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR);
+   C3D_TexEnvFunc(env, C3D_Both, GPU_MODULATE);
 }
 
 PICARenderer::~PICARenderer()
@@ -106,7 +113,7 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
 {
    useShader(mStaticShader);
 
-	Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();
+   Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();
    mStaticShader.setMVP(MVP);
    mStaticShader.setColor(mColor, mAlpha);
    mStaticShader.setPointSize(mPointSize);
@@ -115,26 +122,24 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
 	//// Get the position attribute location in the shader
 	//GLint attribLocation = mStaticShader.getAttributeLocation(AttributeName::VertexPosition);
 
-	//// Give position data to the shader, and deal with stride
- //  // Positions
- //  U32 bytesPerCoord = sizeof(T) * vertDimension;
- //  if(stride > bytesPerCoord) // Should never be less than
- //     bytesPerCoord = stride;
+	// Give position data to the shader, and deal with stride
+   // Positions
+   U32 bytesPerCoord = sizeof(T) * vertDimension;
+   if(stride == 0)
+      stride = bytesPerCoord;
+   else if(stride > bytesPerCoord)
+      bytesPerCoord = stride;
 
- //  mPositionBuffer.bind();
- //  std::size_t positionOffset = mPositionBuffer.insertData((U8 *)verts + (start * bytesPerCoord), bytesPerCoord * vertCount);
+   mVertexBuffer.insertData(
+      (U8 *)verts + (start * bytesPerCoord), // data
+      bytesPerCoord * vertCount,             // size
+      stride,
+      1,
+      0x0
+   );
 
-	//glVertexAttribPointer(
-	//	attribLocation,	       // Attribute index
-	//	vertDimension,				 // Number of values per vertex
-	//	getDataType(dataType), // Data type
-	//	GL_FALSE,			       // Normalized?
-	//	stride,				       // Stride
-	//	(void *)positionOffset	 // Array buffer offset
-	//);
-
-	//// Draw!
-	//glDrawArrays(getRenderType(type), 0, vertCount);
+	// Draw!
+   C3D_DrawArrays(GPU_TRIANGLES, start, vertCount);
 }
 
 U32 PICARenderer::getRenderType(RenderType type) const
@@ -288,7 +293,7 @@ void PICARenderer::enableBlending()
 void PICARenderer::disableBlending()
 {
    // C3D_AlphaBlend(colorEq        alphaEq     srcClr   dstClr    srcAlpha  dstAlpha)
-   C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_ONE, GPU_ZERO, GPU_ONE, GPU_ZERO);
+   //C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_ONE, GPU_ZERO, GPU_ONE, GPU_ZERO);
 }
 
 // Any black pixel will become fully transparent
@@ -314,12 +319,12 @@ void PICARenderer::useDefaultBlending()
 
 void PICARenderer::enableDepthTest()
 {
-   C3D_DepthTest(true, GPU_LESS, GPU_WRITE_DEPTH);
+   //C3D_DepthTest(true, GPU_LESS, GPU_WRITE_DEPTH);
 }
 
 void PICARenderer::disableDepthTest()
 {
-   C3D_DepthTest(false, GPU_LESS, GPU_WRITE_DEPTH);
+   //C3D_DepthTest(false, GPU_LESS, GPU_WRITE_DEPTH);
 }
 
 /// Stencils
@@ -399,13 +404,13 @@ void PICARenderer::enableScissor()
 
 void PICARenderer::disableScissor()
 {
-   C3D_SetScissor(
-      GPU_SCISSOR_DISABLE,
-      (u32)mScissorPos.x,
-      (u32)mScissorPos.y,
-      (u32)(mScissorPos.x + mScissorSize.x),
-      (u32)(mScissorPos.y + mScissorSize.y)
-   );
+   //C3D_SetScissor(
+   //   GPU_SCISSOR_DISABLE,
+   //   (u32)mScissorPos.x,
+   //   (u32)mScissorPos.y,
+   //   (u32)(mScissorPos.x + mScissorSize.x),
+   //   (u32)(mScissorPos.y + mScissorSize.y)
+   //);
 
    mScissorEnabled = false;
 }
@@ -514,7 +519,7 @@ void PICARenderer::projectOrtho(F32 left, F32 right, F32 bottom, F32 top, F32 ne
 	// Multiply the top matrix with an ortho matrix
    MatrixStack &stack = (mMatrixMode == MatrixType::ModelView) ? mModelViewMatrixStack : mProjectionMatrixStack;
 	Matrix4 topMatrix = stack.top();
-	Matrix4 ortho = Matrix4::getOrthoProjection(left, right, bottom, top, nearZ, farZ);
+   Matrix4 ortho = Matrix4::getOrthoProjection(left, right, bottom, top, nearZ, farZ);
 
 	stack.pop();
 	stack.push(ortho * topMatrix);
@@ -617,9 +622,10 @@ void PICARenderer::renderVertexArray(const F32 verts[], U32 vertCount, RenderTyp
 void PICARenderer::renderColored(const F32 verts[], const F32 colors[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension)
 {
+   renderGenericVertexArray(DataType::Float, verts, vertCount, type, start, stride, vertDimension);
    //useShader(mDynamicShader);
 
-	Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();
+	//Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();
    //mDynamicShader.setMVP(MVP);
    //mDynamicShader.setPointSize(mPointSize);
    //mDynamicShader.setTime(static_cast<unsigned>(SDL_GetTicks()));

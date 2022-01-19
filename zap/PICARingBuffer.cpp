@@ -54,8 +54,8 @@ void PICARingBuffer::reset()
    BufInfo_Init((C3D_BufInfo *)mBufferInfo);
 }
 
-// Returns the offset of inserted data within the buffer
-std::size_t PICARingBuffer::insertData(const void *data, U32 size)
+// Inserts data in buffer, and adds to buffer info
+void PICARingBuffer::insertData(const void *data, U32 size, U32 stride, U32 attribPerVert, U64 permutation)
 {
    if(mCurrentOffset + size >= RING_BUFFER_SIZE)
    {
@@ -66,11 +66,11 @@ std::size_t PICARingBuffer::insertData(const void *data, U32 size)
    }
 
    // Copy data
-   memcpy(mData, data, size);
+   memcpy((U8 *)mData + mCurrentOffset, data, size);
 
-   std::size_t oldPosition = mCurrentOffset;
-   mCurrentOffset += size + (4 - size%4); // Make sure we are 4-byte aligned
-   return oldPosition;
+   // Add to buffer info
+   BufInfo_Add((C3D_BufInfo *)mBufferInfo, (U8*)mData + mCurrentOffset, stride, attribPerVert, permutation);
+   mCurrentOffset += size + (4 - size % 4); // Make sure we are 4-byte aligned
 }
 
 }

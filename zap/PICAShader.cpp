@@ -13,13 +13,22 @@
 namespace Zap
 {
 
-PICAShader::PICAShader(const std::string &name, U32 *shbinData, U32 shbinSize)
-   : mName(name)
-   , mUniformLocations()
-   , mLastAlpha(0)
+PICAShader::PICAShader()
+   : mLastAlpha(0)
    , mLastPointSize(0)
    , mLastTime(0)
 {
+}
+
+PICAShader::~PICAShader()
+{
+   shaderProgramFree((shaderProgram_s *)&mProgram);
+   DVLB_Free((DVLB_s *)mDVLB);
+}
+
+void PICAShader::init(const std::string &name, U32 *shbinData, U32 shbinSize)
+{
+   mName = name;
 
    buildProgram(shbinData, shbinSize);
    bind();
@@ -33,12 +42,6 @@ PICAShader::PICAShader(const std::string &name, U32 *shbinData, U32 shbinSize)
    setTime(0);
 }
 
-PICAShader::~PICAShader()
-{
-   shaderProgramFree((shaderProgram_s *)&mProgram);
-   DVLB_Free((DVLB_s *)mDVLB);
-}
-
 void PICAShader::buildProgram(U32 *shbinData, U32 shbinSize)
 {
    // Load the vertex shader, create a shader program and bind it
@@ -46,9 +49,10 @@ void PICAShader::buildProgram(U32 *shbinData, U32 shbinSize)
    if(!mDVLB)
       printf("Could not parse '%s' shader file!\n", mName.c_str());
 
+   DVLB_s *shaderDVLB = (DVLB_s *)mDVLB;
    shaderProgram_s *program = (shaderProgram_s *)&mProgram;
    shaderProgramInit(program);
-   shaderProgramSetVsh(program, &(((DVLB_s*)mDVLB)->DVLE[0]));
+   shaderProgramSetVsh(program, &shaderDVLB->DVLE[0]);
 
    if(!program)
       printf("Could not initialize '%s' shader!\n", mName.c_str());
@@ -60,7 +64,7 @@ void PICAShader::registerUniforms()
 
    // -1 if uniform was not found
    mUniformLocations[static_cast<unsigned>(UniformName::MVP)] = shaderInstanceGetUniformLocation(program->vertexShader, "MVP");
-   mUniformLocations[static_cast<unsigned>(UniformName::Color)] = shaderInstanceGetUniformLocation(program->vertexShader, "color");
+   mUniformLocations[static_cast<unsigned>(UniformName::Color)] = shaderInstanceGetUniformLocation(program->vertexShader, "vertColor");
    mUniformLocations[static_cast<unsigned>(UniformName::PointSize)] = shaderInstanceGetUniformLocation(program->vertexShader, "pointSize");
    mUniformLocations[static_cast<unsigned>(UniformName::Time)] = shaderInstanceGetUniformLocation(program->vertexShader, "time");
 }
@@ -102,7 +106,7 @@ void PICAShader::setMVP(const Matrix4 &MVP)
 {
    S32 loc = getUniformLocation(UniformName::MVP);
    if(loc != -1)
-      C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, loc, (C3D_Mtx*)MVP.getData());
+      C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, loc, (C3D_Mtx *)MVP.getData());
 }
 
 void PICAShader::setColor(const Color &color, F32 alpha)
