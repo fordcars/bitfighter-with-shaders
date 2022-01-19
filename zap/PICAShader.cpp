@@ -84,8 +84,7 @@ void PICAShader::registerAttributes()
 
    C3D_AttrInfo *attrInfo = C3D_GetAttrInfo();
    AttrInfo_Init(attrInfo);
-   if(mName == "static")
-      AttrInfo_AddLoader(attrInfo, 0, GPU_FLOAT, 3); // v0=position
+   AttrInfo_AddLoader(attrInfo, 0, GPU_FLOAT, 3); // v0=position
 }
 
 std::string PICAShader::getName() const
@@ -131,7 +130,7 @@ void PICAShader::setPointSize(F32 size)
    S32 loc = getUniformLocation(UniformName::PointSize);
    if(loc != -1 && size != mLastPointSize)
    {
-      C3D_FVUnifSet(GPU_VERTEX_SHADER, loc, size, 0.0f, 0.0f, 0.0f);
+      C3D_FVUnifSet(GPU_GEOMETRY_SHADER, loc, size, 0.0f, 0.0f, 0.0f);
       mLastPointSize = size;
    }
 }

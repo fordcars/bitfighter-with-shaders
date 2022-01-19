@@ -75,7 +75,7 @@ PICARenderer::PICARenderer()
    C3D_RenderTargetSetOutput(mTarget, GFX_TOP, GFX_LEFT, DISPLAY_TRANSFER_FLAGS);
    C3D_StencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_REPLACE);
 
-   mStaticTrianglesShader.init("static_triangles", (U32 *)static_triangles_shbin, static_triangles_shbin_size, 1);
+   mStaticTrianglesShader.init("static_triangles", (U32 *)static_triangles_shbin, static_triangles_shbin_size, 0);
    mStaticPointsShader.init("static_points", (U32 *)static_points_shbin, static_points_shbin_size, 1);
    mVertexBuffer.init();
 
