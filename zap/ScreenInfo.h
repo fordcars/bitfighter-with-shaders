@@ -40,6 +40,9 @@ typedef struct {
 class ScreenInfo
 {
 private:
+   static const S32 GAME_WIDTH  = 800;
+   static const S32 GAME_HEIGHT = 600;
+
    F32 MIN_SCALING_FACTOR;       // Limits minimum window size
 
    Point mWindowMousePos, mCanvasMousePos;
@@ -61,8 +64,8 @@ private:
    void calcPixelRatio();
 
 public:
-   static const S32 GAME_WIDTH = 400;
-   static const S32 GAME_HEIGHT = 240;
+   static const S32 PHYSICAL_WIDTH = 400;
+   static const S32 PHYSICAL_HEIGHT = 240;
 
    ScreenInfo();      // Constructor
    virtual ~ScreenInfo();

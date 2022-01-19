@@ -152,7 +152,7 @@ bool VideoSystem::init()
    if(icon != NULL)
       SDL_FreeSurface(icon);
 #else
-   DisplayManager::getScreenInfo()->init(ScreenInfo::GAME_WIDTH, ScreenInfo::GAME_HEIGHT);
+   DisplayManager::getScreenInfo()->init(ScreenInfo::PHYSICAL_WIDTH, ScreenInfo::PHYSICAL_HEIGHT);
    PICARenderer::create();
 #endif
 
