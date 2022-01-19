@@ -28,7 +28,8 @@ private:
    C3D_RenderTarget_tag *mTarget;
 
    // Shaders
-   PICAShader mStaticShader;
+   PICAShader mStaticTrianglesShader;
+   PICAShader mStaticPointsShader;
    //PICAShader mDynamicShader;
    //PICAShader mTexturedShader;
    //PICAShader mColoredTextureShader;

@@ -26,11 +26,11 @@ PICAShader::~PICAShader()
    DVLB_Free((DVLB_s *)mDVLB);
 }
 
-void PICAShader::init(const std::string &name, U32 *shbinData, U32 shbinSize)
+void PICAShader::init(const std::string &name, U32 *shbinData, U32 shbinSize, U32 geometryStride)
 {
    mName = name;
 
-   buildProgram(shbinData, shbinSize);
+   buildProgram(shbinData, shbinSize, geometryStride);
    bind();
    registerUniforms();
    registerAttributes();
@@ -42,7 +42,7 @@ void PICAShader::init(const std::string &name, U32 *shbinData, U32 shbinSize)
    setTime(0);
 }
 
-void PICAShader::buildProgram(U32 *shbinData, U32 shbinSize)
+void PICAShader::buildProgram(U32 *shbinData, U32 shbinSize, U32 geometryStride)
 {
    // Load the vertex shader, create a shader program and bind it
    mDVLB = DVLB_ParseFile((u32*)shbinData, shbinSize);
@@ -54,6 +54,9 @@ void PICAShader::buildProgram(U32 *shbinData, U32 shbinSize)
    shaderProgramInit(program);
    shaderProgramSetVsh(program, &shaderDVLB->DVLE[0]);
 
+   if(shaderDVLB->numDVLE > 1)
+      shaderProgramSetGsh(program, &shaderDVLB->DVLE[1], geometryStride);
+
    if(!program)
       printf("Could not initialize '%s' shader!\n", mName.c_str());
 }
@@ -63,10 +66,13 @@ void PICAShader::registerUniforms()
    shaderProgram_s *program = (shaderProgram_s *)&mProgram;
 
    // -1 if uniform was not found
+   // Vertex shader
    mUniformLocations[static_cast<unsigned>(UniformName::MVP)] = shaderInstanceGetUniformLocation(program->vertexShader, "MVP");
    mUniformLocations[static_cast<unsigned>(UniformName::Color)] = shaderInstanceGetUniformLocation(program->vertexShader, "vertColor");
-   mUniformLocations[static_cast<unsigned>(UniformName::PointSize)] = shaderInstanceGetUniformLocation(program->vertexShader, "pointSize");
    mUniformLocations[static_cast<unsigned>(UniformName::Time)] = shaderInstanceGetUniformLocation(program->vertexShader, "time");
+
+   // Geometry shader
+   mUniformLocations[static_cast<unsigned>(UniformName::PointSize)] = shaderInstanceGetUniformLocation(program->geometryShader, "pointSize");
 }
 
 void PICAShader::registerAttributes()

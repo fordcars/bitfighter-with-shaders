@@ -58,7 +58,7 @@ private:
    F32 mLastPointSize;
    U32 mLastTime;
 
-   void buildProgram(U32 *shbinData, U32 shbinSize);
+   void buildProgram(U32 *shbinData, U32 shbinSize, U32 geometryStride);
    void registerUniforms();
    void registerAttributes();
 
@@ -66,7 +66,8 @@ public:
    PICAShader();
    ~PICAShader();
 
-   void init(const std::string &name, U32 *shbinData, U32 shbinSize);
+   // geometryStride: number of vec4s per primitive
+   void init(const std::string &name, U32 *shbinData, U32 shbinSize, U32 geometryStride = 0);
    std::string getName() const;
    S32 getUniformLocation(UniformName uniformName) const;
    S32 getAttributeLocation(AttributeName attributeName) const;

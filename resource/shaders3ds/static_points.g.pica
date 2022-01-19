@@ -1,0 +1,53 @@
+.gsh point c0
+
+; Uniforms
+.fvec pointSize
+
+; Constants
+.constf myconst(0.0, 1.0, -1.0, 0.5)
+.alias  zeros myconst.xxxx ; Vector full of zeros
+.alias  ones  myconst.yyyy ; Vector full of ones
+.alias  half  myconst.wwww
+
+; Inputs
+.alias inpos v0
+.alias inclr v1
+
+; Outputs - this time the type *is* used
+.out outpos position
+.out outclr color
+
+.entry gmain
+.proc gmain
+	; Calculate half pointSize
+	mov r4.x, pointSize.x
+	mul r4.x, half, r4.x            ; pointSize/2
+	mul r4.y, myconst.z, r4.x       ; -pointSize/2
+	
+	; Same for all vertices
+	mov outclr, inclr
+	mov outpos.z, myconst.z
+	mov outpos.w, ones
+	
+	; Right vertex
+	setemit 0
+	mov outpos.xy, inpos.xy
+	add outpos.x, r4.x, outpos.x    ; x += pointSize/2
+	add outpos.y, r4.y, outpos.y    ; y -= pointSize/2
+	emit
+	
+	; Top vertex
+	setemit 1
+	mov outpos.xy, inpos.xy
+	add outpos.y, r4.x, outpos.y    ; y += pointSize/2
+	emit
+	
+	; Left vertex
+	setemit 2, prim
+	mov outpos.xy, inpos.xy
+	add outpos.x, r4.y, outpos.x    ; x -= pointSize/2
+	add outpos.y, r4.y, outpos.y    ; y -= pointSize/2
+	emit
+	
+	end
+.end

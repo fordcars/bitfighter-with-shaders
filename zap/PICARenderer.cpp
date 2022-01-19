@@ -17,7 +17,8 @@
 #include <cstddef> // For size_t
 
 // Shaders
-#include "static_shbin.h"
+#include "static_triangles_shbin.h"
+#include "static_points_shbin.h"
 
 // From https://github.com/devkitPro/3ds-examples/blob/master/graphics/gpu/textured_cube/source/main.c
 #define DISPLAY_TRANSFER_FLAGS \
@@ -74,7 +75,8 @@ PICARenderer::PICARenderer()
    C3D_RenderTargetSetOutput(mTarget, GFX_TOP, GFX_LEFT, DISPLAY_TRANSFER_FLAGS);
    C3D_StencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_REPLACE);
 
-   mStaticShader.init("static", (U32 *)static_shbin, static_shbin_size);
+   mStaticTrianglesShader.init("static_triangles", (U32 *)static_triangles_shbin, static_triangles_shbin_size, 1);
+   mStaticPointsShader.init("static_points", (U32 *)static_points_shbin, static_points_shbin_size, 1);
    mVertexBuffer.init();
 
    // Give each stack an identity matrix
@@ -111,13 +113,13 @@ template<typename T>
 void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
 	U32 start, U32 stride, U32 vertDimension)
 {
-   useShader(mStaticShader);
+   useShader(mStaticTrianglesShader);
 
    Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();
-   mStaticShader.setMVP(MVP);
-   mStaticShader.setColor(mColor, mAlpha);
-   mStaticShader.setPointSize(mPointSize);
-   mStaticShader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
+   mStaticTrianglesShader.setMVP(MVP);
+   mStaticTrianglesShader.setColor(mColor, mAlpha);
+   mStaticTrianglesShader.setPointSize(mPointSize);
+   mStaticTrianglesShader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
 
 	//// Get the position attribute location in the shader
 	//GLint attribLocation = mStaticShader.getAttributeLocation(AttributeName::VertexPosition);
