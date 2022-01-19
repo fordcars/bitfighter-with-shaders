@@ -9,6 +9,7 @@
 #include "Color.h"
 #include "SDL/SDL.h"
 #include "MathUtils.h"
+#include "ScreenInfo.h"
 
 #undef BIT
 #include <3ds.h>
@@ -53,7 +54,7 @@ PICARenderer::PICARenderer()
    , mClearColor(0.0f, 0.0f, 0.0f)
    , mClearAlpha(1.0f)
    , mAlpha(1.0f)
-   , mPointSize(1.0f)
+   , mPointSize(0.0f)
    , mLineWidth(1.0f)
    , mCurrentShader(0)
    , mUsingAndStencilTest(false)
@@ -76,19 +77,22 @@ PICARenderer::PICARenderer()
    C3D_StencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_REPLACE);
 
    mStaticTrianglesShader.init("static_triangles", (U32 *)static_triangles_shbin, static_triangles_shbin_size, 0);
-   mStaticPointsShader.init("static_points", (U32 *)static_points_shbin, static_points_shbin_size, 1);
+   mStaticPointsShader.init("static_points", (U32 *)static_points_shbin, static_points_shbin_size, 2);
    mVertexBuffer.init();
 
    // Give each stack an identity matrix
    mModelViewMatrixStack.push(Matrix4());
    mProjectionMatrixStack.push(Matrix4());
-	initRenderer();
 
    // Setup texture environment (needed for proper rendering)
    C3D_TexEnv *env = C3D_GetTexEnv(0);
    C3D_TexEnvInit(env);
    C3D_TexEnvSrc(env, C3D_Both, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR);
    C3D_TexEnvFunc(env, C3D_Both, GPU_MODULATE);
+
+   // Other initial initializations
+   setPointSize(1.0f);
+   initRenderer();
 }
 
 PICARenderer::~PICARenderer()
@@ -113,13 +117,13 @@ template<typename T>
 void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
 	U32 start, U32 stride, U32 vertDimension)
 {
-   useShader(mStaticTrianglesShader);
+   useShader(mStaticPointsShader);
 
    Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();
-   mStaticTrianglesShader.setMVP(MVP);
-   mStaticTrianglesShader.setColor(mColor, mAlpha);
-   mStaticTrianglesShader.setPointSize(mPointSize);
-   mStaticTrianglesShader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
+   mStaticPointsShader.setMVP(MVP);
+   mStaticPointsShader.setColor(mColor, mAlpha);
+   mStaticPointsShader.setPointSize(mPointSize);
+   mStaticPointsShader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
 
 	//// Get the position attribute location in the shader
 	//GLint attribLocation = mStaticShader.getAttributeLocation(AttributeName::VertexPosition);
@@ -141,7 +145,7 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
    );
 
 	// Draw!
-   C3D_DrawArrays(GPU_TRIANGLES, start, vertCount);
+   C3D_DrawArrays(GPU_GEOMETRY_PRIM, start, vertCount);
 }
 
 U32 PICARenderer::getRenderType(RenderType type) const
@@ -269,7 +273,10 @@ void PICARenderer::setColor(F32 r, F32 g, F32 b, F32 alpha)
 
 void PICARenderer::setPointSize(F32 size)
 {
-   mPointSize = size;
+   // Convert point size (pixels) to normalized [-1, 1] space.
+   // Was found with trial and error.
+   F32 sizeFator = 3.6f/ScreenInfo::PHYSICAL_HEIGHT;
+   mPointSize = size * sizeFator;
 }
 
 void PICARenderer::setLineWidth(F32 width)
