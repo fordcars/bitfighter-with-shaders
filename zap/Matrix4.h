@@ -29,6 +29,7 @@ public:
    const F32 *getData() const;
 
    Matrix4 operator*(const Matrix4 &rhs);
+   Matrix4 multiplyAndTranspose(const Matrix4 &rhs);
    Matrix4 scale(F32 x, F32 y, F32 z);
    Matrix4 translate(F32 x, F32 y, F32 z);
    Matrix4 rotate(F32 radAngle, F32 x, F32 y, F32 z);

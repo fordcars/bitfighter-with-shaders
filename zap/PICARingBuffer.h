@@ -16,7 +16,6 @@ namespace Zap
 class PICARingBuffer
 {
 private:
-   void *mBufferInfo;
    void *mData;
    std::size_t mCurrentOffset;
 

@@ -119,7 +119,7 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
 {
    useShader(mStaticPointsShader);
 
-   Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();
+   Matrix4 MVP = mProjectionMatrixStack.top().multiplyAndTranspose(mModelViewMatrixStack.top());
    mStaticPointsShader.setMVP(MVP);
    mStaticPointsShader.setColor(mColor, mAlpha);
    mStaticPointsShader.setPointSize(mPointSize);
@@ -145,7 +145,7 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
    );
 
 	// Draw!
-   C3D_DrawArrays(GPU_GEOMETRY_PRIM, start, vertCount);
+   C3D_DrawArrays(GPU_GEOMETRY_PRIM, 0, vertCount);
 }
 
 U32 PICARenderer::getRenderType(RenderType type) const
@@ -234,7 +234,6 @@ U32 PICARenderer::getDataType(DataType type) const
 void PICARenderer::frameBegin()
 {
    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-   mVertexBuffer.reset();
 }
 
 void PICARenderer::frameEnd()
@@ -613,13 +612,13 @@ void PICARenderer::readFramebufferPixels(TextureFormat format, DataType dataType
 void PICARenderer::renderVertexArray(const S8 verts[], U32 vertCount, RenderType type,
    U32 start, U32 stride, U32 vertDimension)
 {
-	renderGenericVertexArray(DataType::Byte, verts, vertCount, type, start, stride, vertDimension);
+	//renderGenericVertexArray(DataType::Byte, verts, vertCount, type, start, stride, vertDimension);
 }
 
 void PICARenderer::renderVertexArray(const S16 verts[], U32 vertCount, RenderType type,
    U32 start, U32 stride, U32 vertDimension)
 {
-	renderGenericVertexArray(DataType::Short, verts, vertCount, type, start, stride, vertDimension);
+	//renderGenericVertexArray(DataType::Short, verts, vertCount, type, start, stride, vertDimension);
 }
 
 void PICARenderer::renderVertexArray(const F32 verts[], U32 vertCount, RenderType type,
@@ -631,7 +630,7 @@ void PICARenderer::renderVertexArray(const F32 verts[], U32 vertCount, RenderTyp
 void PICARenderer::renderColored(const F32 verts[], const F32 colors[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension)
 {
-   renderGenericVertexArray(DataType::Float, verts, vertCount, type, start, stride, vertDimension);
+   //renderGenericVertexArray(DataType::Float, verts, vertCount, type, start, stride, vertDimension);
    //useShader(mDynamicShader);
 
 	//Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();

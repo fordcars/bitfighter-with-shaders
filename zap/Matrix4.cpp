@@ -97,6 +97,33 @@ Matrix4 Matrix4::operator*(const Matrix4 &rhs)
    return out;
 }
 
+// Multiplies our matrix by rhs, then transposes (outputs row-major)
+Matrix4 Matrix4::multiplyAndTranspose(const Matrix4 &rhs)
+{
+   Matrix4 out(false); // Don't initialize, for speed
+   out.mData[0][0] = mData[0][0] * rhs.mData[0][0] + mData[1][0] * rhs.mData[0][1] + mData[2][0] * rhs.mData[0][2] + mData[3][0] * rhs.mData[0][3];
+   out.mData[0][1] = mData[0][0] * rhs.mData[1][0] + mData[1][0] * rhs.mData[1][1] + mData[2][0] * rhs.mData[1][2] + mData[3][0] * rhs.mData[1][3];
+   out.mData[0][2] = mData[0][0] * rhs.mData[2][0] + mData[1][0] * rhs.mData[2][1] + mData[2][0] * rhs.mData[2][2] + mData[3][0] * rhs.mData[2][3];
+   out.mData[0][3] = mData[0][0] * rhs.mData[3][0] + mData[1][0] * rhs.mData[3][1] + mData[2][0] * rhs.mData[3][2] + mData[3][0] * rhs.mData[3][3];
+
+   out.mData[1][0] = mData[0][1] * rhs.mData[0][0] + mData[1][1] * rhs.mData[0][1] + mData[2][1] * rhs.mData[0][2] + mData[3][1] * rhs.mData[0][3];
+   out.mData[1][1] = mData[0][1] * rhs.mData[1][0] + mData[1][1] * rhs.mData[1][1] + mData[2][1] * rhs.mData[1][2] + mData[3][1] * rhs.mData[1][3];
+   out.mData[1][2] = mData[0][1] * rhs.mData[2][0] + mData[1][1] * rhs.mData[2][1] + mData[2][1] * rhs.mData[2][2] + mData[3][1] * rhs.mData[2][3];
+   out.mData[1][3] = mData[0][1] * rhs.mData[3][0] + mData[1][1] * rhs.mData[3][1] + mData[2][1] * rhs.mData[3][2] + mData[3][1] * rhs.mData[3][3];
+
+   out.mData[2][0] = mData[0][2] * rhs.mData[0][0] + mData[1][2] * rhs.mData[0][1] + mData[2][2] * rhs.mData[0][2] + mData[3][2] * rhs.mData[0][3];
+   out.mData[2][1] = mData[0][2] * rhs.mData[1][0] + mData[1][2] * rhs.mData[1][1] + mData[2][2] * rhs.mData[1][2] + mData[3][2] * rhs.mData[1][3];
+   out.mData[2][2] = mData[0][2] * rhs.mData[2][0] + mData[1][2] * rhs.mData[2][1] + mData[2][2] * rhs.mData[2][2] + mData[3][2] * rhs.mData[2][3];
+   out.mData[2][3] = mData[0][2] * rhs.mData[3][0] + mData[1][2] * rhs.mData[3][1] + mData[2][2] * rhs.mData[3][2] + mData[3][2] * rhs.mData[3][3];
+
+   out.mData[3][0] = mData[0][3] * rhs.mData[0][0] + mData[1][3] * rhs.mData[0][1] + mData[2][3] * rhs.mData[0][2] + mData[3][3] * rhs.mData[0][3];
+   out.mData[3][1] = mData[0][3] * rhs.mData[1][0] + mData[1][3] * rhs.mData[1][1] + mData[2][3] * rhs.mData[1][2] + mData[3][3] * rhs.mData[1][3];
+   out.mData[3][2] = mData[0][3] * rhs.mData[2][0] + mData[1][3] * rhs.mData[2][1] + mData[2][3] * rhs.mData[2][2] + mData[3][3] * rhs.mData[2][3];
+   out.mData[3][3] = mData[0][3] * rhs.mData[3][0] + mData[1][3] * rhs.mData[3][1] + mData[2][3] * rhs.mData[3][2] + mData[3][3] * rhs.mData[3][3];
+
+   return out;
+}
+
 Matrix4 Matrix4::scale(F32 x, F32 y, F32 z)
 {
    Matrix4 newMat;
@@ -171,7 +198,18 @@ Matrix4 Matrix4::getOrthoProjection(F32 left, F32 right, F32 bottom, F32 top, F3
    newMat.mData[1][1] = 2.0f / (top - bottom);
    newMat.mData[2][2] = -2.0f / (farZ - nearZ);
 
+   // Rotate by 90 degrees on 3DS; the screen is actually sideways
+#ifdef BF_PLATFORM_3DS
+   Matrix4 mat3ds;
+   mat3ds.mData[0][0] = 0;
+   mat3ds.mData[1][1] = 0;
+   mat3ds.mData[0][1] = 1;
+   mat3ds.mData[1][0] = -1;
+
+   return mat3ds * newMat;
+#else
    return newMat;
+#endif
 }
 
 }
