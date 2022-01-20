@@ -198,13 +198,17 @@ Matrix4 Matrix4::getOrthoProjection(F32 left, F32 right, F32 bottom, F32 top, F3
    newMat.mData[1][1] = 2.0f / (top - bottom);
    newMat.mData[2][2] = -2.0f / (farZ - nearZ);
 
-   // Rotate by 90 degrees on 3DS; the screen is actually sideways
 #ifdef BF_PLATFORM_3DS
+   // Reflect on y-axis
+   newMat.mData[3][1] = -newMat.mData[3][1];
+   newMat.mData[1][1] = -newMat.mData[1][1];
+
+   // Rotate by 90 degrees on 3DS; the screen is actually sideways
    Matrix4 mat3ds;
    mat3ds.mData[0][0] = 0;
    mat3ds.mData[1][1] = 0;
-   mat3ds.mData[0][1] = 1;
-   mat3ds.mData[1][0] = -1;
+   mat3ds.mData[0][1] = -1;
+   mat3ds.mData[1][0] = 1;
 
    return mat3ds * newMat;
 #else
