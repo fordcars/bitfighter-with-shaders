@@ -74,8 +74,16 @@ PICARenderer::PICARenderer()
    if(!mTarget)
       printf("Could not create C3D target!\n");
 
+   // Initial settings
    C3D_RenderTargetSetOutput(mTarget, GFX_TOP, GFX_LEFT, DISPLAY_TRANSFER_FLAGS);
    C3D_StencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_REPLACE);
+   C3D_CullFace(GPU_CULL_NONE);
+
+   // Setup texture environment (needed for proper rendering)
+   C3D_TexEnv *env = C3D_GetTexEnv(0);
+   C3D_TexEnvInit(env);
+   C3D_TexEnvSrc(env, C3D_Both, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR);
+   C3D_TexEnvFunc(env, C3D_Both, GPU_MODULATE);
 
    // Init shaders
    mStaticTrianglesShader.init("static_triangles", (U32 *)static_triangles_shbin, static_triangles_shbin_size, 0);
@@ -89,12 +97,6 @@ PICARenderer::PICARenderer()
    // Give each stack an identity matrix
    mModelViewMatrixStack.push(Matrix4());
    mProjectionMatrixStack.push(Matrix4());
-
-   // Setup texture environment (needed for proper rendering)
-   C3D_TexEnv *env = C3D_GetTexEnv(0);
-   C3D_TexEnvInit(env);
-   C3D_TexEnvSrc(env, C3D_Both, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR);
-   C3D_TexEnvFunc(env, C3D_Both, GPU_MODULATE);
 
    // Other initial initializations
    setPointSize(1.0f);
@@ -285,7 +287,8 @@ void PICARenderer::setColor(F32 r, F32 g, F32 b, F32 alpha)
 void PICARenderer::setPointSize(F32 size)
 {
    // Convert point size (pixels) to normalized [-1, 1] space.
-   // Was found with trial and error.
+   // 3.6f for better visuals (since points are rendered as triangles, not squares).
+   // Found by trial and error.
    F32 sizeFactor = 3.6f/ScreenInfo::PHYSICAL_HEIGHT;
    mPointSize = size * sizeFactor;
 }
@@ -293,8 +296,7 @@ void PICARenderer::setPointSize(F32 size)
 void PICARenderer::setLineWidth(F32 width)
 {
    // Convert width (pixels) to normalized [-1, 1] space.
-   // Was found with trial and error.
-   F32 sizeFactor = 3.6f / ScreenInfo::PHYSICAL_HEIGHT;
+   F32 sizeFactor = 1.0f / ScreenInfo::PHYSICAL_HEIGHT;
    mLineWidth = width * sizeFactor;
 }
 
