@@ -120,7 +120,7 @@ void PICAShader::setMVP(const Matrix4 &MVP)
 void PICAShader::setColor(const Color &color, F32 alpha)
 {
    S32 loc = getUniformLocation(UniformName::Color);
-   if(loc != -1 && (color != mLastColor || alpha != mLastAlpha))
+   if(loc != -1) // Why doesn't this work on the main menu?? && (color != mLastColor || alpha != mLastAlpha))
    {
       C3D_FVUnifSet(GPU_VERTEX_SHADER, loc, color.r, color.g, color.b, alpha);
       mLastColor = color;

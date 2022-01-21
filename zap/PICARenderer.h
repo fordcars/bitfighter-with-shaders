@@ -46,7 +46,7 @@ private:
    F32 mAlpha;
    F32 mPointSize;
    F32 mLineWidth;
-   void *mCurrentShader;
+   const void *mCurrentShader;
    bool mUsingAndStencilTest;
 
    Point mViewportPos;
@@ -65,8 +65,9 @@ private:
    template<typename T>
    void renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
       U32 start, U32 stride, U32 vertDimension);
+   PICAShader &getRenderTypeShader(RenderType type);
+   void renderVerts(RenderType type, U32 vertCount);
 
-   U32 getRenderType(RenderType type) const;
    U32 getTextureFormat(TextureFormat format) const;
    U32 getDataType(DataType type) const;
 

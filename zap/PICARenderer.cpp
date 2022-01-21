@@ -112,7 +112,10 @@ PICARenderer::~PICARenderer()
 void PICARenderer::useShader(const PICAShader &shader)
 {
    if(mCurrentShader != &shader)
+   {
       shader.bind();
+      mCurrentShader = &shader;
+   }
 }
 
 // Static
@@ -126,14 +129,15 @@ template<typename T>
 void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
 	U32 start, U32 stride, U32 vertDimension)
 {
-   useShader(mStaticLinesShader);
+   PICAShader &shader = getRenderTypeShader(type);
+   useShader(shader);
 
    Matrix4 MVP = mProjectionMatrixStack.top().multiplyAndTranspose(mModelViewMatrixStack.top());
-   mStaticLinesShader.setMVP(MVP);
-   mStaticLinesShader.setColor(mColor, mAlpha);
-   mStaticLinesShader.setPointSize(mPointSize);
-   mStaticLinesShader.setLineWidth(mLineWidth);
-   mStaticLinesShader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
+   shader.setMVP(MVP);
+   shader.setColor(mColor, mAlpha);
+   shader.setPointSize(mPointSize);
+   shader.setLineWidth(mLineWidth);
+   shader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
 
 	// Give position data to the shader, and deal with stride
    // Positions
@@ -151,47 +155,104 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
       0x0
    );
 
-   // Fill index buffer
-   U16 *indexArray = (U16*)mIndexBuffer.allocate(vertCount * sizeof(U16));
-   if(vertCount % 2 == 1)
-      vertCount--;
-   for(U16 i = 0; i < vertCount; ++i)
-      indexArray[i] = i ;
-
-	// Draw!
-   C3D_DrawElements(GPU_GEOMETRY_PRIM, vertCount, C3D_UNSIGNED_SHORT, indexArray);
+   renderVerts(type, vertCount);
 }
 
-U32 PICARenderer::getRenderType(RenderType type) const
+PICAShader &PICARenderer::getRenderTypeShader(RenderType type)
 {
-   /*switch(type)
+   switch(type)
    {
-   case RenderType::Points:
-      return GL_POINTS;
-
    case RenderType::Lines:
-      return GL_LINES;
-
    case RenderType::LineStrip:
-      return GL_LINE_STRIP;
-
    case RenderType::LineLoop:
-      return GL_LINE_LOOP;
+      return mStaticLinesShader;
+
+   case RenderType::Points:
+      return mStaticPointsShader;
 
    case RenderType::Triangles:
-      return GL_TRIANGLES;
+   case RenderType::TriangleStrip:
+   case RenderType::TriangleFan:
+      return mStaticTrianglesShader;
+   }
+
+   return mStaticTrianglesShader;
+}
+
+void PICARenderer::renderVerts(RenderType type, U32 vertCount)
+{
+   switch(type)
+   {
+   case RenderType::Lines:
+   {
+      U16 *indexArray = (U16 *)mIndexBuffer.allocate(vertCount * sizeof(U16));
+      // Make sure we have an even number of verts
+      if(vertCount % 2 == 1)
+         vertCount--;
+      for(U16 i = 0; i < vertCount; ++i)
+         indexArray[i] = i;
+
+      C3D_DrawElements(GPU_GEOMETRY_PRIM, vertCount, C3D_UNSIGNED_SHORT, indexArray);
+      break;
+   }
+
+   case RenderType::LineStrip:
+   {
+      U32 lineVertCount = 2 * (vertCount - 1);
+      U16 *indexArray = (U16 *)mIndexBuffer.allocate(lineVertCount * sizeof(U16));
+
+      U32 writeIndex = 0;
+      for(U16 i = 1; i < vertCount; ++i)
+      {
+         writeIndex = 2 * i - 1;
+         indexArray[writeIndex - 1] = i - 1; // Previous vert
+         indexArray[writeIndex] = i;         // Current vert
+      }
+
+      C3D_DrawElements(GPU_GEOMETRY_PRIM, lineVertCount, C3D_UNSIGNED_SHORT, indexArray);
+      break;
+   }
+
+   case RenderType::LineLoop:
+   {
+      U32 lineVertCount = 2 * (vertCount);
+      U16 *indexArray = (U16 *)mIndexBuffer.allocate(lineVertCount * sizeof(U16));
+
+      U32 writeIndex = 0;
+      for(U16 i = 1; i < vertCount; ++i)
+      {
+         writeIndex = 2 * i - 1;
+         indexArray[writeIndex - 1] = i - 1; // Previous vert
+         indexArray[writeIndex] = i;         // Current vert
+      }
+
+      // Add first vertex as last vertex to close loop
+      indexArray[lineVertCount - 2] = indexArray[lineVertCount - 3];
+      indexArray[lineVertCount - 1] = 0;
+
+      C3D_DrawElements(GPU_GEOMETRY_PRIM, lineVertCount, C3D_UNSIGNED_SHORT, indexArray);
+      break;
+   }
+
+   case RenderType::Points:
+      C3D_DrawArrays(GPU_GEOMETRY_PRIM, 0, vertCount);
+      break;
+
+   case RenderType::Triangles:
+      C3D_DrawArrays(GPU_TRIANGLES, 0, vertCount);
+      break;
 
    case RenderType::TriangleStrip:
-      return GL_TRIANGLE_STRIP;
+      C3D_DrawArrays(GPU_TRIANGLE_STRIP, 0, vertCount);
+      break;
 
    case RenderType::TriangleFan:
-      return GL_TRIANGLE_FAN;
+      C3D_DrawArrays(GPU_TRIANGLE_FAN, 0, vertCount);
+      break;
 
    default:
-      return 0;
-   }*/
-
-   return 0;
+      break;
+   }
 }
 
 U32 PICARenderer::getTextureFormat(TextureFormat format) const
@@ -339,7 +400,7 @@ void PICARenderer::useDefaultBlending()
 {
    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    // C3D_AlphaBlend(colorEq        alphaEq         srcClr               dstClr         srcAlpha  dstAlpha)
-   //C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA, GPU_ONE, GPU_ZERO);
+   // C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA, GPU_ONE, GPU_ONE);
 }
 
 void PICARenderer::enableDepthTest()

@@ -2934,7 +2934,7 @@ void renderBitfighterLogo(U32 mask)
    U32 pos = 0;
 
    if (mask & 1 << 0)
-      r.renderVertexArray(points, 15, RenderType::LineLoop, 0, 0);
+      r.renderVertexArray(points, LetterLoc1, RenderType::LineLoop, 0, 0);
    pos += LetterLoc1;
    if (mask & 1 << 1)
       r.renderVertexArray(points, LetterLoc2, RenderType::LineLoop, pos, 0);
