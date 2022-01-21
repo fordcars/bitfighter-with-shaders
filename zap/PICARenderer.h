@@ -34,8 +34,9 @@ private:
    //PICAShader mTexturedShader;
    //PICAShader mColoredTextureShader;
 
-   // Reusable buffer for vertex data
+   // Reusable buffers
    PICARingBuffer mVertexBuffer;
+   PICARingBuffer mIndexBuffer;
 
    bool mTextureEnabled;
    Color mClearColor;

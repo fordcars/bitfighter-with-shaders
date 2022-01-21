@@ -125,9 +125,6 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
    mStaticPointsShader.setPointSize(mPointSize);
    mStaticPointsShader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
 
-	//// Get the position attribute location in the shader
-	//GLint attribLocation = mStaticShader.getAttributeLocation(AttributeName::VertexPosition);
-
 	// Give position data to the shader, and deal with stride
    // Positions
    U32 bytesPerCoord = sizeof(T) * vertDimension;
@@ -136,7 +133,7 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
    else if(stride > bytesPerCoord)
       bytesPerCoord = stride;
 
-   mVertexBuffer.insertData(
+   mVertexBuffer.insertAttribData(
       (U8 *)verts + (start * bytesPerCoord), // data
       bytesPerCoord * vertCount,             // size
       stride,

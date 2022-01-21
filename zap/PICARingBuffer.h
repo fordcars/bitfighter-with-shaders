@@ -25,7 +25,10 @@ public:
 
    void init();
    void reset();
-   void insertData(const void *data, U32 size, U32 stride, U32 attribPerVert, U64 permutation);
+   void insertAttribData(const void *data, U32 size, U32 stride, U32 attribPerVert, U64 permutation);
+   void *insertData(const void *data, U32 size);
+
+   void *allocate(U32 size);
 };
 
 }

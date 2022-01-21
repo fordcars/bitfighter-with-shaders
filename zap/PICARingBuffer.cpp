@@ -16,7 +16,7 @@
 #include <citro3d.h>
 #include <stdio.h>
 
-// A larger ring buffer will allow us to reallocate buffer memory less often
+// A larger ring buffer will prevent overwriting data prematurely.
 static const U32 RING_BUFFER_SIZE = 100000U;
 
 namespace Zap
@@ -43,24 +43,35 @@ void PICARingBuffer::init()
 }
 
 // Inserts data in buffer, and adds to buffer info
-void PICARingBuffer::insertData(const void *data, U32 size, U32 stride, U32 attribPerVert, U64 permutation)
+void PICARingBuffer::insertAttribData(const void *data, U32 size, U32 stride, U32 attribPerVert, U64 permutation)
 {
-   if(mCurrentOffset + size >= RING_BUFFER_SIZE)
-   {
-      // Orphan current data and allocate new memory. Any old data still being used by OpenGL will
-      // continue to exist until it doesn't need it anymore.
-      //glBufferData(GL_ARRAY_BUFFER, RING_BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
-      mCurrentOffset = 0;
-   }
-
-   // Copy data
-   memcpy((U8 *)mData + mCurrentOffset, data, size);
+   void *insertedData = insertData(data, size);
 
    // Add to buffer info. This is equivalent to a VertexAttribPointer.
    C3D_BufInfo *bufferInfo = C3D_GetBufInfo();
    BufInfo_Init(bufferInfo);
-   BufInfo_Add(bufferInfo, (U8*)mData + mCurrentOffset, stride, attribPerVert, permutation);
-   mCurrentOffset += size + (4 - size % 4); // Make sure we are 4-byte aligned
+   BufInfo_Add(bufferInfo, insertedData, stride, attribPerVert, permutation);
+}
+
+// Returns pointer to inseted data
+void *PICARingBuffer::insertData(const void *data, U32 size)
+{
+   void *writeHead = allocate(size);
+   memcpy(writeHead, data, size);
+   return writeHead;
+}
+
+// Allocates memory without writing anything.
+// Returns pointer to allocated memory.
+void *PICARingBuffer::allocate(U32 size)
+{
+   if(mCurrentOffset + size >= RING_BUFFER_SIZE)
+      mCurrentOffset = 0;
+
+   void *writeHead = (U8 *)mData + mCurrentOffset;
+   mCurrentOffset += size + (4 - size % 4); // 4-byte align next block
+
+   return writeHead;
 }
 
 }
