@@ -82,8 +82,10 @@ PICARenderer::PICARenderer()
    // Setup texture environment (needed for proper rendering)
    C3D_TexEnv *env = C3D_GetTexEnv(0);
    C3D_TexEnvInit(env);
-   C3D_TexEnvSrc(env, C3D_Both, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR);
-   C3D_TexEnvFunc(env, C3D_Both, GPU_MODULATE);
+   C3D_TexEnvSrc(env, C3D_RGB, GPU_PRIMARY_COLOR, GPU_PREVIOUS_BUFFER, GPU_PRIMARY_COLOR);
+   C3D_TexEnvSrc(env, C3D_Alpha, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR);
+   C3D_TexEnvFunc(env, C3D_RGB, GPU_ADD);
+   C3D_TexEnvFunc(env, C3D_Alpha, GPU_MODULATE);
 
    // Init shaders
    mStaticTrianglesShader.init("static_triangles", (U32 *)static_triangles_shbin, static_triangles_shbin_size, 0);
@@ -400,7 +402,10 @@ void PICARenderer::useDefaultBlending()
 {
    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    // C3D_AlphaBlend(colorEq        alphaEq         srcClr               dstClr         srcAlpha  dstAlpha)
-   // C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA, GPU_ONE, GPU_ONE);
+   //C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA, GPU_ONE, GPU_ONE);
+   //C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE, GPU_SRC_ALPHA, GPU_ONE);
+   C3D_AlphaTest(false, GPU_ALWAYS, 0x00);
+   C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA);
 }
 
 void PICARenderer::enableDepthTest()
