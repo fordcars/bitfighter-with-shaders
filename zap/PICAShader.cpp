@@ -16,6 +16,7 @@ namespace Zap
 PICAShader::PICAShader()
    : mLastAlpha(0)
    , mLastPointSize(0)
+   , mLastLineWidth(0)
    , mLastTime(0)
 {
 }
@@ -71,8 +72,9 @@ void PICAShader::registerUniforms()
    mUniformLocations[static_cast<unsigned>(UniformName::Color)] = shaderInstanceGetUniformLocation(program->vertexShader, "vertColor");
    mUniformLocations[static_cast<unsigned>(UniformName::Time)] = shaderInstanceGetUniformLocation(program->vertexShader, "time");
 
-   // Geometry shader
+   // Geometry shaders
    mUniformLocations[static_cast<unsigned>(UniformName::PointSize)] = shaderInstanceGetUniformLocation(program->geometryShader, "pointSize");
+   mUniformLocations[static_cast<unsigned>(UniformName::LineWidth)] = shaderInstanceGetUniformLocation(program->geometryShader, "lineWidth");
 }
 
 void PICAShader::registerAttributes()
@@ -132,6 +134,16 @@ void PICAShader::setPointSize(F32 size)
    {
       C3D_FVUnifSet(GPU_GEOMETRY_SHADER, loc, size, 0.0f, 0.0f, 0.0f);
       mLastPointSize = size;
+   }
+}
+
+void PICAShader::setLineWidth(F32 width)
+{
+   S32 loc = getUniformLocation(UniformName::LineWidth);
+   if(loc != -1 && width != mLastLineWidth)
+   {
+      C3D_FVUnifSet(GPU_GEOMETRY_SHADER, loc, width, 0.0f, 0.0f, 0.0f);
+      mLastLineWidth = width;
    }
 }
 

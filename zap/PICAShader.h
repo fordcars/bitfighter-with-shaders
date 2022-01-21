@@ -31,6 +31,7 @@ enum class UniformName
    MVP = 0,
    Color,
    PointSize,
+   LineWidth,
    Time,
    UniformName_LAST // Keep this at the end
 };
@@ -56,6 +57,7 @@ private:
    Color mLastColor;
    F32 mLastAlpha;
    F32 mLastPointSize;
+   F32 mLastLineWidth;
    U32 mLastTime;
 
    void buildProgram(U32 *shbinData, U32 shbinSize, U32 geometryStride);
@@ -78,6 +80,7 @@ public:
    void setMVP(const Matrix4 &MVP);
    void setColor(const Color &color, F32 alpha);
    void setPointSize(F32 size);
+   void setLineWidth(F32 width);
    void setTime(U32 time);
 };
 
