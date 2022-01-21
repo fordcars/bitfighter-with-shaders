@@ -56,9 +56,9 @@ void PICARingBuffer::insertAttribData(const void *data, U32 size, U32 stride, U3
 // Returns pointer to inseted data
 void *PICARingBuffer::insertData(const void *data, U32 size)
 {
-   void *writeHead = allocate(size);
-   memcpy(writeHead, data, size);
-   return writeHead;
+   void *memory = allocate(size);
+   memcpy(memory, data, size);
+   return memory;
 }
 
 // Allocates memory without writing anything.
@@ -68,10 +68,10 @@ void *PICARingBuffer::allocate(U32 size)
    if(mCurrentOffset + size >= RING_BUFFER_SIZE)
       mCurrentOffset = 0;
 
-   void *writeHead = (U8 *)mData + mCurrentOffset;
+   void *memory = (U8 *)mData + mCurrentOffset;
    mCurrentOffset += size + (4 - size % 4); // 4-byte align next block
 
-   return writeHead;
+   return memory;
 }
 
 }

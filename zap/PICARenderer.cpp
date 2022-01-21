@@ -20,6 +20,7 @@
 // Shaders
 #include "static_triangles_shbin.h"
 #include "static_points_shbin.h"
+#include "static_lines_shbin.h"
 
 // From https://github.com/devkitPro/3ds-examples/blob/master/graphics/gpu/textured_cube/source/main.c
 #define DISPLAY_TRANSFER_FLAGS \
@@ -76,9 +77,14 @@ PICARenderer::PICARenderer()
    C3D_RenderTargetSetOutput(mTarget, GFX_TOP, GFX_LEFT, DISPLAY_TRANSFER_FLAGS);
    C3D_StencilOp(GPU_STENCIL_KEEP, GPU_STENCIL_KEEP, GPU_STENCIL_REPLACE);
 
+   // Init shaders
    mStaticTrianglesShader.init("static_triangles", (U32 *)static_triangles_shbin, static_triangles_shbin_size, 0);
    mStaticPointsShader.init("static_points", (U32 *)static_points_shbin, static_points_shbin_size, 2);
+   mStaticLinesShader.init("static_lines", (U32 *)static_lines_shbin, static_lines_shbin_size, 0);
+
+   // Init buffers
    mVertexBuffer.init();
+   mIndexBuffer.init();
 
    // Give each stack an identity matrix
    mModelViewMatrixStack.push(Matrix4());
@@ -92,6 +98,7 @@ PICARenderer::PICARenderer()
 
    // Other initial initializations
    setPointSize(1.0f);
+   setLineWidth(1.0f);
    initRenderer();
 }
 
@@ -117,13 +124,14 @@ template<typename T>
 void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
 	U32 start, U32 stride, U32 vertDimension)
 {
-   useShader(mStaticPointsShader);
+   useShader(mStaticLinesShader);
 
    Matrix4 MVP = mProjectionMatrixStack.top().multiplyAndTranspose(mModelViewMatrixStack.top());
-   mStaticPointsShader.setMVP(MVP);
-   mStaticPointsShader.setColor(mColor, mAlpha);
-   mStaticPointsShader.setPointSize(mPointSize);
-   mStaticPointsShader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
+   mStaticLinesShader.setMVP(MVP);
+   mStaticLinesShader.setColor(mColor, mAlpha);
+   mStaticLinesShader.setPointSize(mPointSize);
+   mStaticLinesShader.setLineWidth(mLineWidth);
+   mStaticLinesShader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
 
 	// Give position data to the shader, and deal with stride
    // Positions
@@ -141,8 +149,15 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
       0x0
    );
 
+   // Fill index buffer
+   U16 *indexArray = (U16*)mIndexBuffer.allocate(vertCount * sizeof(U16));
+   if(vertCount % 2 == 1)
+      vertCount--;
+   for(U16 i = 0; i < vertCount; ++i)
+      indexArray[i] = i ;
+
 	// Draw!
-   C3D_DrawArrays(GPU_GEOMETRY_PRIM, 0, vertCount);
+   C3D_DrawElements(GPU_GEOMETRY_PRIM, vertCount, C3D_UNSIGNED_SHORT, indexArray);
 }
 
 U32 PICARenderer::getRenderType(RenderType type) const
@@ -271,13 +286,16 @@ void PICARenderer::setPointSize(F32 size)
 {
    // Convert point size (pixels) to normalized [-1, 1] space.
    // Was found with trial and error.
-   F32 sizeFator = 3.6f/ScreenInfo::PHYSICAL_HEIGHT;
-   mPointSize = size * sizeFator;
+   F32 sizeFactor = 3.6f/ScreenInfo::PHYSICAL_HEIGHT;
+   mPointSize = size * sizeFactor;
 }
 
 void PICARenderer::setLineWidth(F32 width)
 {
-   mLineWidth = width;
+   // Convert width (pixels) to normalized [-1, 1] space.
+   // Was found with trial and error.
+   F32 sizeFactor = 3.6f / ScreenInfo::PHYSICAL_HEIGHT;
+   mLineWidth = width * sizeFactor;
 }
 
 void PICARenderer::enableAntialiasing()

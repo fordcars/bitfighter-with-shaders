@@ -30,6 +30,7 @@ private:
    // Shaders
    PICAShader mStaticTrianglesShader;
    PICAShader mStaticPointsShader;
+   PICAShader mStaticLinesShader;
    //PICAShader mDynamicShader;
    //PICAShader mTexturedShader;
    //PICAShader mColoredTextureShader;

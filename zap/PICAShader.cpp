@@ -40,6 +40,7 @@ void PICAShader::init(const std::string &name, U32 *shbinData, U32 shbinSize, U3
    setMVP(Matrix4());
    setColor(Color(), 1.0f);
    setPointSize(1.0f);
+   setLineWidth(1.0f);
    setTime(0);
 }
 
