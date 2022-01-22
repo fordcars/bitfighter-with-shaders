@@ -2087,9 +2087,15 @@ void FolderManager::resolveDirs(GameSettings *settings)
    folderManager->musicDir      = resolutionHelper(cmdLineDirs.musicDir,      rootDataDir, "music");
    folderManager->recordDir     = resolutionHelper(cmdLineDirs.recordDir,     rootDataDir, "record");
 
+#ifndef BF_PLATFORM_3DS
    // rootDataDir not used for these folders
    folderManager->sfxDir        = resolutionHelper(cmdLineDirs.sfxDir,        "", "sfx");
    folderManager->fontsDir      = resolutionHelper(cmdLineDirs.fontsDir,      "", "fonts");
+#else
+   // Sike!
+   folderManager->sfxDir        = resolutionHelper(cmdLineDirs.sfxDir,        rootDataDir, "sfx");
+   folderManager->fontsDir      = resolutionHelper(cmdLineDirs.fontsDir,      rootDataDir, "fonts");
+#endif
 
    gSqlite = folderManager->logDir + "stats";
 }
@@ -2110,9 +2116,15 @@ void FolderManager::resolveDirs(const string &root)
    musicDir      = joindir(root, "music");
    recordDir     = joindir(root, "record");
 
+#ifndef BF_PLATFORM_3DS
    // root not used for these folders
    sfxDir        = joindir("", "sfx");
    fontsDir      = joindir("", "fonts");
+#else
+   // Sike!
+   sfxDir        = joindir(root, "sfx");
+   fontsDir      = joindir(root, "fonts");
+#endif
 
    gSqlite = logDir + "stats";
 }

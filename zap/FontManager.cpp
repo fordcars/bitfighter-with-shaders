@@ -45,7 +45,7 @@ BfFont::BfFont(const ::SFG_StrokeFont *strokeFont)
 
 
 const char *BfFont::SystemFontDirectories[] = {
-#ifdef TNL_OS_LINUX
+#if defined TNL_OS_LINUX && !defined BF_PLATFORM_3DS
    "/usr/share/fonts/truetype/droid",
    "/usr/share/fonts/truetype/play",
    "/usr/share/fonts/truetype/ocr-a"
