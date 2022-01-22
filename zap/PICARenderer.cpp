@@ -113,9 +113,9 @@ PICARenderer::PICARenderer()
 
 PICARenderer::~PICARenderer()
 {
-   // Delete stored textures
+   // Delete all textures
    for(auto const &texture : mTextures)
-      delete (C3D_Tex *)(texture.second);
+      deleteTexture(texture.first);
 }
 
 void PICARenderer::useShader(const PICAShader &shader)
@@ -711,7 +711,7 @@ void PICARenderer::setSubTextureData(TextureFormat format, DataType dataType, S3
    }
 }
 
-// Fairly slow operation
+// Probably won't implement this, it's only for screenshots
 void PICARenderer::readFramebufferPixels(TextureFormat format, DataType dataType, S32 x, S32 y, S32 width, S32 height, void *data)
 {
    //glReadPixels(
