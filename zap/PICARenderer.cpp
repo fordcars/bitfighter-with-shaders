@@ -725,7 +725,7 @@ void PICARenderer::setSubTextureData(TextureFormat format, DataType dataType, S3
    while(x < (xOffset + width) && y < (yOffset + height))
    {
       unsigned outIndex = x + y * tex->width;
-      texData[outIndex] = ((U8*)data)[inIndex];
+      texData[outIndex] = ((U8 *)data)[inIndex];
       ++inIndex;
 
       if(++x >= xOffset + width)
@@ -832,28 +832,35 @@ void PICARenderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 
    setTexEnv(true);
 
    // Positions
+   U32 posStride = stride;
    U32 bytesPerCoord = sizeof(F32) * vertDimension;
-   if(stride == 0)
-      stride = bytesPerCoord;
-   else if(stride > bytesPerCoord)
-      bytesPerCoord = stride;
+
+   if(posStride == 0)
+      posStride = bytesPerCoord;
+   else if(posStride > bytesPerCoord)
+      bytesPerCoord = posStride;
 
    PICARingBuffer::initForRendering();
    mVertPositionBuffer.insertAttribData(
       (U8 *)verts + (start * bytesPerCoord), // data
       bytesPerCoord * vertCount,             // size
-      stride,
+      posStride,
       1,
       0x0
    );
 
    // UVs
+   U32 UVStride = stride;
    bytesPerCoord = sizeof(F32) * 2;
+   if(UVStride == 0)
+      UVStride = bytesPerCoord;
+   else if(UVStride > bytesPerCoord)
+      bytesPerCoord = UVStride;
 
    mVertUVBuffer.insertAttribData(
       (U8 *)UVs + (start * bytesPerCoord), // data
       bytesPerCoord * vertCount,           // size
-      bytesPerCoord,                       // stride
+      UVStride,                            // stride
       1,                                   // Attribs per vert
       0x1
    );
