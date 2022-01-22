@@ -27,14 +27,15 @@ PICAShader::~PICAShader()
    DVLB_Free((DVLB_s *)mDVLB);
 }
 
-void PICAShader::init(const std::string &name, U32 *shbinData, U32 shbinSize, U32 geometryStride)
+void PICAShader::init(const std::string &name, U32 *shbinData, U32 shbinSize,
+                      U32 geometryStride, bool hasColors, bool hasUVs)
 {
    mName = name;
 
    buildProgram(shbinData, shbinSize, geometryStride);
    bind();
    registerUniforms();
-   registerAttributes();
+   addAttributeInfo(hasColors, hasUVs);
 
    // Set initial uniform values
    setMVP(Matrix4());
@@ -78,16 +79,25 @@ void PICAShader::registerUniforms()
    mUniformLocations[static_cast<unsigned>(UniformName::LineWidth)] = shaderInstanceGetUniformLocation(program->geometryShader, "lineWidth");
 }
 
-void PICAShader::registerAttributes()
+void PICAShader::addAttributeInfo(bool hasColors, bool hasUVs)
 {
-   // glGetAttribLocation returns -1 if attribute was not found
-   mAttributeLocations[static_cast<unsigned>(AttributeName::VertexPosition)] = 0;
-   mAttributeLocations[static_cast<unsigned>(AttributeName::VertexColor)] = 1;
-   mAttributeLocations[static_cast<unsigned>(AttributeName::VertexUV)] = 2;
-
+   U32 location = 0;
    C3D_AttrInfo *attrInfo = C3D_GetAttrInfo();
    AttrInfo_Init(attrInfo);
-   AttrInfo_AddLoader(attrInfo, 0, GPU_FLOAT, 3); // v0=position
+   AttrInfo_AddLoader(attrInfo, location, GPU_FLOAT, 2);
+   ++location;
+
+   if(hasColors)
+   {
+      AttrInfo_AddLoader(attrInfo, location, GPU_FLOAT, 4);
+      ++location;
+   }
+
+   if(hasUVs)
+   {
+      AttrInfo_AddLoader(attrInfo, location, GPU_FLOAT, 2);
+      ++location;
+   }
 }
 
 std::string PICAShader::getName() const
@@ -98,11 +108,6 @@ std::string PICAShader::getName() const
 S32 PICAShader::getUniformLocation(UniformName uniformName) const
 {
    return mUniformLocations[static_cast<unsigned>(uniformName)];
-}
-
-S32 PICAShader::getAttributeLocation(AttributeName attributeName) const
-{
-   return mAttributeLocations[static_cast<unsigned>(attributeName)];
 }
 
 void PICAShader::bind() const

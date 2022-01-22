@@ -36,14 +36,6 @@ enum class UniformName
    UniformName_LAST // Keep this at the end
 };
 
-enum class AttributeName
-{
-   VertexPosition = 0,
-   VertexColor,
-   VertexUV,
-   AttributeName_LAST // Keep this at the end
-};
-
 class PICAShader
 {
 private:
@@ -52,7 +44,6 @@ private:
    void *mDVLB;
 
    S32 mUniformLocations[static_cast<unsigned>(UniformName::UniformName_LAST)];
-   S32 mAttributeLocations[static_cast<unsigned>(AttributeName::AttributeName_LAST)];
 
    Color mLastColor;
    F32 mLastAlpha;
@@ -62,17 +53,16 @@ private:
 
    void buildProgram(U32 *shbinData, U32 shbinSize, U32 geometryStride);
    void registerUniforms();
-   void registerAttributes();
+   void addAttributeInfo(bool hasColors, bool hasUVs);
 
 public:
    PICAShader();
    ~PICAShader();
 
    // geometryStride: number of vec4s per primitive
-   void init(const std::string &name, U32 *shbinData, U32 shbinSize, U32 geometryStride = 0);
+   void init(const std::string &name, U32 *shbinData, U32 shbinSize, U32 geometryStride = 0, bool hasColors = false, bool hasUVs = false);
    std::string getName() const;
    S32 getUniformLocation(UniformName uniformName) const;
-   S32 getAttributeLocation(AttributeName attributeName) const;
    void bind() const;
 
    // Defined for all shaders, even if unused.

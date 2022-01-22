@@ -54,7 +54,7 @@ PICARenderer::PICARenderer()
    //, mColoredTextureShader("coloredTexture", "coloredTexture.v.glsl", "coloredTexture.f.glsl")
    , mNextTextureId(1)
    , mBoundTexture(0)
-   , mTextureEnabled(false)
+   , mUsedTextureLast(false)
    , mClearColor(0.0f, 0.0f, 0.0f)
    , mClearAlpha(1.0f)
    , mAlpha(1.0f)
@@ -87,10 +87,8 @@ PICARenderer::PICARenderer()
    // Setup texture environment (needed for proper rendering)
    C3D_TexEnv *env = C3D_GetTexEnv(0);
    C3D_TexEnvInit(env);
-   C3D_TexEnvSrc(env, C3D_RGB, GPU_PRIMARY_COLOR, GPU_PREVIOUS_BUFFER, GPU_PRIMARY_COLOR);
-   C3D_TexEnvSrc(env, C3D_Alpha, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR);
-   C3D_TexEnvFunc(env, C3D_RGB, GPU_REPLACE);
-   C3D_TexEnvFunc(env, C3D_Alpha, GPU_MODULATE);
+   mUsedTextureLast = true;
+   setTexEnv(false);
 
    // Init shaders
    mStaticTrianglesShader.init("static_triangles", (U32 *)static_triangles_shbin, static_triangles_shbin_size, 0);
@@ -98,7 +96,9 @@ PICARenderer::PICARenderer()
    mStaticLinesShader.init("static_lines", (U32 *)static_lines_shbin, static_lines_shbin_size, 0);
 
    // Init buffers
-   mVertexBuffer.init();
+   mVertPositionBuffer.init();
+   mVertColorBuffer.init();
+   mVertUVBuffer.init();
    mIndexBuffer.init();
 
    // Give each stack an identity matrix
@@ -118,56 +118,7 @@ PICARenderer::~PICARenderer()
       deleteTexture(texture.first);
 }
 
-void PICARenderer::useShader(const PICAShader &shader)
-{
-   if(mCurrentShader != &shader)
-   {
-      shader.bind();
-      mCurrentShader = &shader;
-   }
-}
-
-// Static
-void PICARenderer::create()
-{
-   setInstance(std::unique_ptr<Renderer>(new PICARenderer));
-}
-
-// Uses static shader
-template<typename T>
-void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
-	U32 start, U32 stride, U32 vertDimension)
-{
-   PICAShader &shader = getRenderTypeShader(type);
-   useShader(shader);
-
-   Matrix4 MVP = mProjectionMatrixStack.top().multiplyAndTranspose(mModelViewMatrixStack.top());
-   shader.setMVP(MVP);
-   shader.setColor(mColor, mAlpha);
-   shader.setPointSize(mPointSize);
-   shader.setLineWidth(mLineWidth);
-   shader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
-
-	// Give position data to the shader, and deal with stride
-   // Positions
-   U32 bytesPerCoord = sizeof(T) * vertDimension;
-   if(stride == 0)
-      stride = bytesPerCoord;
-   else if(stride > bytesPerCoord)
-      bytesPerCoord = stride;
-
-   mVertexBuffer.insertAttribData(
-      (U8 *)verts + (start * bytesPerCoord), // data
-      bytesPerCoord * vertCount,             // size
-      stride,
-      1,
-      0x0
-   );
-
-   renderVerts(type, vertCount);
-}
-
-PICAShader &PICARenderer::getRenderTypeShader(RenderType type)
+PICAShader &PICARenderer::getShaderForRenderType(RenderType type)
 {
    switch(type)
    {
@@ -186,6 +137,56 @@ PICAShader &PICARenderer::getRenderTypeShader(RenderType type)
    }
 
    return mStaticTrianglesShader;
+}
+
+void PICARenderer::setupShaderForRenderType(RenderType type)
+{
+   PICAShader &shader = getShaderForRenderType(type);
+   if(mCurrentShader != &shader)
+   {
+      shader.bind();
+      mCurrentShader = &shader;
+   }
+
+   Matrix4 MVP = mProjectionMatrixStack.top().multiplyAndTranspose(mModelViewMatrixStack.top());
+   shader.setMVP(MVP);
+   shader.setColor(mColor, mAlpha);
+   shader.setPointSize(mPointSize);
+   shader.setLineWidth(mLineWidth);
+   shader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
+}
+
+// Static
+void PICARenderer::create()
+{
+   setInstance(std::unique_ptr<Renderer>(new PICARenderer));
+}
+
+// Uses static shader
+template<typename T>
+void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
+	U32 start, U32 stride, U32 vertDimension)
+{
+   setupShaderForRenderType(type);
+   setTexEnv(false);
+
+	// Give position data to the shader, and deal with stride
+   // Positions
+   U32 bytesPerCoord = sizeof(T) * vertDimension;
+   if(stride == 0)
+      stride = bytesPerCoord;
+   else if(stride > bytesPerCoord)
+      bytesPerCoord = stride;
+
+   mVertPositionBuffer.insertAttribData(
+      (U8 *)verts + (start * bytesPerCoord), // data
+      bytesPerCoord * vertCount,             // size
+      stride,
+      1,
+      0x0
+   );
+
+   renderVerts(type, vertCount);
 }
 
 void PICARenderer::renderVerts(RenderType type, U32 vertCount)
@@ -310,6 +311,26 @@ U32 PICARenderer::getDataType(DataType type) const
       return 0;
    }*/
    return 0;
+}
+
+void PICARenderer::setTexEnv(bool forTexture)
+{
+   if(!forTexture && mUsedTextureLast)
+   {
+      C3D_TexEnv *env = C3D_GetTexEnv(0);
+      C3D_TexEnvSrc(env, C3D_RGB, GPU_PRIMARY_COLOR, (GPU_TEVSRC)0, (GPU_TEVSRC)0);
+      C3D_TexEnvSrc(env, C3D_Alpha, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, (GPU_TEVSRC)0);
+      C3D_TexEnvFunc(env, C3D_RGB, GPU_REPLACE);
+      C3D_TexEnvFunc(env, C3D_Alpha, GPU_MODULATE);
+      mUsedTextureLast = false;
+   }
+   else if(forTexture && !mUsedTextureLast)
+   {
+      C3D_TexEnv *env = C3D_GetTexEnv(0);
+      C3D_TexEnvSrc(env, C3D_Both, GPU_TEXTURE0, (GPU_TEVSRC)0, (GPU_TEVSRC)0);
+      C3D_TexEnvFunc(env, C3D_Both, GPU_REPLACE);
+      mUsedTextureLast = true;
+   }
 }
 
 void PICARenderer::frameBegin()
@@ -795,59 +816,34 @@ void PICARenderer::renderColored(const F32 verts[], const F32 colors[], U32 vert
 void PICARenderer::renderTextured(const F32 verts[], const F32 UVs[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension)
 {
-   //useShader(mTexturedShader);
+   setColor(1, 0, 0, 1); renderGenericVertexArray(DataType::Float, verts, vertCount, type, start, stride, vertDimension);
+   //setupShaderForRenderType(type);
+   //setTexEnv(false);
+   //
+   //// Give position data to the shader, and deal with stride
+   //// Positions
+   //U32 bytesPerCoord = sizeof(F32) * vertDimension;
+   //if(stride == 0)
+   //   stride = bytesPerCoord;
+   //else if(stride > bytesPerCoord)
+   //   bytesPerCoord = stride;
 
-	Matrix4 MVP = mProjectionMatrixStack.top() * mModelViewMatrixStack.top();
-   //mTexturedShader.setMVP(MVP);
-   //mTexturedShader.setTextureSampler(0); // Default texture unit
-   //mTexturedShader.setTime(static_cast<unsigned>(SDL_GetTicks()));
+   //mVertPositionBuffer.insertAttribData(
+   //   (U8 *)verts + (start * bytesPerCoord), // data
+   //   bytesPerCoord * vertCount,             // size
+   //   stride,
+   //   1,
+   //   0x0
+   //);
 
-	//// Attribute locations
-	//GLint vertexPositionAttrib = mTexturedShader.getAttributeLocation(AttributeName::VertexPosition);
-	//GLint UVAttrib = mTexturedShader.getAttributeLocation(AttributeName::VertexUV);
-
- //  // Positions
- //  U32 bytesPerCoord = sizeof(F32) * vertDimension;
- //  if(stride > bytesPerCoord)
- //     bytesPerCoord = stride;
-
- //  mPositionBuffer.bind();
- //  std::size_t positionOffset = mPositionBuffer.insertData((U8 *)verts + (start * bytesPerCoord), bytesPerCoord * vertCount);
-
-	//glVertexAttribPointer(
-	//	vertexPositionAttrib,  // Attribute index
-	//	vertDimension,			  // Number of values per vertex
-	//	GL_FLOAT,			     // Data type
-	//	GL_FALSE,			     // Normalized?
-	//	stride,				     // Stride
-	//	(void *)positionOffset // Array buffer offset
-	//);
-
-	//// UV-coords
- //  bytesPerCoord = sizeof(F32) * 2;
- //  if(stride > bytesPerCoord)
- //     bytesPerCoord = stride;
-
- //  mUVBuffer.bind();
- //  std::size_t UVOffset = mUVBuffer.insertData((U8 *)UVs + (start * bytesPerCoord), bytesPerCoord * vertCount);
-
-	//glVertexAttribPointer(
-	//	UVAttrib,			    // Attribute index
-	//	2,				          // Number of values per coord
-	//	GL_FLOAT,			    // Data type
-	//	GL_FALSE,			    // Normalized?
-	//	stride,				    // Stride
-	//	(void *)UVOffset	    // Array buffer offset
-	//);
-
-	//// Draw!
-	//glDrawArrays(getRenderType(type), 0, vertCount);
+   //renderVerts(type, vertCount);
 }
 
 // Render a texture colored by the current color:
 void PICARenderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension, bool isAlphaTexture)
 {
+   renderTextured(verts, UVs, vertCount, type, start, stride, vertDimension);
    //useShader(mColoredTextureShader);
 
 	// Uniforms

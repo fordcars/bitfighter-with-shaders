@@ -37,7 +37,9 @@ private:
    //PICAShader mColoredTextureShader;
 
    // Reusable buffers
-   PICARingBuffer mVertexBuffer;
+   PICARingBuffer mVertPositionBuffer;
+   PICARingBuffer mVertColorBuffer;
+   PICARingBuffer mVertUVBuffer;
    PICARingBuffer mIndexBuffer;
 
    // Textures
@@ -45,7 +47,7 @@ private:
    U32 mNextTextureId;
    U32 mBoundTexture;
 
-   bool mTextureEnabled;
+   bool mUsedTextureLast;
    Color mClearColor;
    F32 mClearAlpha;
    Color mColor;
@@ -66,16 +68,17 @@ private:
    MatrixType mMatrixMode;
 
    PICARenderer();
-   void useShader(const PICAShader &shader);
+   PICAShader &getShaderForRenderType(RenderType type);
+   void setupShaderForRenderType(RenderType type);
 
    template<typename T>
    void renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
       U32 start, U32 stride, U32 vertDimension);
-   PICAShader &getRenderTypeShader(RenderType type);
    void renderVerts(RenderType type, U32 vertCount);
 
    U32 getTextureFormat(TextureFormat format) const;
    U32 getDataType(DataType type) const;
+   void setTexEnv(bool forTexture);
 
 public:
    ~PICARenderer() override;
@@ -83,6 +86,7 @@ public:
 
    void frameBegin();
    void frameEnd();
+
    void clear() override;
    void clearStencil() override;
    void clearDepth() override;

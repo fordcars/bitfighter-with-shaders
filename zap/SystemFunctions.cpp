@@ -178,7 +178,7 @@ string getInstalledDataDir()
    string path;
 
 #ifdef BF_PLATFORM_3DS
-   path = "romfs:/";
+   path = "romfs:";
 #else
    #if defined(TNL_OS_LINUX)
       // In Linux, the data dir can be anywhere!  Usually in something like /usr/share/bitfighter

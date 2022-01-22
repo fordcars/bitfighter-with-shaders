@@ -70,10 +70,12 @@ BfFont::BfFont(const string &fontFile, GameSettings *settings)
       return;
    }
 
+#ifndef BF_PLATFORM_3DS
    for(U32 i = 0; i < sizeof(SystemFontDirectories) / sizeof(SystemFontDirectories[0]) && mStashFontId <= 0; i++) {
       string file = string(SystemFontDirectories[i]) + getFileSeparator() + fontFile;
       mStashFontId = sth_add_font(FontManager::getStash(), file.c_str());
    }
+#endif
 
    if(mStashFontId <= 0) {
       string file = settings->getFolderManager()->fontsDir + getFileSeparator() + fontFile;
