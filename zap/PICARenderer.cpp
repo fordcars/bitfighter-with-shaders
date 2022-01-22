@@ -266,20 +266,17 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
 
 U32 PICARenderer::getTextureFormat(TextureFormat format) const
 {
-   /*switch(format)
+   switch(format)
    {
    case TextureFormat::RGB:
-      return GL_RGB;
+      return GPU_RGB8;
 
    case TextureFormat::RGBA:
-      return GL_RGBA;
+      return GPU_A8;
 
    case TextureFormat::Alpha:
-      return GL_ALPHA;
-
-   default:
-      return 0;
-   }*/
+      return GPU_A8;
+   }
 
    return 0;
 }
@@ -622,17 +619,12 @@ void PICARenderer::projectOrtho(F32 left, F32 right, F32 bottom, F32 top, F32 ne
 	stack.push(ortho * topMatrix);
 }
 
-// Uses "nearest pixel" filtering when useLinearFiltering is false
+// Linear filtering is always on
 U32 PICARenderer::generateTexture(bool useLinearFiltering)
 {
    C3D_Tex *newTex = new C3D_Tex;
    U32 newTexId = mNextTextureId;
    ++mNextTextureId;
-
-   if(useLinearFiltering)
-      C3D_TexSetFilter(newTex, GPU_LINEAR, GPU_LINEAR);
-   else
-      C3D_TexSetFilter(newTex, GPU_NEAREST, GPU_NEAREST);
 
    mTextures.insert(std::pair<U32, void *>(newTexId, newTex));
    return newTexId;
@@ -665,54 +657,58 @@ void PICARenderer::deleteTexture(U32 textureHandle)
    }
 }
 
+// We currently only support UnsignedByte textures
 void PICARenderer::setTextureData(TextureFormat format, DataType dataType, U32 width, U32 height, const void *data)
 {
+   // Get bound texture
    auto foundIt = mTextures.find(mBoundTexture);
    if(foundIt == mTextures.end())
       return;
    C3D_Tex *tex = (C3D_Tex *)(foundIt->second);
-   U32 size = 0;
+ 
+   TNLAssert(dataType == DataType::UnsignedByte, "Texture data type is unsupported!");
 
-   switch(dataType)
-   {
-   case DataType::Byte:
-   case DataType::UnsignedByte:
-      size = 1;
-      break;
+   C3D_TexInitParams params;
+   params.width = width;
+   params.height = height;
+   params.maxLevel = 0;
+   params.format = static_cast<GPU_TEXCOLOR>(getTextureFormat(format));
+   params.type = GPU_TEX_2D;
+   params.onVram = false; // Must be false for setSubTextureData()
 
-   case DataType::Short:
-   case DataType::UnsignedShort:
-      size = 2;
-      break;
+   if(!C3D_TexInitWithParams(tex, nullptr, params))
+      printf("Could not initialize texture!\n");
 
-   case DataType::Float:
-   case DataType::Int:
-   case DataType::UnsignedInt:
-      size = 4;
-      break;
-   }
-
-   size *= (width * height);
-   Tex3DS_Texture t3x = Tex3DS_TextureImport(data, size, tex, nullptr, false);
-   if(!t3x)
-   {
-      printf("Could not set texture data!\n");
-      return;
-   }
-
-   // Delete the t3x object since we don't need it
-   Tex3DS_TextureFree(t3x);
+   C3D_TexLoadImage(tex, data, GPU_TEXFACE_2D, 0);
 }
 
 void PICARenderer::setSubTextureData(TextureFormat format, DataType dataType, S32 xOffset, S32 yOffset,
    U32 width, U32 height, const void *data)
 {
-   //glTexSubImage2D(
-   //   GL_TEXTURE_2D, 0,
-   //   xOffset, yOffset,
-   //   width, height,
-   //   getTextureFormat(format),
-   //   getDataType(dataType), data);
+   // Get bound texture
+   auto foundIt = mTextures.find(mBoundTexture);
+   if(foundIt == mTextures.end())
+      return;
+   C3D_Tex *tex = (C3D_Tex *)(foundIt->second);
+
+   u32 size;
+   U8 *texData = static_cast<U8*>(C3D_Tex2DGetImagePtr(tex, 0, &size));
+   
+   unsigned x = xOffset;
+   unsigned y = yOffset;
+   unsigned inIndex = 0;
+   while(x < width && y < height)
+   {
+      unsigned outIndex = x + y * tex->width;
+      texData[outIndex] = ((U8*)data)[inIndex];
+
+      ++inIndex;
+      if(++x >= width)
+      {
+         x = xOffset;
+         ++y;
+      }
+   }
 }
 
 // Fairly slow operation
