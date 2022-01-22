@@ -32,6 +32,7 @@ private:
    PICAShader mStaticTrianglesShader;
    PICAShader mStaticPointsShader;
    PICAShader mStaticLinesShader;
+   PICAShader mTexturedTrianglesShader;
    //PICAShader mDynamicShader;
    //PICAShader mTexturedShader;
    //PICAShader mColoredTextureShader;
@@ -69,7 +70,7 @@ private:
 
    PICARenderer();
    PICAShader &getShaderForRenderType(RenderType type);
-   void setupShaderForRenderType(RenderType type);
+   void useShader(PICAShader& shader);
 
    template<typename T>
    void renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,

@@ -60,7 +60,7 @@ public:
    ~PICAShader();
 
    // geometryStride: number of vec4s per primitive
-   void init(const std::string &name, U32 *shbinData, U32 shbinSize, U32 geometryStride = 0, bool hasColors = false, bool hasUVs = false);
+   void init(const std::string &name, U32 *shbinData, U32 shbinSize, bool hasColors = false, bool hasUVs = false, U32 geometryStride = 0);
    std::string getName() const;
    S32 getUniformLocation(UniformName uniformName) const;
    void bind() const;

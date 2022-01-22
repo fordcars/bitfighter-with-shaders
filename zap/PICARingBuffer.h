@@ -16,12 +16,15 @@ namespace Zap
 class PICARingBuffer
 {
 private:
+   static void *mBufferInfo; // All buffers share same buffer info
    void *mData;
    std::size_t mCurrentOffset;
 
 public:
    PICARingBuffer();
    ~PICARingBuffer();
+
+   static void initForRendering();
 
    void init();
    void reset();

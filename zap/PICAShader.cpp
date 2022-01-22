@@ -28,7 +28,7 @@ PICAShader::~PICAShader()
 }
 
 void PICAShader::init(const std::string &name, U32 *shbinData, U32 shbinSize,
-                      U32 geometryStride, bool hasColors, bool hasUVs)
+                      bool hasColors, bool hasUVs, U32 geometryStride)
 {
    mName = name;
 
