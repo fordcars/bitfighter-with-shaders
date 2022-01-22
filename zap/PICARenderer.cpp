@@ -14,6 +14,7 @@
 #undef BIT
 #include <3ds.h>
 #include <citro3d.h>
+#include <tex3ds.h>
 #include <memory>
 #include <cstddef> // For size_t
 
@@ -51,6 +52,8 @@ PICARenderer::PICARenderer()
    //, mDynamicShader("dynamic", "dynamic.v.glsl", "dynamic.f.glsl")
    //, mTexturedShader("textured", "textured.v.glsl", "textured.f.glsl")
    //, mColoredTextureShader("coloredTexture", "coloredTexture.v.glsl", "coloredTexture.f.glsl")
+   , mNextTextureId(1)
+   , mBoundTexture(0)
    , mTextureEnabled(false)
    , mClearColor(0.0f, 0.0f, 0.0f)
    , mClearAlpha(1.0f)
@@ -110,7 +113,9 @@ PICARenderer::PICARenderer()
 
 PICARenderer::~PICARenderer()
 {
-	// Do nothing
+   // Delete stored textures
+   for(auto const &texture : mTextures)
+      delete (C3D_Tex *)(texture.second);
 }
 
 void PICARenderer::useShader(const PICAShader &shader)
@@ -620,56 +625,83 @@ void PICARenderer::projectOrtho(F32 left, F32 right, F32 bottom, F32 top, F32 ne
 // Uses "nearest pixel" filtering when useLinearFiltering is false
 U32 PICARenderer::generateTexture(bool useLinearFiltering)
 {
-   //GLuint textureHandle;
-   //glGenTextures(1, &textureHandle);
+   C3D_Tex *newTex = new C3D_Tex;
+   U32 newTexId = mNextTextureId;
+   ++mNextTextureId;
 
-   //// Set filtering
-   //GLint currentBinding;
-   //glGetIntegerv(GL_TEXTURE_BINDING_2D, &currentBinding);
-   //glBindTexture(GL_TEXTURE_2D, textureHandle);
+   if(useLinearFiltering)
+      C3D_TexSetFilter(newTex, GPU_LINEAR, GPU_LINEAR);
+   else
+      C3D_TexSetFilter(newTex, GPU_NEAREST, GPU_NEAREST);
 
-   //if(useLinearFiltering)
-   //{
-   //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-   //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-   //}
-   //else
-   //{
-   //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-   //   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-   //}
-
-   //glBindTexture(GL_TEXTURE_2D, currentBinding); // Restore previous binding
-
-   //return textureHandle;
-
-   return 1;
+   mTextures.insert(std::pair<U32, void *>(newTexId, newTex));
+   return newTexId;
 }
 
 void PICARenderer::bindTexture(U32 textureHandle)
 {
-   //glBindTexture(GL_TEXTURE_2D, textureHandle);
+   auto foundIt = mTextures.find(textureHandle);
+   if(foundIt != mTextures.end())
+   {
+      C3D_TexBind(0, (C3D_Tex *)(foundIt->second));
+      mBoundTexture = textureHandle;
+   }
 }
 
 bool PICARenderer::isTexture(U32 textureHandle)
 {
-   //return glIsTexture(textureHandle);
-   return true;
+   return mTextures.find(textureHandle) != mTextures.end();
 }
 
 void PICARenderer::deleteTexture(U32 textureHandle)
 {
-   //glDeleteTextures(1, &textureHandle);
+   auto foundIt = mTextures.find(textureHandle);
+   if(foundIt != mTextures.end())
+   {
+      C3D_Tex *tex = (C3D_Tex *)(foundIt->second);
+      C3D_TexDelete(tex);
+      mTextures.erase(foundIt);
+      delete tex;
+   }
 }
 
 void PICARenderer::setTextureData(TextureFormat format, DataType dataType, U32 width, U32 height, const void *data)
 {
-   //U32 textureFormat = getTextureFormat(format);
+   auto foundIt = mTextures.find(mBoundTexture);
+   if(foundIt == mTextures.end())
+      return;
+   C3D_Tex *tex = (C3D_Tex *)(foundIt->second);
+   U32 size = 0;
 
-   //glTexImage2D(
-   //   GL_TEXTURE_2D, 0, textureFormat,
-   //   width, height, 0,
-   //   textureFormat, getDataType(dataType), data);
+   switch(dataType)
+   {
+   case DataType::Byte:
+   case DataType::UnsignedByte:
+      size = 1;
+      break;
+
+   case DataType::Short:
+   case DataType::UnsignedShort:
+      size = 2;
+      break;
+
+   case DataType::Float:
+   case DataType::Int:
+   case DataType::UnsignedInt:
+      size = 4;
+      break;
+   }
+
+   size *= (width * height);
+   Tex3DS_Texture t3x = Tex3DS_TextureImport(data, size, tex, nullptr, false);
+   if(!t3x)
+   {
+      printf("Could not set texture data!\n");
+      return;
+   }
+
+   // Delete the t3x object since we don't need it
+   Tex3DS_TextureFree(t3x);
 }
 
 void PICARenderer::setSubTextureData(TextureFormat format, DataType dataType, S32 xOffset, S32 yOffset,

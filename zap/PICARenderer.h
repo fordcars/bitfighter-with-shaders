@@ -13,6 +13,7 @@
 #include "Stack.h"
 #include "Color.h"
 #include "Point.h"
+#include <unordered_map>
 
 #define STACK_CAPACITY 100
 
@@ -38,6 +39,11 @@ private:
    // Reusable buffers
    PICARingBuffer mVertexBuffer;
    PICARingBuffer mIndexBuffer;
+
+   // Textures
+   std::unordered_map<U32, void*> mTextures;
+   U32 mNextTextureId;
+   U32 mBoundTexture;
 
    bool mTextureEnabled;
    Color mClearColor;
