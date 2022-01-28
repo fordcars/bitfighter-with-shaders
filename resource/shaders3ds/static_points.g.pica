@@ -25,7 +25,6 @@
 	mul r4.y, myconst.z, r4.x  ; -pointSize/2
 	
 	; Same for all vertices
-	mov outclr, inclr
 	mov r5.z, myconst.z
 	mov r5.w, ones
 	
@@ -35,6 +34,7 @@
 	add r5.x, r4.x, r5.x       ; x += pointSize/2
 	add r5.y, r4.y, r5.y       ; y -= pointSize/2
 	mov outpos, r5
+	mov outclr, inclr
 	emit
 	
 	; Top vertex
@@ -42,6 +42,7 @@
 	mov r5.xy, inpos.xy
 	add r5.y, r4.x, r5.y       ; y += pointSize/2
 	mov outpos, r5
+	mov outclr, inclr
 	emit
 	
 	; Left vertex
@@ -50,6 +51,7 @@
 	add r5.x, r4.y, r5.x       ; x -= pointSize/2
 	add r5.y, r4.y, r5.y       ; y -= pointSize/2
 	mov outpos, r5
+	mov outclr, inclr
 	emit
 	
 	end

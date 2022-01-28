@@ -41,8 +41,7 @@
 	mul r6.xy, r6.xy, r7.xx         ; r6.xy = r6.xy/sqrt(r6.x^2 + r6.y^2)
 	mul r6.xy, r6.xy, r4.xx         ; r6.xy *= lineWidth/2
 	
-	; Same for all triangle vertices
-	mov outclr, inclr1
+	; Same for all vertices
 	mov r5.z, myconst.z
 	mov r5.w, ones
 	
@@ -51,18 +50,21 @@
 	mov r5.xy, inpos1.xy
 	add r5, r5, r6
 	mov outpos, r5
+	mov outclr, inclr1              ; We need to re-set this for every vert to avoid crash (why??)
 	emit
 	
 	setemit 1
 	mov r5.xy, inpos1.xy
 	add r5, r5, -r6
 	mov outpos, r5
+	mov outclr, inclr1
 	emit
 	
 	setemit 2, prim
 	mov r5.xy, inpos2.xy
 	add r5, r5, r6
 	mov outpos, r5
+	mov outclr, inclr2
 	emit
 	
 	; Emit second triangle
@@ -70,6 +72,7 @@
 	mov r5.xy, inpos2.xy
 	add r5, r5, -r6
 	mov outpos, r5
+	mov outclr, inclr2
 	emit
 	
 	end
