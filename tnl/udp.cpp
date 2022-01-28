@@ -283,7 +283,10 @@ Socket::Socket(const Address &bindAddress, U32 sendBufferSize, U32 recvBufferSiz
       if(!error)
       {
          logprintf(LogConsumer::LogUDP, "%s socket receive buffer size set to %d.", socketType, recvBufferSize);
+
+#ifndef BF_PLATFORM_3DS
          error = setsockopt(mPlatformSocket, SOL_SOCKET, SO_SNDBUF, (char *) &sendBufferSize, sizeof(sendBufferSize));
+#endif
       }
       else
          logprintf(LogConsumer::LogError, "%s socket error: unable to set the receive buffer size on socket.", socketType);
