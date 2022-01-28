@@ -30,6 +30,7 @@ static SDL_Cursor *mVerticalResize = NULL;
 // Cursors embedded below.  Note that image data comes from Gimp -- create the image, save as "xbm" type, and copy the structs as done below.  
 // Be sure to include the mask file.
 // The only modification is to add the two hotspot bytes.  Images can be full color, with transparency.
+#ifndef BF_PLATFORM_3DS
 static Cursor cursorSpray = {
    32, 32, 16, 16,
 
@@ -124,6 +125,7 @@ static Cursor cursorDefault = {
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 };
+#endif
 
 
 SDL_Cursor *Cursor::toSDL()
@@ -137,11 +139,13 @@ void Cursor::init()
 {
    TNLAssert(!mInitialized, "Don't initialize me twice!");
 
+#ifndef BF_PLATFORM_3DS
    mDefault = cursorDefault.toSDL();
    mSpray = cursorSpray.toSDL();
    mVerticalResize = cursorVerticalResize.toSDL();
 
    SDL_SetCursor(mDefault);
+#endif
 
    mInitialized = true;
 }
