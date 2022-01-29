@@ -1,5 +1,3 @@
-; Static vertex shader
-
 ; Uniforms
 ; IMPORTANT: our MVP has inverted rows (vertical mirrored).
 .fvec MVP[4]
