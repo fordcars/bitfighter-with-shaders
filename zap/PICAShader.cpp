@@ -125,7 +125,7 @@ void PICAShader::setMVP(const Matrix4 &MVP)
 void PICAShader::setColor(const Color &color, F32 alpha)
 {
    S32 loc = getUniformLocation(UniformName::Color);
-   if(loc != -1) // Why doesn't this work on the main menu?? && (color != mLastColor || alpha != mLastAlpha))
+   if(loc != -1) // This doesn't work, since uniforms are cleared when shaders are switched: && (color != mLastColor || alpha != mLastAlpha))
    {
       C3D_FVUnifSet(GPU_VERTEX_SHADER, loc, color.r, color.g, color.b, alpha);
       mLastColor = color;
@@ -136,7 +136,7 @@ void PICAShader::setColor(const Color &color, F32 alpha)
 void PICAShader::setPointSize(F32 size)
 {
    S32 loc = getUniformLocation(UniformName::PointSize);
-   if(loc != -1 && size != mLastPointSize)
+   if(loc != -1)// && size != mLastPointSize)
    {
       C3D_FVUnifSet(GPU_GEOMETRY_SHADER, loc, size, 0.0f, 0.0f, 0.0f);
       mLastPointSize = size;
@@ -146,7 +146,7 @@ void PICAShader::setPointSize(F32 size)
 void PICAShader::setLineWidth(F32 width)
 {
    S32 loc = getUniformLocation(UniformName::LineWidth);
-   if(loc != -1 && width != mLastLineWidth)
+   if(loc != -1)// && width != mLastLineWidth)
    {
       C3D_FVUnifSet(GPU_GEOMETRY_SHADER, loc, width, 0.0f, 0.0f, 0.0f);
       mLastLineWidth = width;
@@ -156,7 +156,7 @@ void PICAShader::setLineWidth(F32 width)
 void PICAShader::setTime(U32 time)
 {
    S32 loc = getUniformLocation(UniformName::Time);
-   if(loc != -1 && time != mLastTime)
+   if(loc != -1)// && time != mLastTime)
    {
       C3D_IVUnifSet(GPU_VERTEX_SHADER, loc, time, 0, 0, 0);
       mLastTime = time;
