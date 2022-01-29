@@ -111,4 +111,15 @@ void Interface3ds::shutdown()
    gfxExit();
 }
 
+bool Interface3ds::doEvents()
+{
+   hidScanInput();
+   u32 kDown = hidKeysDown();
+
+   if(kDown & KEY_START)
+      return false;
+
+   return true;
+}
+
 }

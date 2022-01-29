@@ -22,6 +22,7 @@ private:
 public:
    void init();
    void shutdown();
+   bool doEvents();
 };
 
 extern Interface3ds interface3ds;

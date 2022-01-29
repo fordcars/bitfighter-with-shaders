@@ -404,6 +404,11 @@ void idle()
    // END SDL event polling
 #endif
 
+#ifdef BF_PLATFORM_3DS
+   if(!interface3ds.doEvents())
+      shutdownBitfighter();
+#endif
+
 
    // Sleep a bit so we don't saturate the system. For a non-dedicated server,
    // sleep(0) helps reduce the impact of OpenGL on windows.
@@ -527,6 +532,10 @@ void shutdownBitfighter()
 
    NetClassRep::logBitUsage();
    logprintf("Bye!");
+
+#ifdef BF_PLATFORM_3DS
+   interface3ds.shutdown();
+#endif
 
    exitToOs();    // Do not pass Go
 }
