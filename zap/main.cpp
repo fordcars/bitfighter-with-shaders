@@ -388,7 +388,12 @@ void idle()
    // SDL requires an active polling loop.  We could use something like the following:
    SDL_Event event;
 
+#ifdef BF_PLATFORM_3DS
+   interface3ds.fetchEvents();
+   while(interface3ds.pollEvent(&event))
+#else
    while(SDL_PollEvent(&event))
+#endif
    {
       const Vector<ClientGame *> *clientGames = GameManager::getClientGames();
 
@@ -403,12 +408,6 @@ void idle()
    }
    // END SDL event polling
 #endif
-
-#ifdef BF_PLATFORM_3DS
-   if(!interface3ds.doEvents())
-      shutdownBitfighter();
-#endif
-
 
    // Sleep a bit so we don't saturate the system. For a non-dedicated server,
    // sleep(0) helps reduce the impact of OpenGL on windows.
