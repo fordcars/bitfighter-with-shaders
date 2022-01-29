@@ -153,6 +153,7 @@ set(CLIENT_SOURCES
 	PICARenderer.cpp
 	PICARingBuffer.cpp
 	PICAShader.cpp
+	PICAUtils.cpp
 	quickChatHelper.cpp
     Renderer.cpp
 	RenderUtils.cpp

@@ -6,6 +6,7 @@
 #ifdef BF_PLATFORM_3DS
 
 #include "PICARenderer.h"
+#include "PICAUtils.h"
 #include "Color.h"
 #include "SDL/SDL.h"
 #include "MathUtils.h"
@@ -704,7 +705,7 @@ void PICARenderer::setTextureData(TextureFormat format, DataType dataType, U32 w
       printf("Could not initialize texture!\n");
 
    C3D_TexLoadImage(tex, data, GPU_TEXFACE_2D, 0);
-   C3D_TexSetFilter(tex, GPU_NEAREST, GPU_NEAREST);
+   C3D_TexSetFilter(tex, GPU_LINEAR, GPU_LINEAR);
 }
 
 void PICARenderer::setSubTextureData(TextureFormat format, DataType dataType, S32 xOffset, S32 yOffset,
@@ -716,22 +717,19 @@ void PICARenderer::setSubTextureData(TextureFormat format, DataType dataType, S3
       return;
    C3D_Tex *tex = (C3D_Tex *)(foundIt->second);
 
+   // Get texture data pointer
    u32 size;
    U8 *texData = static_cast<U8*>(C3D_Tex2DGetImagePtr(tex, 0, &size));
    
-   unsigned x = xOffset;
-   unsigned y = yOffset;
-   unsigned inIndex = 0;
-   while(x < (xOffset + width) && y < (yOffset + height))
+   // Copy data
+   U32 inIndex = 0;
+   for(U32 y = yOffset; y < yOffset + height; ++y)
    {
-      unsigned outIndex = x + y * tex->width;
-      texData[outIndex] = ((U8 *)data)[inIndex];
-      ++inIndex;
-
-      if(++x >= xOffset + width)
+      for(U32 x = xOffset; x < xOffset + width; ++x)
       {
-         x = xOffset;
-         ++y;
+         U32 offset = screenCoordsToTexOffset(x, y, tex->height);
+         texData[offset] = ((U8 *)data)[inIndex];
+         ++inIndex;
       }
    }
 }
