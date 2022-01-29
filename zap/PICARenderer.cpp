@@ -349,7 +349,7 @@ void PICARenderer::frameEnd()
 
 void PICARenderer::clear()
 {
-   C3D_RenderTargetClear(mTarget, C3D_CLEAR_ALL, 0x008888FF, 0);// colorToHex(mClearColor, mClearAlpha), 0);
+   C3D_RenderTargetClear(mTarget, C3D_CLEAR_ALL, colorToHex(mClearColor, mClearAlpha), 0);
    C3D_FrameDrawOn(mTarget);
 }
 
@@ -825,7 +825,6 @@ void PICARenderer::renderTextured(const F32 verts[], const F32 UVs[], U32 vertCo
 void PICARenderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension, bool isAlphaTexture)
 {
-   setColor(1, 0, 0, 1);
    useShader(mTexturedTrianglesShader);
    setTexEnv(true);
 
