@@ -22,6 +22,7 @@ private:
 public:
    void init();
    void shutdown();
+   bool shouldDoMainLoop();
    bool doEvents();
 };
 

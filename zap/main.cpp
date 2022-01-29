@@ -425,8 +425,14 @@ void idle()
 
 void dedicatedServerLoop()
 {
+#ifdef BF_PLATFORM_3DS
+   // Handle 3DS Home Menu and Sleep functions
+   while(interface3ds.shouldDoMainLoop())
+      idle();
+#else
    for(;;)        // Loop forever!
       idle();     // Idly!
+#endif
 }
 
 ////////////////////////////////////////

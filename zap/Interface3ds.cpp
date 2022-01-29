@@ -111,6 +111,11 @@ void Interface3ds::shutdown()
    gfxExit();
 }
 
+bool Interface3ds::shouldDoMainLoop()
+{
+   return aptMainLoop();
+}
+
 bool Interface3ds::doEvents()
 {
    hidScanInput();
