@@ -17,7 +17,7 @@
 #include <stdio.h>
 
 // A larger ring buffer will prevent overwriting data prematurely.
-static const U32 RING_BUFFER_SIZE = 100000U;
+static const U32 RING_BUFFER_SIZE = 2000000U;
 
 namespace Zap
 {
