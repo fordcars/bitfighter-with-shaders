@@ -562,13 +562,16 @@ static void flush_draw(struct sth_stash* stash)
 	{
 		if (texture->nverts > 0)
 		{
-			static F32 verts[100];
-			static F32 UVs[100];
+#ifdef BF_PLATFORM_3DS
+			// 3DS does not seem to like strides larger than normal vertex sizes,
+			// so we do this workaround (which sucks, we can do better)
+			static F32 verts[1000];
+			static F32 UVs[1000];
 			U32 writeIndex = 0;
 			for(int i = 0; i < texture->nverts * 4; i += 4)
 			{
 				verts[writeIndex] = texture->verts[i];
-				verts[writeIndex +1] = texture->verts[i+1];
+				verts[writeIndex + 1] = texture->verts[i + 1];
 				UVs[writeIndex] = texture->verts[i + 2];
 				UVs[writeIndex + 1] = texture->verts[i + 3];
 
@@ -577,6 +580,11 @@ static void flush_draw(struct sth_stash* stash)
 			r.bindTexture(texture->id);
 			r.renderColoredTexture(verts, UVs, static_cast<U32>(texture->nverts),
 				Zap::RenderType::Triangles, 0, 0, 2, true);
+#else
+			r.bindTexture(texture->id);
+			r.renderColoredTexture(texture->verts, texture->verts + 2, static_cast<U32>(texture->nverts),
+				Zap::RenderType::Triangles, 0, VERT_STRIDE, 2, true);
+#endif
 			texture->nverts = 0;
 		}
 		texture = texture->next;
