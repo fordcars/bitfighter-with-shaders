@@ -21,7 +21,7 @@
 	; Since our MVP has inverted rows, we invert the input vertex
 	; and set its .z to 0 and .w to 1
 	mov r0.x, ones
-	mov r0.y, zeros ;inpos.z
+	mov r0.y, zeros
 	mov r0.z, inpos.y
 	mov r0.w, inpos.x
 
