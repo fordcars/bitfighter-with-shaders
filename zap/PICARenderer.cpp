@@ -195,6 +195,9 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
 
 void PICARenderer::renderVerts(RenderType type, U32 vertCount)
 {
+   if(vertCount == 0)
+      return;
+
    switch(type)
    {
    case RenderType::Lines:
