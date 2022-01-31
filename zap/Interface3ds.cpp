@@ -145,21 +145,51 @@ bool Interface3ds::pollEvent(SDL_Event *event)
 {
    if(mKeysDown & KEY_A) {
       mKeysDown &= ~(KEY_A);
-      generateKeyDownEvent(event, SDLK_RETURN, 'a');
-   } else if(mKeysDown & KEY_B) {
+      generateKeyDownEvent(event, SDLK_RETURN, '\r');
+   }
+   else if(mKeysDown & KEY_B) {
       mKeysDown &= ~(KEY_B);
       generateKeyDownEvent(event, SDLK_ESCAPE, '\e');
-   } else if(mKeysDown & KEY_SELECT) {
+   }
+   else if(mKeysDown & KEY_SELECT) {
       mKeysDown &= ~(KEY_SELECT);
       generateKeyDownEvent(event, SDLK_ESCAPE, '\e');
+   }
+   else if(mKeysDown & KEY_DRIGHT) {
+      mKeysDown &= ~(KEY_DRIGHT);
+      generateKeyDownEvent(event, SDLK_RIGHT);
+   }
+   else if(mKeysDown & KEY_DLEFT) {
+      mKeysDown &= ~(KEY_DLEFT);
+      generateKeyDownEvent(event, SDLK_LEFT);
+   }
+   else if(mKeysDown & KEY_DUP) {
+      mKeysDown &= ~(KEY_DUP);
+      generateKeyDownEvent(event, SDLK_UP);
+   }
+   else if(mKeysDown & KEY_DDOWN) {
+      mKeysDown &= ~(KEY_DDOWN);
+      generateKeyDownEvent(event, SDLK_DOWN);
+   }
+   else if(mKeysDown & KEY_CPAD_RIGHT) {
+      mKeysDown &= ~(KEY_CPAD_RIGHT);
+      generateKeyDownEvent(event, SDLK_d, 'd');
+   }
+   else if(mKeysDown & KEY_CPAD_LEFT) {
+      mKeysDown &= ~(KEY_CPAD_LEFT);
+      generateKeyDownEvent(event, SDLK_a, 'a');
+   }
+   else if(mKeysDown & KEY_CPAD_UP) {
+      mKeysDown &= ~(KEY_CPAD_UP);
+      generateKeyDownEvent(event, SDLK_w, 'w');
+   }
+   else if(mKeysDown & KEY_CPAD_DOWN) {
+      mKeysDown &= ~(KEY_CPAD_DOWN);
+      generateKeyDownEvent(event, SDLK_s, 's');
    }
    else
       return false;
 
-	//KEY_DRIGHT  = BIT(4),       ///< D-Pad Right
-	//KEY_DLEFT   = BIT(5),       ///< D-Pad Left
-	//KEY_DUP     = BIT(6),       ///< D-Pad Up
-	//KEY_DDOWN   = BIT(7),       ///< D-Pad Down
 	//KEY_R       = BIT(8),       ///< R
 	//KEY_L       = BIT(9),       ///< L
 	//KEY_X       = BIT(10),      ///< X

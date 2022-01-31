@@ -20,7 +20,7 @@ private:
    TNL::U32 mKeysUp;
 
    static std::string getResultSummary(int summaryCode);
-   static void generateKeyDownEvent(SDL_Event *event, SDLKey key, char ascii);
+   static void generateKeyDownEvent(SDL_Event *event, SDLKey key, char ascii = '\0');
    static void generateKeyUpEvent(SDL_Event *event);
 
    void initGFX();
