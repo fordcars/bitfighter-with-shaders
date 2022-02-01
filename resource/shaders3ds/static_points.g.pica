@@ -13,7 +13,7 @@
 .alias inpos v0
 .alias inclr v1
 
-; Outputs - this time the type *is* used
+; Outputs
 .out outpos position
 .out outclr color
 
@@ -21,38 +21,46 @@
 .proc gmain
 	; Calculate half pointSize
 	mov r4.x, pointSize.x
-	mul r4.x, half, r4.x       ; pointSize/2
-	mul r4.y, myconst.z, r4.x  ; -pointSize/2
+	mul r4.x, half, r4.x        ; pointSize/2
 	
 	; Same for all vertices
 	mov r5.z, myconst.z
 	mov r5.w, ones
 	
-	; Right vertex
+	; Top left
 	setemit 0
-	mov r5.xy, inpos.xy        ; Use general register for calculations
-	add r5.x, r4.x, r5.x       ; x += pointSize/2
-	add r5.y, r4.y, r5.y       ; y -= pointSize/2
+	mov r5.xy, inpos.xy         ; Use general register for calculations
+	add r5.x, r5.x, -r4.x       ; x -= pointSize/2
+	add r5.y, r5.y, r4.x        ; y += pointSize/2
 	mov outpos, r5
 	mov outclr, inclr
 	emit
 	
-	; Top vertex
+	; Bottom left
 	setemit 1
 	mov r5.xy, inpos.xy
-	add r5.y, r4.x, r5.y       ; y += pointSize/2
+	add r5.x, r5.x, -r4.x       ; x -= pointSize/2
+	add r5.y, r5.y, -r4.x       ; y -= pointSize/2
 	mov outpos, r5
 	mov outclr, inclr
 	emit
 	
-	; Left vertex
+	; Top right
 	setemit 2, prim
 	mov r5.xy, inpos.xy
-	add r5.x, r4.y, r5.x       ; x -= pointSize/2
-	add r5.y, r4.y, r5.y       ; y -= pointSize/2
+	add r5.x, r5.x, r4.x        ; x += pointSize/2
+	add r5.y, r5.y, r4.x        ; y += pointSize/2
 	mov outpos, r5
 	mov outclr, inclr
 	emit
 	
+	; Bottom right
+	setemit 0, inv prim
+	mov r5.xy, inpos.xy
+	add r5.x, r5.x, r4.x        ; x += pointSize/2
+	add r5.y, r5.y, -r4.x       ; y -= pointSize/2
+	mov outpos, r5
+	mov outclr, inclr
+	emit
 	end
 .end

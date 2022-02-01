@@ -416,9 +416,8 @@ void PICARenderer::setColor(F32 r, F32 g, F32 b, F32 alpha)
 void PICARenderer::setPointSize(F32 size)
 {
    // Convert point size (pixels) to normalized [-1, 1] space.
-   // 3.6f for better visuals (since points are rendered as triangles, not squares).
-   // Found by trial and error.
-   F32 sizeFactor = 3.6f/ScreenInfo::PHYSICAL_HEIGHT;
+   // 3.6f for better visuals. Found by trial and error.
+   F32 sizeFactor = 1.25f/ScreenInfo::PHYSICAL_HEIGHT;
    mPointSize = size * sizeFactor;
 }
 
