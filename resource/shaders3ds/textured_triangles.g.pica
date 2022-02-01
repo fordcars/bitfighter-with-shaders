@@ -1,0 +1,54 @@
+.gsh fixed c9 c0 3
+
+; Constants
+.constf myconst(0.0, 1.0, -1.0, 0.5)
+.alias  zeros myconst.xxxx ; Vector full of zeros
+.alias  ones  myconst.yyyy ; Vector full of ones
+.alias  half  myconst.wwww
+
+; Inputs
+.alias inpos1 c0
+.alias inUV1  c1
+.alias inclr1 c2
+
+.alias inpos2 c3
+.alias inUV2  c4
+.alias inclr2 c5
+
+.alias inpos3 c6
+.alias inUV3  c7
+.alias inclr3 c8
+
+; Outputs
+.out outpos position
+.out outUV texcoord0
+.out outclr color
+
+.entry gmain
+.proc gmain
+	; Same for all vertices
+	mov r5.z, myconst.z
+	mov r5.w, ones
+	
+	setemit 0
+	mov r5.xy, inpos1.xy
+	mov outpos, r5
+	mov outUV,  inUV1
+	mov outclr, inclr1
+	emit
+	
+	setemit 1
+	mov r5.xy, inpos2.xy
+	mov outpos, r5
+	mov outUV,  inUV2
+	mov outclr, inclr2
+	emit
+	
+	setemit 2, prim
+	mov r5.xy, inpos3.xy
+	mov outpos, r5
+	mov outUV,  inUV3
+	mov outclr, inclr3
+	emit
+	end
+.end

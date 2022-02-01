@@ -9,13 +9,13 @@
 .alias  ones  myconst.yyyy ; Vector full of ones
 
 ; Outputs
-.out outpos position
-.out outtc0 texcoord0
-.out outclr color
+.out outpos dummy
+.out outUV  dummy
+.out outclr dummy
 
 ; Inputs
-.alias inpos v0
-.alias inUV  v1
+.in inpos v0
+.in inUV  v1
 
 .proc main
 	; Since our MVP has inverted rows, we invert the input vertex
@@ -31,7 +31,7 @@
 	
 	mov outpos.z, myconst.z
 	mov outpos.w, ones
-	mov outtc0, inUV
+	mov outUV, inUV
 	mov outclr, vertColor
 	end
 .end
