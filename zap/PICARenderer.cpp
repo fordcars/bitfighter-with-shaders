@@ -288,16 +288,20 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
 
    case RenderType::TriangleFan:
    {
-      if(vertCount % 3 == 1)
-         vertCount--;
-      else if(vertCount % 3 == 2)
-         vertCount -= 2;
+      // Generate CCW triangles with index 0 as fan center
+      U32 triangleVertCount = 3 * (vertCount - 2);
+      U16 *indexArray = (U16 *)mIndexBuffer.allocate(triangleVertCount * sizeof(U16));
 
-      U16 *indexArray = (U16 *)mIndexBuffer.allocate(vertCount * sizeof(U16));
-      for(U16 i = 0; i < vertCount; ++i)
-         indexArray[i] = i;
+      U32 writeIndex = 0;
+      for(U16 i = 2; i < vertCount; ++i)
+      {
+         writeIndex = 3 * (i - 2);
+         indexArray[writeIndex] = 0;          // Fan center
+         indexArray[writeIndex + 1] = i;      // Current vert
+         indexArray[writeIndex + 2] = i - 1;  // Previous vert
+      }
 
-      C3D_DrawElements(GPU_GEOMETRY_PRIM, vertCount, C3D_UNSIGNED_SHORT, indexArray);
+      C3D_DrawElements(GPU_GEOMETRY_PRIM, triangleVertCount, C3D_UNSIGNED_SHORT, indexArray);
       break;
    }
 
@@ -416,7 +420,7 @@ void PICARenderer::setColor(F32 r, F32 g, F32 b, F32 alpha)
 void PICARenderer::setPointSize(F32 size)
 {
    // Convert point size (pixels) to normalized [-1, 1] space.
-   // 3.6f for better visuals. Found by trial and error.
+   // .25f for better visuals. Found by trial and error.
    F32 sizeFactor = 1.25f/ScreenInfo::PHYSICAL_HEIGHT;
    mPointSize = size * sizeFactor;
 }
