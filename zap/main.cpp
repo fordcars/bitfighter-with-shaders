@@ -409,6 +409,7 @@ void idle()
    // END SDL event polling
 #endif
 
+#ifndef BF_PLATFORM_3DS
    // Sleep a bit so we don't saturate the system. For a non-dedicated server,
    // sleep(0) helps reduce the impact of OpenGL on windows.
 
@@ -418,6 +419,7 @@ void idle()
       sleepTime = 40;     // The higher this number, the less accurate the ping is on server lobby when empty, but the less power consumed.
 
    Platform::sleep(sleepTime);
+#endif
 
 }  // end idle()
 
