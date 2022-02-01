@@ -202,10 +202,11 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
    {
    case RenderType::Lines:
    {
-      U16 *indexArray = (U16 *)mIndexBuffer.allocate(vertCount * sizeof(U16));
       // Make sure we have an even number of verts
       if(vertCount % 2 == 1)
          vertCount--;
+
+      U16 *indexArray = (U16 *)mIndexBuffer.allocate(vertCount * sizeof(U16));
       for(U16 i = 0; i < vertCount; ++i)
          indexArray[i] = i;
 
@@ -256,16 +257,49 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
       break;
 
    case RenderType::Triangles:
-      C3D_DrawArrays(GPU_TRIANGLES, 0, vertCount);
+   {
+      if(vertCount % 3 == 1)
+         vertCount--;
+      else if(vertCount % 3 == 2)
+         vertCount -= 2;
+
+      U16 *indexArray = (U16 *)mIndexBuffer.allocate(vertCount * sizeof(U16));
+      for(U16 i = 0; i < vertCount; ++i)
+         indexArray[i] = i;
+
+      C3D_DrawElements(GPU_GEOMETRY_PRIM, vertCount, C3D_UNSIGNED_SHORT, indexArray);
       break;
+   }
 
    case RenderType::TriangleStrip:
-      C3D_DrawArrays(GPU_TRIANGLE_STRIP, 0, vertCount);
+   {
+      if(vertCount % 3 == 1)
+         vertCount--;
+      else if(vertCount % 3 == 2)
+         vertCount -= 2;
+
+      U16 *indexArray = (U16 *)mIndexBuffer.allocate(vertCount * sizeof(U16));
+      for(U16 i = 0; i < vertCount; ++i)
+         indexArray[i] = i;
+
+      C3D_DrawElements(GPU_GEOMETRY_PRIM, vertCount, C3D_UNSIGNED_SHORT, indexArray);
       break;
+   }
 
    case RenderType::TriangleFan:
-      C3D_DrawArrays(GPU_TRIANGLE_FAN, 0, vertCount);
+   {
+      if(vertCount % 3 == 1)
+         vertCount--;
+      else if(vertCount % 3 == 2)
+         vertCount -= 2;
+
+      U16 *indexArray = (U16 *)mIndexBuffer.allocate(vertCount * sizeof(U16));
+      for(U16 i = 0; i < vertCount; ++i)
+         indexArray[i] = i;
+
+      C3D_DrawElements(GPU_GEOMETRY_PRIM, vertCount, C3D_UNSIGNED_SHORT, indexArray);
       break;
+   }
 
    default:
       break;
