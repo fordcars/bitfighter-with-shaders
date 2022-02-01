@@ -273,16 +273,20 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
 
    case RenderType::TriangleStrip:
    {
-      if(vertCount % 3 == 1)
-         vertCount--;
-      else if(vertCount % 3 == 2)
-         vertCount -= 2;
+      // Generate CCW triangles
+      U32 triangleVertCount = 3 * (vertCount - 2);
+      U16 *indexArray = (U16 *)mIndexBuffer.allocate(triangleVertCount * sizeof(U16));
 
-      U16 *indexArray = (U16 *)mIndexBuffer.allocate(vertCount * sizeof(U16));
-      for(U16 i = 0; i < vertCount; ++i)
-         indexArray[i] = i;
+      U32 writeIndex = 0;
+      for(U16 i = 1; i < vertCount - 1; ++i)
+      {
+         writeIndex = 3 * (i - 1);
+         indexArray[writeIndex] = i - 1;      // Previous vert
+         indexArray[writeIndex + 1] = i + 1;  // Next vert
+         indexArray[writeIndex + 2] = i;      // Current vert
+      }
 
-      C3D_DrawElements(GPU_GEOMETRY_PRIM, vertCount, C3D_UNSIGNED_SHORT, indexArray);
+      C3D_DrawElements(GPU_GEOMETRY_PRIM, triangleVertCount, C3D_UNSIGNED_SHORT, indexArray);
       break;
    }
 
