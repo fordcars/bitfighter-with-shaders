@@ -124,7 +124,6 @@ void Interface3ds::shutdown()
 {
    socExit();
    romfsExit();
-   C3D_Fini();
    gfxExit();
 }
 

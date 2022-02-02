@@ -119,6 +119,15 @@ PICARenderer::~PICARenderer()
    // Delete all textures
    for(auto const &texture : mTextures)
       deleteTexture(texture.first);
+
+   // Shutdown C3D
+   C3D_Fini();
+}
+
+// Static
+void PICARenderer::create()
+{
+   setInstance(std::unique_ptr<Renderer>(new PICARenderer));
 }
 
 PICAShader &PICARenderer::getShaderForRenderType(RenderType type)
@@ -158,10 +167,22 @@ void PICARenderer::useShader(PICAShader &shader)
    shader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
 }
 
-// Static
-void PICARenderer::create()
+F32 PICARenderer::getCmdBufferUsage()
 {
-   setInstance(std::unique_ptr<Renderer>(new PICARenderer));
+   u32 size;
+   u32 offset;
+
+   GPUCMD_GetBuffer(nullptr, &size, &offset);
+   return (F32)offset / size;
+}
+
+// Returns true if commands where flushed
+bool PICARenderer::flushCmdBufferIfFull()
+{
+   if(getCmdBufferUsage() > 0.8)
+      return true;
+
+   return false;
 }
 
 // Uses static shader
@@ -171,7 +192,7 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
 {
    if(vertCount == 0)
       return;
-
+   if(flushCmdBufferIfFull()) return;
    PICAShader &shader = getShaderForRenderType(type);
    useShader(shader);
    setTexEnv(false);
