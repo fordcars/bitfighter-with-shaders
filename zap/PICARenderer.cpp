@@ -87,7 +87,7 @@ PICARenderer::PICARenderer()
    C3D_TexEnv *env = C3D_GetTexEnv(0);
    C3D_TexEnvInit(env);
    mUsedTextureLast = true;
-   setTexEnv(false);
+   useDefaultTexEnv();
 
    // Init shaders
    mStaticTrianglesShader.init("static_triangles", (U32 *)static_triangles_shbin, static_triangles_shbin_size);
@@ -125,6 +125,24 @@ PICARenderer::~PICARenderer()
 void PICARenderer::create()
 {
    setInstance(std::unique_ptr<Renderer>(new PICARenderer));
+}
+
+// Static
+U32 PICARenderer::getTextureFormat(TextureFormat format)
+{
+   switch(format)
+   {
+   case TextureFormat::RGB:
+      return GPU_RGB8;
+
+   case TextureFormat::RGBA:
+      return GPU_RGBA8;
+
+   case TextureFormat::Alpha:
+      return GPU_A8;
+   }
+
+   return 0;
 }
 
 PICAShader &PICARenderer::getShaderForRenderType(RenderType type)
@@ -182,6 +200,30 @@ bool PICARenderer::cmdBufferIsFull()
    return false;
 }
 
+void PICARenderer::useDefaultTexEnv()
+{
+   if(mUsedTextureLast)
+   {
+      C3D_TexEnv *env = C3D_GetTexEnv(0);
+      C3D_TexEnvSrc(env, C3D_RGB, GPU_PRIMARY_COLOR, (GPU_TEVSRC)0, (GPU_TEVSRC)0);
+      C3D_TexEnvSrc(env, C3D_Alpha, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, (GPU_TEVSRC)0);
+      C3D_TexEnvFunc(env, C3D_RGB, GPU_REPLACE);
+      C3D_TexEnvFunc(env, C3D_Alpha, GPU_MODULATE);
+      mUsedTextureLast = false;
+   }
+}
+
+void PICARenderer::useAlphaTextureTexEnv()
+{
+   if(!mUsedTextureLast)
+   {
+      C3D_TexEnv *env = C3D_GetTexEnv(0);
+      C3D_TexEnvSrc(env, C3D_Alpha, GPU_PRIMARY_COLOR, GPU_TEXTURE0, (GPU_TEVSRC)0);
+      C3D_TexEnvFunc(env, C3D_Alpha, GPU_MODULATE);
+      mUsedTextureLast = true;
+   }
+}
+
 // Uses static shader
 template<typename T>
 void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
@@ -192,7 +234,7 @@ void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], 
 
    PICAShader &shader = getShaderForRenderType(type);
    useShader(shader);
-   setTexEnv(false);
+   useDefaultTexEnv();
 
 	// Give position data to the shader, and deal with stride
    // Positions
@@ -335,74 +377,6 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
 
    default:
       break;
-   }
-}
-
-U32 PICARenderer::getTextureFormat(TextureFormat format) const
-{
-   switch(format)
-   {
-   case TextureFormat::RGB:
-      return GPU_RGB8;
-
-   case TextureFormat::RGBA:
-      return GPU_RGBA8;
-
-   case TextureFormat::Alpha:
-      return GPU_A8;
-   }
-
-   return 0;
-}
-
-U32 PICARenderer::getDataType(DataType type) const
-{
-   /*switch(type)
-   {
-   case DataType::UnsignedByte:
-      return GL_UNSIGNED_BYTE;
-
-   case DataType::Byte:
-      return GL_BYTE;
-
-   case DataType::UnsignedShort:
-      return GL_UNSIGNED_SHORT;
-
-   case DataType::Short:
-      return GL_SHORT;
-
-   case DataType::UnsignedInt:
-      return GL_UNSIGNED_INT;
-
-   case DataType::Int:
-      return GL_INT;
-
-   case DataType::Float:
-      return GL_FLOAT;
-
-   default:
-      return 0;
-   }*/
-   return 0;
-}
-
-void PICARenderer::setTexEnv(bool forTexture)
-{
-   if(!forTexture && mUsedTextureLast)
-   {
-      C3D_TexEnv *env = C3D_GetTexEnv(0);
-      C3D_TexEnvSrc(env, C3D_RGB, GPU_PRIMARY_COLOR, (GPU_TEVSRC)0, (GPU_TEVSRC)0);
-      C3D_TexEnvSrc(env, C3D_Alpha, GPU_PRIMARY_COLOR, GPU_PRIMARY_COLOR, (GPU_TEVSRC)0);
-      C3D_TexEnvFunc(env, C3D_RGB, GPU_REPLACE);
-      C3D_TexEnvFunc(env, C3D_Alpha, GPU_MODULATE);
-      mUsedTextureLast = false;
-   }
-   else if(forTexture && !mUsedTextureLast)
-   {
-      C3D_TexEnv *env = C3D_GetTexEnv(0);
-      C3D_TexEnvSrc(env, C3D_Alpha, GPU_PRIMARY_COLOR, GPU_TEXTURE0, (GPU_TEVSRC)0);
-      C3D_TexEnvFunc(env, C3D_Alpha, GPU_MODULATE);
-      mUsedTextureLast = true;
    }
 }
 
@@ -899,7 +873,7 @@ void PICARenderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 
    if(cmdBufferIsFull()) return;
 
    useShader(mTexturedTrianglesShader);
-   setTexEnv(true);
+   useAlphaTextureTexEnv();
 
    // Positions
    U32 posStride = stride;

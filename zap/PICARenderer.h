@@ -69,19 +69,19 @@ private:
    MatrixType mMatrixMode;
 
    PICARenderer();
+
+   static U32 getTextureFormat(TextureFormat format);
    PICAShader &getShaderForRenderType(RenderType type);
    void useShader(PICAShader& shader);
    F32 getCmdBufferUsage();
    bool cmdBufferIsFull();
+   void useDefaultTexEnv();
+   void useAlphaTextureTexEnv();
 
    template<typename T>
    void renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
       U32 start, U32 stride, U32 vertDimension);
    void renderVerts(RenderType type, U32 vertCount);
-
-   U32 getTextureFormat(TextureFormat format) const;
-   U32 getDataType(DataType type) const;
-   void setTexEnv(bool forTexture);
 
 public:
    ~PICARenderer() override;
