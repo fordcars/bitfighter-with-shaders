@@ -48,22 +48,35 @@ namespace Zap
 {
 
 // Sizes and other things to help with positioning
-static const S32 SRV_MSG_FONT_SIZE = 14;
-static const S32 SRV_MSG_FONT_GAP = 4;
-static const S32 CHAT_FONT_SIZE = 12;
-static const S32 CHAT_FONT_GAP = 3;
-static const S32 CHAT_WRAP_WIDTH = 700;            // Max width of chat messages displayed in-game
-static const S32 SRV_MSG_WRAP_WIDTH = 750;
+#ifdef BF_PLATFORM_3DS
+   static const S32 SRV_MSG_FONT_SIZE  = 20;
+   static const S32 SRV_MSG_FONT_GAP   = 4;
+   static const S32 SRV_MSG_LINES      = 3;
+   static const S32 CHAT_FONT_SIZE     = 24;
+   static const S32 CHAT_FONT_GAP      = 3;
+   static const S32 CHAT_WRAP_WIDTH    = 700;
+   static const S32 CHAT_LINES_1       = 3;
+   static const S32 SRV_MSG_WRAP_WIDTH = 750;
+#else
+   static const S32 SRV_MSG_FONT_SIZE  = 14;
+   static const S32 SRV_MSG_FONT_GAP   = 4;
+   static const S32 SRV_MSG_LINES      = 6;
+   static const S32 CHAT_FONT_SIZE     = 12;
+   static const S32 CHAT_FONT_GAP      = 3;
+   static const S32 CHAT_WRAP_WIDTH    = 700;            // Max width of chat messages displayed in-game
+   static const S32 CHAT_LINES_1       = 5;
+   static const S32 SRV_MSG_WRAP_WIDTH = 750;
+#endif
 
 
 // Constructor
 GameUserInterface::GameUserInterface(ClientGame *game) : 
                   Parent(game), 
-                  mVoiceRecorder(game),  //   lines expr  topdown   wrap width          font size          line gap
-                  mServerMessageDisplayer(game,  6, true,  true,  SRV_MSG_WRAP_WIDTH, SRV_MSG_FONT_SIZE, SRV_MSG_FONT_GAP),
-                  mChatMessageDisplayer1 (game,  5, true,  false, CHAT_WRAP_WIDTH,    CHAT_FONT_SIZE,    CHAT_FONT_GAP),
-                  mChatMessageDisplayer2 (game,  5, false, false, CHAT_WRAP_WIDTH,    CHAT_FONT_SIZE,    CHAT_FONT_GAP),
-                  mChatMessageDisplayer3 (game, 24, false, false, CHAT_WRAP_WIDTH,    CHAT_FONT_SIZE,    CHAT_FONT_GAP),
+                  mVoiceRecorder(game),  //   lines expr     topdown  wrap           width          font size          line gap
+                  mServerMessageDisplayer(game, SRV_MSG_LINES, true,  true,  SRV_MSG_WRAP_WIDTH, SRV_MSG_FONT_SIZE, SRV_MSG_FONT_GAP),
+                  mChatMessageDisplayer1 (game, CHAT_LINES_1 , true,  false, CHAT_WRAP_WIDTH,    CHAT_FONT_SIZE,    CHAT_FONT_GAP),
+                  mChatMessageDisplayer2 (game,  5,            false, false, CHAT_WRAP_WIDTH,    CHAT_FONT_SIZE,    CHAT_FONT_GAP),
+                  mChatMessageDisplayer3 (game, 24,            false, false, CHAT_WRAP_WIDTH,    CHAT_FONT_SIZE,    CHAT_FONT_GAP),
                   mFpsRenderer(game),
                   mLevelInfoDisplayer(game),
                   mHelpItemManager(game->getSettings())
