@@ -474,13 +474,13 @@ void drawCentroidMark(const Point &pos, F32 radius)
 // length and width are in pixels, and are the dimensions of the health bar
 void renderHealthBar(F32 health, const Point &center, const Point &dir, F32 length, F32 width)
 {
-   const F32 HATCH_COUNT = 14;                     // Number of lines to draw a full health
-   U32 hatchCount = U32(HATCH_COUNT * health);     // Number of lines to draw at current health
    Point cross(dir.y, -dir.x);                     // Direction across the health bar, perpendicular to the main axis
-
    Point dirx = dir;                               // Needs modifiable copy for the Point math to work
    Point base = center - dirx * length * .5;       // Point at center of end of health bar
 
+#ifndef BF_PLATFORM_3DS
+   const F32 HATCH_COUNT = 14;                     // Number of lines to draw a full health
+   U32 hatchCount = U32(HATCH_COUNT * health);     // Number of lines to draw at current health
    Point segMid;                                   // Reusable container
 
    Vector<Point> vertexArray(2 * hatchCount);
@@ -493,6 +493,19 @@ void renderHealthBar(F32 health, const Point &center, const Point &dir, F32 leng
    }
 
    Renderer::get().renderPointVector(&vertexArray, RenderType::Lines);
+#else
+   Point end = base + dirx * length * health;
+   cross = cross * F32(width) * 0.5;
+
+   Point verts[] = {
+      base - cross,
+      base + cross,
+      end + cross,
+      end - cross
+   };
+
+   Renderer::get().renderVertexArray((F32 *)verts, 4, RenderType::TriangleFan);
+#endif
 }
 
 
