@@ -72,7 +72,7 @@ private:
    PICAShader &getShaderForRenderType(RenderType type);
    void useShader(PICAShader& shader);
    F32 getCmdBufferUsage();
-   bool flushCmdBufferIfFull();
+   bool cmdBufferIsFull();
 
    template<typename T>
    void renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,

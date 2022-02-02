@@ -167,6 +167,8 @@ void PICARenderer::useShader(PICAShader &shader)
    shader.setTime(static_cast<unsigned>(SDL_GetTicks())); // Give time, it's always useful!
 }
 
+// C3D_GetCmdBufUsage() only updates on C3D_FrameEnd(). This alternative
+// always gets live command buffer usage (I hope).
 F32 PICARenderer::getCmdBufferUsage()
 {
    u32 size;
@@ -176,10 +178,9 @@ F32 PICARenderer::getCmdBufferUsage()
    return (F32)offset / size;
 }
 
-// Returns true if commands where flushed
-bool PICARenderer::flushCmdBufferIfFull()
+bool PICARenderer::cmdBufferIsFull()
 {
-   if(getCmdBufferUsage() > 0.8)
+   if(getCmdBufferUsage() > 0.95)
       return true;
 
    return false;
@@ -190,9 +191,9 @@ template<typename T>
 void PICARenderer::renderGenericVertexArray(DataType dataType, const T verts[], U32 vertCount, RenderType type,
 	U32 start, U32 stride, U32 vertDimension)
 {
-   if(vertCount == 0)
-      return;
-   if(flushCmdBufferIfFull()) return;
+   if(vertCount == 0) return;
+   if(cmdBufferIsFull()) return;
+
    PICAShader &shader = getShaderForRenderType(type);
    useShader(shader);
    setTexEnv(false);
@@ -836,8 +837,8 @@ void PICARenderer::renderVertexArray(const F32 verts[], U32 vertCount, RenderTyp
 void PICARenderer::renderColored(const F32 verts[], const F32 colors[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension)
 {
-   if(vertCount == 0)
-      return;
+   if(vertCount == 0) return;
+   if(cmdBufferIsFull()) return;
    //renderGenericVertexArray(DataType::Float, verts, vertCount, type, start, stride, vertDimension);
    //useShader(mDynamicShader);
 
@@ -898,8 +899,9 @@ void PICARenderer::renderTextured(const F32 verts[], const F32 UVs[], U32 vertCo
 void PICARenderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 vertCount,
    RenderType type, U32 start, U32 stride, U32 vertDimension, bool isAlphaTexture)
 {
-   if(vertCount == 0)
-      return;
+   if(vertCount == 0) return;
+   if(cmdBufferIsFull()) return;
+
    useShader(mTexturedTrianglesShader);
    setTexEnv(true);
 
@@ -940,6 +942,6 @@ void PICARenderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 
    renderVerts(type, vertCount);
 }
 
-}
+} // namespace Zap
 
 #endif // BF_PLATFORM_3DS
