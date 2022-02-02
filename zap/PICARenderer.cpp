@@ -203,6 +203,7 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
    case RenderType::Lines:
    {
       // Make sure we have an even number of verts
+      if(vertCount < 2) return;
       if(vertCount % 2 == 1)
          vertCount--;
 
@@ -216,6 +217,7 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
 
    case RenderType::LineStrip:
    {
+      if(vertCount < 2) return;
       U32 lineVertCount = 2 * (vertCount - 1);
       U16 *indexArray = (U16 *)mIndexBuffer.allocate(lineVertCount * sizeof(U16));
 
@@ -233,6 +235,7 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
 
    case RenderType::LineLoop:
    {
+      if(vertCount < 2) return;
       U32 lineVertCount = 2 * (vertCount);
       U16 *indexArray = (U16 *)mIndexBuffer.allocate(lineVertCount * sizeof(U16));
 
@@ -258,6 +261,7 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
 
    case RenderType::Triangles:
    {
+      if(vertCount < 3) return;
       if(vertCount % 3 == 1)
          vertCount--;
       else if(vertCount % 3 == 2)
@@ -274,6 +278,7 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
    case RenderType::TriangleStrip:
    {
       // Generate CCW triangles
+      if(vertCount < 3) return;
       U32 triangleVertCount = 3 * (vertCount - 2);
       U16 *indexArray = (U16 *)mIndexBuffer.allocate(triangleVertCount * sizeof(U16));
 
@@ -293,6 +298,7 @@ void PICARenderer::renderVerts(RenderType type, U32 vertCount)
    case RenderType::TriangleFan:
    {
       // Generate CCW triangles with index 0 as fan center
+      if(vertCount < 3) return;
       U32 triangleVertCount = 3 * (vertCount - 2);
       U16 *indexArray = (U16 *)mIndexBuffer.allocate(triangleVertCount * sizeof(U16));
 
