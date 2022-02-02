@@ -71,9 +71,6 @@ PICARenderer::PICARenderer()
    , mScissorEnabled(false)
    , mMatrixMode(MatrixType::ModelView)
 {
-   //glPixelStorei(GL_PACK_ALIGNMENT, 1);
-   //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
    C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
    mTarget = C3D_RenderTargetCreate(240, 400, GPU_RB_RGBA8, GPU_RB_DEPTH24_STENCIL8);
    if(!mTarget)
@@ -171,8 +168,7 @@ void PICARenderer::useShader(PICAShader &shader)
 // always gets live command buffer usage (I hope).
 F32 PICARenderer::getCmdBufferUsage()
 {
-   u32 size;
-   u32 offset;
+   u32 size, offset;
 
    GPUCMD_GetBuffer(nullptr, &size, &offset);
    return (F32)offset / size;
