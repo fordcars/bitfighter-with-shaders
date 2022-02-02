@@ -85,6 +85,6 @@ void *PICARingBuffer::allocate(U32 size)
    return memory;
 }
 
-}
+} // namespace Zap
 
 #endif // BF_PLATFORM_3DS

@@ -3,6 +3,8 @@
 // See LICENSE.txt for full copyright information
 //------------------------------------------------------------------------------
 
+#ifdef BF_PLATFORM_3DS
+
 #include "Interface3ds.h"
 #undef BIT
 #include <3ds.h>
@@ -19,6 +21,42 @@ namespace Zap
 
 Interface3ds interface3ds;
 
+struct KeyMapping3ds
+{
+   U32 keyMask;
+   SDLKey sdlKey;
+   char ascii;
+
+   KeyMapping3ds(U32 keyMask, SDLKey sdlKey, char ascii = '\0')
+      : keyMask(keyMask), sdlKey(sdlKey), ascii(ascii) {}
+};
+
+static KeyMapping3ds keyMappings[] = {
+   { KEY_A,          SDLK_RETURN, '\r' },
+   { KEY_B,          SDLK_ESCAPE, '\e' },
+   { KEY_X,          SDLK_TAB,    '\t' },
+   { KEY_Y,          SDLK_z,       'z' },
+   { KEY_R,          SDLK_SPACE,       },
+   { KEY_L,          SDLK_SPACE,       },
+   { KEY_DRIGHT,     SDLK_RIGHT        },
+   { KEY_DLEFT,      SDLK_LEFT         },
+   { KEY_DUP,        SDLK_UP           },
+   { KEY_DDOWN,      SDLK_DOWN         },
+   { KEY_CPAD_RIGHT, SDLK_d,       'd' },
+   { KEY_CPAD_LEFT,  SDLK_a,       'a' },
+   { KEY_CPAD_UP,    SDLK_w,       'w' },
+   { KEY_CPAD_DOWN,  SDLK_s,       's' },
+   { KEY_SELECT,     SDLK_c,       'c' }
+};
+
+Interface3ds::Interface3ds()
+   : mKeysDown(0)
+   , mKeysUp(0)
+{
+   // Do nothing
+}
+
+// Static
 std::string Interface3ds::getResultSummary(int summaryCode)
 {
    switch(summaryCode)
@@ -67,12 +105,13 @@ std::string Interface3ds::getResultSummary(int summaryCode)
    }
 }
 
-void Interface3ds::generateKeyDownEvent(SDL_Event *event, SDLKey key, char ascii)
+// Static
+void Interface3ds::createKeyEvent(SDL_Event *event, SDL_EventType eventType, SDLKey sdlKey, char ascii)
 {
-   event->type = SDL_KEYDOWN;
+   event->type = eventType;
    event->key.keysym.scancode = 0;
    event->key.keysym.mod = KMOD_NONE;
-   event->key.keysym.sym = key;
+   event->key.keysym.sym = sdlKey;
    event->key.keysym.unicode = ascii;
 }
 
@@ -106,11 +145,24 @@ void Interface3ds::initSocket()
    }
 }
 
-Interface3ds::Interface3ds()
-   : mKeysDown(0)
-   , mKeysUp(0)
+// Returns true if key event was found.
+// Make sure to call fetchEvents() before this!
+bool Interface3ds::extractKeyEvent(U32 keyMask, SDL_Event *event, SDLKey sdlKey, char ascii)
 {
-   // Do nothing
+   if(mKeysDown & keyMask)
+   {
+      mKeysDown &= ~(keyMask);
+      createKeyEvent(event, SDL_KEYDOWN, sdlKey, ascii);
+   }
+   else if(mKeysUp & keyMask)
+   {
+      mKeysUp &= ~(keyMask);
+      createKeyEvent(event, SDL_KEYUP, sdlKey, ascii);
+   }
+   else
+      return false;
+
+   return true;
 }
 
 void Interface3ds::init()
@@ -137,79 +189,22 @@ void Interface3ds::fetchEvents()
 {
    hidScanInput();
    mKeysDown = hidKeysDown();
+   mKeysUp = hidKeysUp();
 }
 
-// Get events one-by-one
+// Get events one-by-one. Make sure to call fetchEvents() before this!
 bool Interface3ds::pollEvent(SDL_Event *event)
 {
-   if(mKeysDown & KEY_A) {
-      mKeysDown &= ~(KEY_A);
-      generateKeyDownEvent(event, SDLK_RETURN, '\r');
+   for(unsigned i = 0; i < sizeof(keyMappings) / sizeof(KeyMapping3ds); ++i)
+   {
+      KeyMapping3ds &entry = keyMappings[i];
+      if(extractKeyEvent(entry.keyMask, event, entry.sdlKey, entry.ascii))
+         return true;
    }
-   else if(mKeysDown & KEY_B) {
-      mKeysDown &= ~(KEY_B);
-      generateKeyDownEvent(event, SDLK_ESCAPE, '\e');
-   }
-   else if(mKeysDown & KEY_SELECT) {
-      mKeysDown &= ~(KEY_SELECT);
-      generateKeyDownEvent(event, SDLK_ESCAPE, '\e');
-   }
-   else if(mKeysDown & KEY_DRIGHT) {
-      mKeysDown &= ~(KEY_DRIGHT);
-      generateKeyDownEvent(event, SDLK_RIGHT);
-   }
-   else if(mKeysDown & KEY_DLEFT) {
-      mKeysDown &= ~(KEY_DLEFT);
-      generateKeyDownEvent(event, SDLK_LEFT);
-   }
-   else if(mKeysDown & KEY_DUP) {
-      mKeysDown &= ~(KEY_DUP);
-      generateKeyDownEvent(event, SDLK_UP);
-   }
-   else if(mKeysDown & KEY_DDOWN) {
-      mKeysDown &= ~(KEY_DDOWN);
-      generateKeyDownEvent(event, SDLK_DOWN);
-   }
-   else if(mKeysDown & KEY_CPAD_RIGHT) {
-      mKeysDown &= ~(KEY_CPAD_RIGHT);
-      generateKeyDownEvent(event, SDLK_d, 'd');
-   }
-   else if(mKeysDown & KEY_CPAD_LEFT) {
-      mKeysDown &= ~(KEY_CPAD_LEFT);
-      generateKeyDownEvent(event, SDLK_a, 'a');
-   }
-   else if(mKeysDown & KEY_CPAD_UP) {
-      mKeysDown &= ~(KEY_CPAD_UP);
-      generateKeyDownEvent(event, SDLK_w, 'w');
-   }
-   else if(mKeysDown & KEY_CPAD_DOWN) {
-      mKeysDown &= ~(KEY_CPAD_DOWN);
-      generateKeyDownEvent(event, SDLK_s, 's');
-   }
-   else
-      return false;
 
-	//KEY_R       = BIT(8),       ///< R
-	//KEY_L       = BIT(9),       ///< L
-	//KEY_X       = BIT(10),      ///< X
-	//KEY_Y       = BIT(11),      ///< Y
-	//KEY_ZL      = BIT(14),      ///< ZL (New 3DS only)
-	//KEY_ZR      = BIT(15),      ///< ZR (New 3DS only)
-	//KEY_TOUCH   = BIT(20),      ///< Touch (Not actually provided by HID)
-	//KEY_CSTICK_RIGHT = BIT(24), ///< C-Stick Right (New 3DS only)
-	//KEY_CSTICK_LEFT  = BIT(25), ///< C-Stick Left (New 3DS only)
-	//KEY_CSTICK_UP    = BIT(26), ///< C-Stick Up (New 3DS only)
-	//KEY_CSTICK_DOWN  = BIT(27), ///< C-Stick Down (New 3DS only)
-	//KEY_CPAD_RIGHT = BIT(28),   ///< Circle Pad Right
-	//KEY_CPAD_LEFT  = BIT(29),   ///< Circle Pad Left
-	//KEY_CPAD_UP    = BIT(30),   ///< Circle Pad Up
-	//KEY_CPAD_DOWN  = BIT(31),   ///< Circle Pad Down
-
-   // This quits, but causes an illegal read exception somewhere; where/why??
-   // if(kDown & KEY_START)
-   //    return false;
-
-   return true;
+   return false;
 }
 
-}
+} // namespace Zap
+
+#endif // BF_PLATFORM_3DS

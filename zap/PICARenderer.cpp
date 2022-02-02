@@ -169,8 +169,8 @@ void PICARenderer::useShader(PICAShader &shader)
 F32 PICARenderer::getCmdBufferUsage()
 {
    u32 size, offset;
-
    GPUCMD_GetBuffer(nullptr, &size, &offset);
+
    return (F32)offset / size;
 }
 

@@ -13,19 +13,21 @@
 namespace Zap
 {
 
+using namespace TNL;
+
 class Interface3ds
 {
 private:
-   TNL::U32 mKeysDown;
-   TNL::U32 mKeysUp;
+   U32 mKeysDown;
+   U32 mKeysUp;
 
    static std::string getResultSummary(int summaryCode);
-   static void generateKeyDownEvent(SDL_Event *event, SDLKey key, char ascii = '\0');
-   static void generateKeyUpEvent(SDL_Event *event);
+   static void createKeyEvent(SDL_Event *event, SDL_EventType eventType, SDLKey sdlKey, char ascii = '\0');
 
    void initGFX();
    void initFS();
    void initSocket();
+   bool extractKeyEvent(U32 keyMask, SDL_Event *event, SDLKey sdlKey, char ascii = '\0');
 
 public:
    Interface3ds();
