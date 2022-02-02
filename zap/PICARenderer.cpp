@@ -115,7 +115,11 @@ PICARenderer::~PICARenderer()
 {
    // Delete all textures
    for(auto const &texture : mTextures)
-      deleteTexture(texture.first);
+   {
+      C3D_Tex *tex = (C3D_Tex *)(texture.second);
+      C3D_TexDelete(tex);
+      tex = nullptr;
+   }
 
    // Shutdown C3D
    C3D_Fini();
@@ -472,9 +476,7 @@ void PICARenderer::useSpyBugBlending()
 void PICARenderer::useDefaultBlending()
 {
    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-   // C3D_AlphaBlend(colorEq        alphaEq         srcClr               dstClr         srcAlpha  dstAlpha)
-   //C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA, GPU_ONE, GPU_ONE);
-   //C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE, GPU_SRC_ALPHA, GPU_ONE);
+   //                colorEq        alphaEq         srcClr               dstClr         srcAlpha             dstAlpha
    C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA, GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -720,7 +722,7 @@ void PICARenderer::deleteTexture(U32 textureHandle)
       C3D_Tex *tex = (C3D_Tex *)(foundIt->second);
       C3D_TexDelete(tex);
       mTextures.erase(foundIt);
-      delete tex;
+      delete tex; // We used new for the struct creation
    }
 }
 
