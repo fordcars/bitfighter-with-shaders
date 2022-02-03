@@ -3522,7 +3522,6 @@ void LevelListDisplayer::render() const
 
 void LevelListDisplayer::addLevelName(const string &levelName)
 {
-   render();
    addProgressListItem("Loaded level " + levelName + "...");
 }
 
