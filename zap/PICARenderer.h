@@ -32,10 +32,12 @@ private:
    PICAShader mStaticTrianglesShader;
    PICAShader mStaticPointsShader;
    PICAShader mStaticLinesShader;
+
+   PICAShader mColoredTrianglesShader;
+   PICAShader mColoredPointsShader;
+   PICAShader mColoredLinesShader;
+
    PICAShader mTexturedTrianglesShader;
-   //PICAShader mDynamicShader;
-   //PICAShader mTexturedShader;
-   //PICAShader mColoredTextureShader;
 
    // Reusable buffers
    PICARingBuffer mVertPositionBuffer;
@@ -71,7 +73,7 @@ private:
    PICARenderer();
 
    static U32 getTextureFormat(TextureFormat format);
-   PICAShader &getShaderForRenderType(RenderType type);
+   PICAShader &getShaderForRenderType(RenderType type, bool colored = false);
    void useShader(PICAShader& shader);
    F32 getCmdBufferUsage();
    bool cmdBufferIsFull();

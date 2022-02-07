@@ -1,0 +1,79 @@
+.gsh fixed c4 c0 2
+
+; Uniforms
+.fvec lineWidth
+
+; Constants
+.constf myconst(0.0, 1.0, -1.0, 0.5)
+.alias  zeros myconst.xxxx ; Vector full of zeros
+.alias  ones  myconst.yyyy ; Vector full of ones
+.alias  half  myconst.wwww
+
+; Inputs
+.alias inpos1 c0
+.alias inclr1 c1
+.alias inpos2 c2
+.alias inclr2 c3
+
+; Outputs - this time the type *is* used
+.out outpos position
+.out outclr color
+
+.entry gmain
+.proc gmain
+	; Calculate half lineWidth
+	mov r4.x, lineWidth.x
+	mul r4.x, half, r4.x            ; lineWidth/2
+
+	; Calculate penpedicular vector
+	mov r6.zw, zeros
+	mov r6.xy, inpos2.xy
+	mov r7.xy, inpos1.xy
+	add r7.xy, r6.xy, -r7.xy        ; vector = inpos2 - inpos1
+	mov r6.x, r7.y                  ; r6.x = vector.y
+	mov r6.y, -r7.x                 ; r6.y = -vector.x
+	
+	; Normalize penpedicular vector
+	mul r7.x, r6.x, r6.x            ; r7.x = r6.x^2
+	mul r7.y, r6.y, r6.y            ; r7.y = r6.y^2
+	add r7.x, r7.x, r7.y            ; r7.x = r6.x^2 + r6.y^2
+	rsq r7.x, r7.x                  ; r7.x = 1/sqrt(r6.x^2 + r6.y^2)
+	mul r6.xy, r6.xy, r7.xx         ; r6.xy = r6.xy/sqrt(r6.x^2 + r6.y^2)
+	mul r6.xy, r6.xy, r4.xx         ; r6.xy *= lineWidth/2
+	
+	; Same for all vertices
+	mov r5.z, myconst.z
+	mov r5.w, ones
+	
+	; Emit first triangle
+	setemit 0
+	mov r5.xy, inpos1.xy
+	add r5, r5, r6
+	mov outpos, r5
+	mov outclr, inclr1              ; We need to re-set this for every vert to avoid crash (why??)
+	emit
+	
+	setemit 1
+	mov r5.xy, inpos1.xy
+	add r5, r5, -r6
+	mov outpos, r5
+	mov outclr, inclr1
+	emit
+	
+	setemit 2, prim
+	mov r5.xy, inpos2.xy
+	add r5, r5, r6
+	mov outpos, r5
+	mov outclr, inclr2
+	emit
+	
+	; Emit second triangle
+	setemit 0, inv prim
+	mov r5.xy, inpos2.xy
+	add r5, r5, -r6
+	mov outpos, r5
+	mov outclr, inclr2
+	emit
+	
+	end
+.end

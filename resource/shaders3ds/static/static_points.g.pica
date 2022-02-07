@@ -1,0 +1,66 @@
+.gsh point c0
+
+; Uniforms
+.fvec pointSize
+
+; Constants
+.constf myconst(0.0, 1.0, -1.0, 0.5)
+.alias  zeros myconst.xxxx ; Vector full of zeros
+.alias  ones  myconst.yyyy ; Vector full of ones
+.alias  half  myconst.wwww
+
+; Inputs
+.alias inpos v0
+.alias inclr v1
+
+; Outputs
+.out outpos position
+.out outclr color
+
+.entry gmain
+.proc gmain
+	; Calculate half pointSize
+	mov r4.x, pointSize.x
+	mul r4.x, half, r4.x        ; pointSize/2
+	
+	; Same for all vertices
+	mov r5.z, myconst.z
+	mov r5.w, ones
+	
+	; Top left
+	setemit 0
+	mov r5.xy, inpos.xy         ; Use general register for calculations
+	add r5.x, r5.x, -r4.x       ; x -= pointSize/2
+	add r5.y, r5.y, r4.x        ; y += pointSize/2
+	mov outpos, r5
+	mov outclr, inclr
+	emit
+	
+	; Bottom left
+	setemit 1
+	mov r5.xy, inpos.xy
+	add r5.x, r5.x, -r4.x       ; x -= pointSize/2
+	add r5.y, r5.y, -r4.x       ; y -= pointSize/2
+	mov outpos, r5
+	mov outclr, inclr
+	emit
+	
+	; Top right
+	setemit 2, prim
+	mov r5.xy, inpos.xy
+	add r5.x, r5.x, r4.x        ; x += pointSize/2
+	add r5.y, r5.y, r4.x        ; y += pointSize/2
+	mov outpos, r5
+	mov outclr, inclr
+	emit
+	
+	; Bottom right
+	setemit 0, inv prim
+	mov r5.xy, inpos.xy
+	add r5.x, r5.x, r4.x        ; x += pointSize/2
+	add r5.y, r5.y, -r4.x       ; y -= pointSize/2
+	mov outpos, r5
+	mov outclr, inclr
+	emit
+	end
+.end
