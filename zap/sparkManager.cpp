@@ -59,6 +59,7 @@ FxManager::~FxManager()
 // Create a new spark.   ttl = Time To Live (milliseconds)
 void FxManager::emitSpark(const Point &pos, const Point &vel, const Color &color, S32 ttl, UI::SparkType sparkType)
 {
+#ifndef BF_NO_SPARKS
    Spark *s;
    Spark *s2;
 
@@ -102,6 +103,7 @@ void FxManager::emitSpark(const Point &pos, const Point &vel, const Color &color
       s2->color = Color(color.r * 1, color.g * 0.25, color.b * 0.25);    // Give the trailing edge of this spark a fade effect
       s2->ttl = s->ttl;
    }
+#endif
 }
 
 
