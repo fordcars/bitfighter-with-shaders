@@ -122,26 +122,6 @@ void GLLegacyRenderer::projectOrtho(F32 left, F32 right, F32 bottom, F32 top, F3
    glOrtho((F32)left, (F32)right, (F32)bottom, (F32)top, (F32)nearZ, (F32)farZ);
 }
 
-void GLLegacyRenderer::renderVertexArray(const S8 verts[], U32 vertCount, RenderType type, U32 start, U32 stride, U32 vertDimension)
-{
-   glEnableClientState(GL_VERTEX_ARRAY);
-
-   glVertexPointer(vertDimension, GL_BYTE, stride, verts);
-   glDrawArrays(getGLRenderType(type), start, vertCount);
-
-   glDisableClientState(GL_VERTEX_ARRAY);
-}
-
-void GLLegacyRenderer::renderVertexArray(const S16 verts[], U32 vertCount, RenderType type, U32 start, U32 stride, U32 vertDimension)
-{
-   glEnableClientState(GL_VERTEX_ARRAY);
-
-   glVertexPointer(vertDimension, GL_SHORT, stride, verts);
-   glDrawArrays(getGLRenderType(type), start, vertCount);
-
-   glDisableClientState(GL_VERTEX_ARRAY);
-}
-
 void GLLegacyRenderer::renderVertexArray(const F32 verts[], U32 vertCount, RenderType type, U32 start, U32 stride, U32 vertDimension)
 {
    glEnableClientState(GL_VERTEX_ARRAY);

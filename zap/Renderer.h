@@ -161,10 +161,6 @@ public:
    virtual void readFramebufferPixels(TextureFormat format, DataType dataType, S32 x, S32 y, S32 width, S32 height, void* data) = 0;
 
    // Render points:
-   virtual void renderVertexArray(const S8 verts[], U32 vertCount, RenderType type,
-      U32 start = 0, U32 stride = 0, U32 vertDimension = 2) = 0;
-   virtual void renderVertexArray(const S16 verts[], U32 vertCount, RenderType type,
-      U32 start = 0, U32 stride = 0, U32 vertDimension = 2) = 0;
    virtual void renderVertexArray(const F32 verts[], U32 vertCount, RenderType type,
       U32 start = 0, U32 stride = 0, U32 vertDimension = 2) = 0;
 

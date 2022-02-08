@@ -2048,7 +2048,7 @@ void renderProjectile(const Point &pos, U32 style, U32 time)
          r.pushMatrix();
             r.rotate((time % 720) * 0.5f, 0, 0, 1);
 
-            static S16 projectilePoints1[] = { -2,2,  0,6,  2,2,  6,0,  2,-2,  0,-6,  -2,-2,  -6,0 };
+            static F32 projectilePoints1[] = { -2,2,  0,6,  2,2,  6,0,  2,-2,  0,-6,  -2,-2,  -6,0 };
             r.renderVertexArray(projectilePoints1, ARRAYSIZE(projectilePoints1) / 2, RenderType::LineLoop);
 
          r.popMatrix();
@@ -2056,7 +2056,7 @@ void renderProjectile(const Point &pos, U32 style, U32 time)
          r.rotate(180 - F32(time % 360), 0, 0, 1);
          r.setColor(pi->projColors[1]);
 
-         static S16 projectilePoints2[] = { -2,2,  0,8,  2,2,  8,0,  2,-2,  0,-8, -2,-2,  -8,0 };
+         static F32 projectilePoints2[] = { -2,2,  0,8,  2,2,  8,0,  2,-2,  0,-8, -2,-2,  -8,0 };
          r.renderVertexArray(projectilePoints2, ARRAYSIZE(projectilePoints2) / 2, RenderType::LineLoop);
 
       r.popMatrix();
@@ -2073,7 +2073,7 @@ void renderProjectile(const Point &pos, U32 style, U32 time)
          r.rotate(F32(time % 720), 0, 0, 1);
          r.setColor(pi->projColors[1]);
 
-         static S16 projectilePoints3[] = { -2,2,  2,2,  2,-2,  -2,-2 };
+         static F32 projectilePoints3[] = { -2,2,  2,2,  2,-2,  -2,-2 };
          r.renderVertexArray(projectilePoints3, ARRAYSIZE(projectilePoints3) / 2, RenderType::LineLoop);
       r.popMatrix();
 
@@ -2132,7 +2132,7 @@ void renderProjectileRailgun(const Point &pos, const Point &velocity, U32 time)
 
          // Outer polygon
          r.setColor(pi->projColors[0]);
-         static S16 outer[] = { -1,1,  2,1,  4,0,  2,-1,  -1,-1 };
+         static F32 outer[] = { -1,1,  2,1,  4,0,  2,-1,  -1,-1 };
          r.renderVertexArray(outer, ARRAYSIZE(outer) / 2, RenderType::LineLoop);
 
          // Stripe
@@ -2387,7 +2387,7 @@ void renderEnergySymbol()
    // Yellow lightning bolt
    r.setColor(Colors::orange67, 1);
 
-   static S16 energySymbolPoints[] = { 20,-20,  3,-2,  12,5,  -20,20,  -2,3,  -12,-5 };
+   static F32 energySymbolPoints[] = { 20,-20,  3,-2,  12,5,  -20,20,  -2,3,  -12,-5 };
    r.renderVertexArray(energySymbolPoints, ARRAYSIZE(energySymbolPoints) / 2, RenderType::LineLoop);
 }
 

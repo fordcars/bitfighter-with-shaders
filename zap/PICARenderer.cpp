@@ -821,18 +821,6 @@ void PICARenderer::readFramebufferPixels(TextureFormat format, DataType dataType
    //   data);
 }
 
-void PICARenderer::renderVertexArray(const S8 verts[], U32 vertCount, RenderType type,
-   U32 start, U32 stride, U32 vertDimension)
-{
-	//renderGenericVertexArray(DataType::Byte, verts, vertCount, type, start, stride, vertDimension);
-}
-
-void PICARenderer::renderVertexArray(const S16 verts[], U32 vertCount, RenderType type,
-   U32 start, U32 stride, U32 vertDimension)
-{
-	//renderGenericVertexArray(DataType::Short, verts, vertCount, type, start, stride, vertDimension);
-}
-
 void PICARenderer::renderVertexArray(const F32 verts[], U32 vertCount, RenderType type,
    U32 start, U32 stride, U32 vertDimension)
 {

@@ -193,19 +193,6 @@ void GL2Renderer::projectOrtho(F32 left, F32 right, F32 bottom, F32 top, F32 nea
 	stack.push(ortho * topMatrix);
 }
 
-
-void GL2Renderer::renderVertexArray(const S8 verts[], U32 vertCount, RenderType type,
-   U32 start, U32 stride, U32 vertDimension)
-{
-	renderGenericVertexArray(DataType::Byte, verts, vertCount, type, start, stride, vertDimension);
-}
-
-void GL2Renderer::renderVertexArray(const S16 verts[], U32 vertCount, RenderType type,
-   U32 start, U32 stride, U32 vertDimension)
-{
-	renderGenericVertexArray(DataType::Short, verts, vertCount, type, start, stride, vertDimension);
-}
-
 void GL2Renderer::renderVertexArray(const F32 verts[], U32 vertCount, RenderType type,
    U32 start, U32 stride, U32 vertDimension)
 {
