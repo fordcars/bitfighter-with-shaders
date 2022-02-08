@@ -12,20 +12,22 @@
 
 #include "tnlVector.h"
 
-namespace Zap { namespace UI
+namespace Zap {
+
+struct Spark
+{
+   Point pos;
+   Color color;
+   F32 alpha;
+   S32 ttl;     // Milliseconds
+   Point vel;
+};
+   
+namespace UI
 {
 
 class FxManager
 {
-   struct Spark
-   {
-      Point pos;
-      Color color;
-      F32 alpha;
-      S32 ttl;     // Milliseconds
-      Point vel;
-   };
-
    struct DebrisChunk
    {
       Vector<Point> points;

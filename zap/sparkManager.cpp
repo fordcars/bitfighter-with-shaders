@@ -17,6 +17,10 @@
 
 #include "tnlRandom.h"
 
+#ifdef BF_PLATFORM_3DS
+#include "PICARenderer.h"
+#endif
+
 using namespace TNL;
 
 namespace Zap { namespace UI {
@@ -322,6 +326,10 @@ void FxManager::render(S32 renderPass, F32 commanderZoomFraction) const
          RenderType renderType = (SparkType)i == SparkTypePoint ? RenderType::Points : RenderType::Lines;
 
          r.setPointSize(gDefaultLineWidth);
+
+#ifdef BF_PLATFORM_3DS
+         dynamic_cast<PICARenderer &>(r).renderSparks(mSparks[i], firstFreeIndex[i], renderType);
+#else
          r.renderColored(
             (F32*)&mSparks[i][0].pos,
             (F32*)&mSparks[i][0].color,
@@ -329,6 +337,7 @@ void FxManager::render(S32 renderPass, F32 commanderZoomFraction) const
             renderType,             // RenderType
             0,                      // Start
             sizeof(Spark));         // Stride
+#endif
       }
 
       for(S32 i = 0; i < mDebrisChunks.size(); i++)

@@ -11,6 +11,7 @@
 #include "SDL/SDL.h"
 #include "MathUtils.h"
 #include "ScreenInfo.h"
+#include "sparkManager.h"
 
 #undef BIT
 #include <3ds.h>
@@ -925,6 +926,38 @@ void PICARenderer::renderColoredTexture(const F32 verts[], const F32 UVs[], U32 
    );
 
    renderVerts(type, vertCount);
+}
+
+// The existence of this function is to work around the BufInfo_Add stride bug
+void PICARenderer::renderSparks(const Spark *sparks, U32 count, RenderType type)
+{
+   if(count == 0) return;
+   if(cmdBufferIsFull()) return;
+
+   PICAShader &shader = getShaderForRenderType(type, true);
+   useShader(shader);
+   useDefaultTexEnv();
+
+   // Interweave positions and color in a single buffer
+   U32 dataSize = count * sizeof(F32) * 6;
+   F32* data = (F32 *)mVertPositionBuffer.allocate(dataSize);
+
+   for(U32 i = 0; i < count; ++i)
+   {
+      U32 wi = i * 6;
+      data[wi]   = sparks[i].pos.x;
+      data[wi+1] = sparks[i].pos.y;
+      data[wi+2] = sparks[i].color.r;
+      data[wi+3] = sparks[i].color.g;
+      data[wi+4] = sparks[i].color.b;
+      data[wi+5] = sparks[i].alpha;
+   }
+
+   C3D_BufInfo *bufInfo = C3D_GetBufInfo();
+   BufInfo_Init(bufInfo);
+   BufInfo_Add(bufInfo, data, dataSize / count, 2, 0x10); // Stride should work now
+
+   renderVerts(type, count);
 }
 
 } // namespace Zap

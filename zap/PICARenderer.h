@@ -21,6 +21,7 @@ struct C3D_RenderTarget_tag;
 namespace Zap
 {
 
+class Spark;
 class PICARenderer : public Renderer
 {
 private:
@@ -160,6 +161,8 @@ public:
    // Render a texture colored by the current color:
    void renderColoredTexture(const F32 verts[], const F32 UVs[], U32 vertCount, RenderType type,
       U32 start = 0, U32 stride = 0, U32 vertDimension = 2, bool isAlphaTexture = false) override;
+
+   void renderSparks(const Spark *sparks, U32 count, RenderType type);
 };
 
 }
