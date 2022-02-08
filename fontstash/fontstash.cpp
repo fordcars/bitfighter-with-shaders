@@ -564,7 +564,8 @@ static void flush_draw(struct sth_stash* stash)
 		{
 #ifdef BF_PLATFORM_3DS
 			// 3DS does not seem to like strides larger than normal vertex sizes,
-			// so we do this workaround (which sucks, we can do better)
+			// so we do this workaround (which sucks, we can do better).
+         // I thought the AttrInfo fix in PICAShader would resolve this, but no!
 			static F32 verts[1000];
 			static F32 UVs[1000];
 			U32 writeIndex = 0;

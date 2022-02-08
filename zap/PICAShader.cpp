@@ -82,8 +82,9 @@ void PICAShader::registerUniforms()
 void PICAShader::addAttributeInfo(bool hasColors, bool hasUVs)
 {
    U32 location = 0;
-   C3D_AttrInfo *attrInfo = C3D_GetAttrInfo();
+   C3D_AttrInfo *attrInfo = (C3D_AttrInfo *)&mAttrInfo;
    AttrInfo_Init(attrInfo);
+
    AttrInfo_AddLoader(attrInfo, location, GPU_FLOAT, 2);
    ++location;
 
@@ -98,6 +99,8 @@ void PICAShader::addAttributeInfo(bool hasColors, bool hasUVs)
       AttrInfo_AddLoader(attrInfo, location, GPU_FLOAT, 2);
       ++location;
    }
+
+   C3D_SetAttrInfo(attrInfo);
 }
 
 std::string PICAShader::getName() const
@@ -110,9 +113,10 @@ S32 PICAShader::getUniformLocation(UniformName uniformName) const
    return mUniformLocations[static_cast<unsigned>(uniformName)];
 }
 
-void PICAShader::bind() const
+void PICAShader::bind()
 {
    C3D_BindProgram((shaderProgram_s *)&mProgram);
+   C3D_SetAttrInfo((C3D_AttrInfo *)&mAttrInfo);
 }
 
 void PICAShader::setMVP(const Matrix4 &MVP)

@@ -23,6 +23,14 @@ typedef struct
    uint8_t geoShaderInputStride;          ///< Geometry shader input stride.
 } shaderProgramStub;
 
+// Ditto
+typedef struct
+{
+   U32 flags[2];
+   U64 permutation;
+   int attrCount;
+} AttrInfoStub;
+
 namespace Zap
 {
 
@@ -41,6 +49,7 @@ class PICAShader
 private:
    std::string mName;
    shaderProgramStub mProgram;
+   AttrInfoStub mAttrInfo;
    void *mDVLB;
 
    S32 mUniformLocations[static_cast<unsigned>(UniformName::UniformName_LAST)];
@@ -63,7 +72,7 @@ public:
    void init(const std::string &name, U32 *shbinData, U32 shbinSize, bool hasColors = false, bool hasUVs = false, U32 geometryStride = 0);
    std::string getName() const;
    S32 getUniformLocation(UniformName uniformName) const;
-   void bind() const;
+   void bind();
 
    // Defined for all shaders, even if unused.
    // Shader must be active when called!
