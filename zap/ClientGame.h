@@ -149,6 +149,8 @@ public:
    // Why is this there in ClientGame?
 #ifndef BF_PLATFORM_3DS
    F32 normalizedAxesValues[SDL_CONTROLLER_AXIS_MAX];
+#else
+   F32 normalizedAxesValues[10];
 #endif
 
    void resetCommandersMap();

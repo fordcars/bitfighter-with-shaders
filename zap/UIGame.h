@@ -26,6 +26,10 @@
 
 #include "tnlString.h"
 
+#ifdef BF_PLATFORM_3DS
+#define BF_3DS_CPAD_X_AXIS 0
+#define BF_3DS_CPAD_Y_AXIS 1
+#endif
 
 namespace Zap
 {

@@ -28,6 +28,7 @@ private:
    void initFS();
    void initSocket();
    bool extractKeyEvent(U32 keyMask, SDL_Event *event, SDLKey sdlKey, char ascii = '\0');
+   void updateCPad();
 
 public:
    Interface3ds();

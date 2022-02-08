@@ -29,9 +29,13 @@ SDL_GameController *Joystick::sdlController = NULL;
 U32 Joystick::ButtonMask = 0;
 #ifndef BF_PLATFORM_3DS
 S16 Joystick::rawAxesValues[SDL_CONTROLLER_AXIS_MAX]; // Array of the current axes values
-#endif
 S16 Joystick::LowerSensitivityThreshold = 4900;   // out of 32767, ~15%, any less than this is ends up as zero
 S16 Joystick::UpperSensitivityThreshold = 30000;  // out of 32767, ~91%, any more than this is full amount
+#else
+S16 Joystick::rawAxesValues[10];
+S16 Joystick::LowerSensitivityThreshold = 20;
+S16 Joystick::UpperSensitivityThreshold = 150;  // out of 32767, ~91%, any more than this is full amount
+#endif
 
 // private
 // Aligned with SDL_GameControllerButton.  For now this is just an XBox controller

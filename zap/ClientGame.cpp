@@ -75,6 +75,9 @@ ClientGame::ClientGame(const Address &bindAddress, GameSettingsPtr settings, UIM
 #ifndef BF_PLATFORM_3DS
    for(S32 i = 0; i < SDL_CONTROLLER_AXIS_MAX; i++)
       normalizedAxesValues[i] = 0;
+#else
+   for(S32 i = 0; i < 10; i++)
+      normalizedAxesValues[i] = 0;
 #endif
 
    initializeHelpItemForObjects();

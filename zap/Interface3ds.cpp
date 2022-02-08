@@ -6,11 +6,16 @@
 #ifdef BF_PLATFORM_3DS
 
 #include "Interface3ds.h"
+#include "Event.h"
+#include "GameManager.h"
 #undef BIT
 #include <3ds.h>
 #include <citro3d.h>
 #include <stdio.h>
 #include <malloc.h>
+
+#define BF_3DS_CPAD_X_AXIS 0
+#define BF_3DS_CPAD_Y_AXIS 1
 
 // From https://github.com/devkitPro/3ds-examples/blob/master/network/sockets/source/sockets.c
 #define SOC_ALIGN       0x1000
@@ -32,21 +37,24 @@ struct KeyMapping3ds
 };
 
 static KeyMapping3ds keyMappings[] = {
-   { KEY_A,          SDLK_RETURN, '\r' },
-   { KEY_B,          SDLK_ESCAPE, '\e' },
-   { KEY_X,          SDLK_TAB,    '\t' },
-   { KEY_Y,          SDLK_z,       'z' },
-   { KEY_R,          SDLK_SPACE,       },
-   { KEY_L,          SDLK_SPACE,       },
-   { KEY_DRIGHT,     SDLK_RIGHT        },
-   { KEY_DLEFT,      SDLK_LEFT         },
-   { KEY_DUP,        SDLK_UP           },
-   { KEY_DDOWN,      SDLK_DOWN         },
-   { KEY_CPAD_RIGHT, SDLK_d,       'd' },
-   { KEY_CPAD_LEFT,  SDLK_a,       'a' },
-   { KEY_CPAD_UP,    SDLK_w,       'w' },
-   { KEY_CPAD_DOWN,  SDLK_s,       's' },
-   { KEY_SELECT,     SDLK_c,       'c' }
+   // 3ds keys conflict with Zap::InputCode
+   { ::KEY_A,          SDLK_RETURN, '\r' },
+   { ::KEY_B,          SDLK_ESCAPE, '\e' },
+   { ::KEY_X,          SDLK_TAB,    '\t' },
+   { ::KEY_Y,          SDLK_z,       'z' },
+   { ::KEY_R,          SDLK_SPACE        },
+   { ::KEY_L,          SDLK_SPACE        },
+   { ::KEY_DRIGHT,     SDLK_RIGHT        },
+   { ::KEY_DLEFT,      SDLK_LEFT         },
+   { ::KEY_DUP,        SDLK_UP           },
+   { ::KEY_DDOWN,      SDLK_DOWN         },
+   { ::KEY_SELECT,     SDLK_c,       'c' },
+   { ::KEY_START,      SDLK_ESCAPE, '\e' },
+
+   //{ ::KEY_CPAD_RIGHT, SDLK_d,       'd' },
+   //{ ::KEY_CPAD_LEFT,  SDLK_a,       'a' },
+   //{ ::KEY_CPAD_UP,    SDLK_w,       'w' },
+   //{ ::KEY_CPAD_DOWN,  SDLK_s,       's' },
 };
 
 Interface3ds::Interface3ds()
@@ -165,6 +173,21 @@ bool Interface3ds::extractKeyEvent(U32 keyMask, SDL_Event *event, SDLKey sdlKey,
    return true;
 }
 
+void Interface3ds::updateCPad()
+{
+   circlePosition pos;
+   hidCircleRead(&pos);
+
+   const Vector<ClientGame *> *clientGames = GameManager::getClientGames();
+
+   // Update controller for all client games
+   for(S32 i = 0; i < clientGames->size(); i++)
+   {
+      Event::onControllerAxis(clientGames->get(i), 0, BF_3DS_CPAD_X_AXIS, pos.dx);
+      Event::onControllerAxis(clientGames->get(i), 0, BF_3DS_CPAD_Y_AXIS, -pos.dy); // Y-axis is inverted
+   }
+}
+
 void Interface3ds::init()
 {
    initGFX();
@@ -190,6 +213,8 @@ void Interface3ds::fetchEvents()
    hidScanInput();
    mKeysDown = hidKeysDown();
    mKeysUp = hidKeysUp();
+
+   updateCPad();
 }
 
 // Get events one-by-one. Make sure to call fetchEvents() before this!

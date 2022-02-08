@@ -326,7 +326,7 @@ static ControllerAxisInputCode JoystickInputData[6] = {
 
 void Event::onControllerAxis(ClientGame *game, U8 deviceId, U8 axis, S16 value)
 {
-#ifndef BF_PLATFORM_3DS
+
    // Set our persistent array for raw values (used by diagnostics)
    Joystick::rawAxesValues[axis] = value;
 
@@ -364,6 +364,7 @@ void Event::onControllerAxis(ClientGame *game, U8 deviceId, U8 axis, S16 value)
    F32 oldNormalizedValue = game->normalizedAxesValues[axis];
    game->normalizedAxesValues[axis] = currentNormalizedValue;
 
+#ifndef BF_PLATFORM_3DS
    // Determine what to set the InputCode state, it is binary so set the
    // threshold at half -> 0.5
    // Set the mask if it is above the digital threshold

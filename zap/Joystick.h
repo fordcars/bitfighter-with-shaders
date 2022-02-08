@@ -98,6 +98,8 @@ public:
 #ifndef BF_PLATFORM_3DS
    // Current state of all controller axes; raw values
    static S16 rawAxesValues[SDL_CONTROLLER_AXIS_MAX];
+#else
+   static S16 rawAxesValues[10];
 #endif
 
    // static data

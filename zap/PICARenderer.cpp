@@ -938,7 +938,7 @@ void PICARenderer::renderSparks(const Spark *sparks, U32 count, RenderType type)
    useShader(shader);
    useDefaultTexEnv();
 
-   // Interweave positions and color in a single buffer
+   // Interweave positions and colors in a single buffer
    U32 dataSize = count * sizeof(F32) * 6;
    F32* data = (F32 *)mVertPositionBuffer.allocate(dataSize);
 

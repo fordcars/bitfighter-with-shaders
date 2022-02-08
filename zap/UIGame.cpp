@@ -1770,31 +1770,32 @@ bool GameUserInterface::isInScoreboardMode()
 
 static void joystickUpdateMove(ClientGame *game, GameSettings *settings, Move *theMove)
 {
-#ifndef BF_PLATFORM_3DS
+   const F32 fireThreshold = 0.66f;
+   const F32 aimThreshold = 0.25f;
+
    // Set the move coordinates to the joystick normalized values
-   theMove->x = game->normalizedAxesValues[SDL_CONTROLLER_AXIS_LEFTX];
-   theMove->y =  game->normalizedAxesValues[SDL_CONTROLLER_AXIS_LEFTY];
+   theMove->x = game->normalizedAxesValues[BF_3DS_CPAD_X_AXIS];
+   theMove->y =  game->normalizedAxesValues[BF_3DS_CPAD_Y_AXIS];
 
    // Same with the shooting coordinates
-   Point p(game->normalizedAxesValues[SDL_CONTROLLER_AXIS_RIGHTX],
-         game->normalizedAxesValues[SDL_CONTROLLER_AXIS_RIGHTY]);
+   Point p(game->normalizedAxesValues[BF_3DS_CPAD_X_AXIS],
+         game->normalizedAxesValues[BF_3DS_CPAD_Y_AXIS]);
 
    F32 fact =  p.len();
 
    // TODO pull out these constants and put them into the INI?
-   if(fact > 0.66f)        // It requires a large movement to actually fire...
+   if(fact > fireThreshold)        // It requires a large movement to actually fire...
    {
       theMove->angle = atan2(p.y, p.x);
       theMove->fire = true;
    }
-   else if(fact > 0.25)    // ...but you can change aim with a smaller one
+   else if(fact > aimThreshold)    // ...but you can change aim with a smaller one
    {
       theMove->angle = atan2(p.y, p.x);
       theMove->fire = false;
    }
    else
       theMove->fire = false;
-#endif
 }
 
 
@@ -1881,7 +1882,11 @@ Move *GameUserInterface::getCurrentMove()
    // Overwrite theMove if we're using joystick (also does some other essential joystick stuff)
    // We'll also run this while in the menus so if we enter keyboard mode accidentally, it won't
    // kill the joystick.  The design of combining joystick input and move updating really sucks.
+#ifndef BF_PLATFORM_3DS
    if(getGame()->getInputMode() == InputModeJoystick || getUIManager()->isCurrentUI<OptionsMenuUserInterface>())
+#else
+   if(true)
+#endif
       joystickUpdateMove(getGame(), getGame()->getSettings(), move);
 
    return move;

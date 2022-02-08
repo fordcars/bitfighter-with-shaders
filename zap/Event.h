@@ -39,7 +39,6 @@ private:
    static void onMouseButtonUp(UserInterface *currentUI, S32 x, S32 y, InputCode inputCode, DisplayMode mode);
    static void onControllerButtonDown(UserInterface *currentUI, U8 deviceId, U8 button);
    static void onControllerButtonUp(UserInterface *currentUI, U8 deviceId, U8 button);
-   static void onControllerAxis(ClientGame *game, U8 deviceId, U8 axis, S16 value);
    static void onResized(ClientGame *game, S32 width, S32 height);
    static void onUser(U8 type, S32 code, void* data1, void* data2);
    static void onControllerAdded(S32 deviceId);
@@ -48,6 +47,7 @@ private:
 public:
    Event();
    virtual ~Event();
+   static void onControllerAxis(ClientGame *game, U8 deviceId, U8 axis, S16 value);
 
    static void onEvent(ClientGame *game, SDL_Event *event);
 };
