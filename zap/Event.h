@@ -47,6 +47,7 @@ private:
 public:
    Event();
    virtual ~Event();
+   static void onMouseMoved(S32 x, S32 y, DisplayMode mode);
    static void onControllerAxis(ClientGame *game, U8 deviceId, U8 axis, S16 value);
 
    static void onEvent(ClientGame *game, SDL_Event *event);

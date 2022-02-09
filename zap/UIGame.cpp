@@ -1777,6 +1777,7 @@ static void joystickUpdateMove(ClientGame *game, GameSettings *settings, Move *t
    theMove->x = game->normalizedAxesValues[BF_3DS_CPAD_X_AXIS];
    theMove->y =  game->normalizedAxesValues[BF_3DS_CPAD_Y_AXIS];
 
+#ifndef BF_PLATFORM_3DS
    // Same with the shooting coordinates
    Point p(game->normalizedAxesValues[BF_3DS_CPAD_X_AXIS],
          game->normalizedAxesValues[BF_3DS_CPAD_Y_AXIS]);
@@ -1796,6 +1797,7 @@ static void joystickUpdateMove(ClientGame *game, GameSettings *settings, Move *t
    }
    else
       theMove->fire = false;
+#endif
 }
 
 

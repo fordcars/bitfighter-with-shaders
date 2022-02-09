@@ -34,7 +34,7 @@ S16 Joystick::UpperSensitivityThreshold = 30000;  // out of 32767, ~91%, any mor
 #else
 S16 Joystick::rawAxesValues[10];
 S16 Joystick::LowerSensitivityThreshold = 20;
-S16 Joystick::UpperSensitivityThreshold = 150;  // out of 32767, ~91%, any more than this is full amount
+S16 Joystick::UpperSensitivityThreshold = 100;
 #endif
 
 // private

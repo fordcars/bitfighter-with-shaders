@@ -14,6 +14,7 @@
 #include "ClientGame.h"
 #include "Cursor.h"
 #include "VideoSystem.h"
+#include "GameManager.h"
 
 #include "SDL/SDL.h"
 
@@ -248,13 +249,25 @@ void Event::onTextInput(UserInterface *currentUI, char unicode)
       currentUI->onTextInput(unicode);
 }
 
-
 void Event::onMouseMoved(UserInterface *currentUI, S32 x, S32 y, DisplayMode mode)
 {
    setMousePos(currentUI, x, y, mode);
 
    if(currentUI)
       currentUI->onMouseMoved();
+}
+
+void Event::onMouseMoved(S32 x, S32 y, DisplayMode mode)
+{
+   const Vector<ClientGame *> *clientGames = GameManager::getClientGames();
+
+   // Update for all client games
+   for(S32 i = 0; i < clientGames->size(); i++)
+   {
+      ClientGame *game = clientGames->get(i);
+      UserInterface *currentUI = game->getUIManager()->getCurrentUI();
+      onMouseMoved(currentUI, x, y, mode);
+   }
 }
 
 

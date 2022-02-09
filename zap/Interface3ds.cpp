@@ -21,6 +21,10 @@
 #define SOC_ALIGN       0x1000
 #define SOC_BUFFERSIZE  0x100000
 
+const static SDLKey TOUCH_PRESSED_KEY = SDLK_BREAK;
+const static F32 TOUCH_TO_MOUSE_FACT_X = 400.0f / 320.0f; // Top screen / Touch screen
+const static F32 TOUCH_TO_MOUSE_FACT_Y = 1;               // Both screens have same height
+
 namespace Zap
 {
 
@@ -50,6 +54,7 @@ static KeyMapping3ds keyMappings[] = {
    { ::KEY_DDOWN,      SDLK_DOWN         },
    { ::KEY_SELECT,     SDLK_c,       'c' },
    { ::KEY_START,      SDLK_ESCAPE, '\e' },
+   { ::KEY_TOUCH,      TOUCH_PRESSED_KEY },
 
    //{ ::KEY_CPAD_RIGHT, SDLK_d,       'd' },
    //{ ::KEY_CPAD_LEFT,  SDLK_a,       'a' },
@@ -116,11 +121,28 @@ std::string Interface3ds::getResultSummary(int summaryCode)
 // Static
 void Interface3ds::createKeyEvent(SDL_Event *event, SDL_EventType eventType, SDLKey sdlKey, char ascii)
 {
-   event->type = eventType;
-   event->key.keysym.scancode = 0;
-   event->key.keysym.mod = KMOD_NONE;
-   event->key.keysym.sym = sdlKey;
-   event->key.keysym.unicode = ascii;
+   if(sdlKey == TOUCH_PRESSED_KEY)
+   {
+      touchPosition touch;
+      hidTouchRead(&touch);
+
+      if(eventType == SDL_KEYDOWN)
+         event->type = SDL_MOUSEBUTTONDOWN;
+      else
+         event->type = SDL_MOUSEBUTTONUP;
+
+      event->button.button = SDL_BUTTON_LEFT;
+      event->button.x = touch.px * TOUCH_TO_MOUSE_FACT_X;
+      event->button.y = touch.py * TOUCH_TO_MOUSE_FACT_Y;
+   }
+   else
+   {
+      event->type = eventType;
+      event->key.keysym.scancode = 0;
+      event->key.keysym.mod = KMOD_NONE;
+      event->key.keysym.sym = sdlKey;
+      event->key.keysym.unicode = ascii;
+   }
 }
 
 void Interface3ds::initGFX()
@@ -173,6 +195,22 @@ bool Interface3ds::extractKeyEvent(U32 keyMask, SDL_Event *event, SDLKey sdlKey,
    return true;
 }
 
+void Interface3ds::updateTouch()
+{
+   touchPosition touch;
+
+   //Read the touch screen coordinates
+   hidTouchRead(&touch);
+
+   // Only update if currently touching
+   if(keysHeld() & KEY_TOUCH)
+      Event::onMouseMoved(
+         touch.px * TOUCH_TO_MOUSE_FACT_X,
+         touch.py * TOUCH_TO_MOUSE_FACT_Y,
+         DisplayMode::DISPLAY_MODE_WINDOWED
+      );
+}
+
 void Interface3ds::updateCPad()
 {
    circlePosition pos;
@@ -180,7 +218,7 @@ void Interface3ds::updateCPad()
 
    const Vector<ClientGame *> *clientGames = GameManager::getClientGames();
 
-   // Update controller for all client games
+   // Update for all client games
    for(S32 i = 0; i < clientGames->size(); i++)
    {
       Event::onControllerAxis(clientGames->get(i), 0, BF_3DS_CPAD_X_AXIS, pos.dx);
@@ -215,6 +253,7 @@ void Interface3ds::fetchEvents()
    mKeysUp = hidKeysUp();
 
    updateCPad();
+   updateTouch();
 }
 
 // Get events one-by-one. Make sure to call fetchEvents() before this!
