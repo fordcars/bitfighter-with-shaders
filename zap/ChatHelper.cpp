@@ -23,6 +23,10 @@
 #include "RenderUtils.h"
 #include "stringUtils.h"
 
+#ifdef BF_PLATFORM_3DS
+#include "Interface3ds.h"
+#endif
+
 #include <algorithm>
 
 namespace Zap
@@ -141,6 +145,7 @@ HelperMenu::HelperMenuType ChatHelper::getType() { return ChatHelperType; }
 void ChatHelper::activate(ChatType chatType)
 {
    mCurrentChatType = chatType;
+   gInterface3ds.showKeyboard();
    getGame()->setBusyChatting(true);
 
    // Make sure we have a history slot to represent the command we'll be entering in this session

@@ -9,6 +9,7 @@
 #include "tnl.h"
 #include "SDL/SDL.h"
 #include <string>
+#include <queue>
 
 namespace Zap
 {
@@ -20,6 +21,7 @@ class Interface3ds
 private:
    U32 mKeysDown;
    U32 mKeysUp;
+   std::queue<SDL_Event> mQueuedEvents;
 
    static std::string getResultSummary(int summaryCode);
    static void createKeyEvent(SDL_Event *event, SDL_EventType eventType, SDLKey sdlKey, char ascii = '\0');
@@ -40,9 +42,10 @@ public:
    bool shouldDoMainLoop();
    void fetchEvents();
    bool pollEvent(SDL_Event *event);
+   void showKeyboard();
 };
 
-extern Interface3ds interface3ds;
+extern Interface3ds gInterface3ds;
 }
 
 #endif // _INTERFACE3DS_

@@ -389,8 +389,8 @@ void idle()
    SDL_Event event;
 
 #ifdef BF_PLATFORM_3DS
-   interface3ds.fetchEvents();
-   while(interface3ds.pollEvent(&event))
+   gInterface3ds.fetchEvents();
+   while(gInterface3ds.pollEvent(&event))
 #else
    while(SDL_PollEvent(&event))
 #endif
@@ -428,7 +428,7 @@ void dedicatedServerLoop()
 {
 #ifdef BF_PLATFORM_3DS
    // Handle 3DS Home Menu and Sleep functions
-   while(interface3ds.shouldDoMainLoop())
+   while(gInterface3ds.shouldDoMainLoop())
       idle();
 #else
    for(;;)        // Loop forever!
@@ -541,7 +541,7 @@ void shutdownBitfighter()
    logprintf("Bye!");
 
 #ifdef BF_PLATFORM_3DS
-   interface3ds.shutdown();
+   gInterface3ds.shutdown();
 #endif
 
    exitToOs();    // Do not pass Go
@@ -1172,7 +1172,7 @@ int main(int argc, char **argv)
 // Enable some heap checking stuff for Windows... slow... do not include in release version!!
 //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF );
 
-   interface3ds.init();
+   gInterface3ds.init();
 
 #ifdef USE_EXCEPTION_BACKTRACE
    signal(SIGSEGV, exceptionHandler);   // install our handler

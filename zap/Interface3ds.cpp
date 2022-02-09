@@ -28,7 +28,7 @@ const static F32 TOUCH_TO_MOUSE_FACT_Y = 1;               // Both screens have s
 namespace Zap
 {
 
-Interface3ds interface3ds;
+Interface3ds gInterface3ds;
 
 struct KeyMapping3ds
 {
@@ -46,7 +46,7 @@ static KeyMapping3ds keyMappings[] = {
    { ::KEY_B,          SDLK_ESCAPE, '\e' },
    { ::KEY_X,          SDLK_TAB,    '\t' },
    { ::KEY_Y,          SDLK_z,       'z' },
-   { ::KEY_R,          SDLK_SPACE        },
+   { ::KEY_R,          SDLK_g        },
    { ::KEY_L,          SDLK_SPACE        },
    { ::KEY_DRIGHT,     SDLK_RIGHT        },
    { ::KEY_DLEFT,      SDLK_LEFT         },
@@ -259,6 +259,14 @@ void Interface3ds::fetchEvents()
 // Get events one-by-one. Make sure to call fetchEvents() before this!
 bool Interface3ds::pollEvent(SDL_Event *event)
 {
+   // Return queued events first
+   while(mQueuedEvents.size() != 0)
+   {
+      *event = mQueuedEvents.front();
+      mQueuedEvents.pop();
+      return true;
+   }
+
    for(unsigned i = 0; i < sizeof(keyMappings) / sizeof(KeyMapping3ds); ++i)
    {
       KeyMapping3ds &entry = keyMappings[i];
@@ -267,6 +275,23 @@ bool Interface3ds::pollEvent(SDL_Event *event)
    }
 
    return false;
+}
+
+void Interface3ds::showKeyboard()
+{
+   const static U32 BUF_SIZE = 255;
+   static char buffer[BUF_SIZE];
+
+   SwkbdState swkbd;
+   swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 3, -1);
+   swkbdInputText(&swkbd, buffer, sizeof(buffer)); // Blocking
+
+   for(U32 i = 0; i < BUF_SIZE && buffer[i] != '\0'; ++i)
+   {
+      SDL_Event event;
+      createKeyEvent(&event, SDL_KEYDOWN, SDLK_z, buffer[i]);
+      mQueuedEvents.push(event);
+   }
 }
 
 } // namespace Zap
