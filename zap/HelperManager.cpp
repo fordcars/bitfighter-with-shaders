@@ -91,11 +91,7 @@ void HelperManager::render() const
    for(S32 i = 0; i < mHelperStack.size(); i++)
       mHelperStack[i]->render();
 
-#ifdef BF_PLATFORM_3DS
-   if(mOffDeckHelper && mOffDeckHelper->getType() != HelperMenu::ChatHelperType)
-#else
    if(mOffDeckHelper)
-#endif
       mOffDeckHelper->render();
 }
 
@@ -286,7 +282,12 @@ void HelperManager::doExitHelper(S32 index)
       mGame->undelaySpawn();
 
    // If animation is disabled for this helper, immediately call doneClosingHelper()
+#ifdef BF_PLATFORM_3DS
+   // Chat never stops rendering when we close it so quickly; this is the fix.
+   if(mOffDeckHelper->getAnimationTime() == 0 || mOffDeckHelper->getType() == HelperMenu::ChatHelperType)
+#else
    if(mOffDeckHelper->getAnimationTime() == 0)
+#endif
       doneClosingHelper();
 }
 
