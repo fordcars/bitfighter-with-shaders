@@ -92,11 +92,13 @@ void Event::onEvent(ClientGame *game, SDL_Event *event)
          onKeyUp(currentUI, event);
          break;
 
-#ifndef BF_PLATFORM_3DS
+#ifdef BF_PLATFORM_3DS
+      case BF_3DS_TEXT_EVENT:
+#else
       case SDL_TEXTINPUT:
-         if(mAllowTextInput)
-            onTextInput(currentUI, event->text.text[0]);
 #endif
+         if(mAllowTextInput)
+            onTextInput(currentUI, event->key.keysym.unicode);
          break;
 
       case SDL_MOUSEMOTION:
@@ -204,8 +206,10 @@ void Event::onEvent(ClientGame *game, SDL_Event *event)
 
 void Event::onKeyDown(ClientGame *game, SDL_Event *event)
 {
+#ifndef BF_PLATFORM_3DS
    // We first disallow key-to-text translation
    mAllowTextInput = false;
+#endif
 
    SDL_Keycode key = event->key.keysym.sym;
    // Use InputCodeManager::getState() instead of checking the mod flag to prevent hyper annoying case
@@ -231,8 +235,12 @@ void Event::onKeyDown(ClientGame *game, SDL_Event *event)
    {
       InputCode inputCode = InputCodeManager::sdlKeyToInputCode(key);
 
+#ifdef BF_PLATFORM_3DS
+      inputCodeDown(game->getUIManager()->getCurrentUI(), inputCode);
+#else
       // If an input code is not handled by a UI, then we will allow text translation to pass through
       mAllowTextInput = !inputCodeDown(game->getUIManager()->getCurrentUI(), inputCode);
+#endif
    }
 }
 

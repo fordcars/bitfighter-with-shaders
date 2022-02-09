@@ -91,7 +91,11 @@ void HelperManager::render() const
    for(S32 i = 0; i < mHelperStack.size(); i++)
       mHelperStack[i]->render();
 
+#ifdef BF_PLATFORM_3DS
+   if(mOffDeckHelper && mOffDeckHelper->getType() != HelperMenu::ChatHelperType)
+#else
    if(mOffDeckHelper)
+#endif
       mOffDeckHelper->render();
 }
 

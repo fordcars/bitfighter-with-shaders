@@ -10,6 +10,8 @@
 #include "ConfigEnum.h"
 #include "tnlTypes.h"
 
+#define BF_3DS_TEXT_EVENT SDL_USEREVENT
+
 union SDL_Event;     // Outside Zap namespace, please!
 
 using namespace TNL;
@@ -23,8 +25,6 @@ class UserInterface;
 class Event 
 {
 private:
-   static bool mAllowTextInput;   // Flag to allow text translation pass-through
-
    static void setMousePos(UserInterface *currentUI, S32 x, S32 y, DisplayMode mode);
 
    static void inputCodeUp(UserInterface *currentUI, InputCode inputCode);
@@ -45,6 +45,8 @@ private:
    static void onControllerRemoved(S32 deviceId);
 
 public:
+   static bool mAllowTextInput;   // Flag to allow text translation pass-through
+
    Event();
    virtual ~Event();
    static void onMouseMoved(S32 x, S32 y, DisplayMode mode);

@@ -267,6 +267,9 @@ bool Interface3ds::pollEvent(SDL_Event *event)
       return true;
    }
 
+   // If we've gotten this far, we are definitely not in text input!
+   Event::mAllowTextInput = false;
+
    for(unsigned i = 0; i < sizeof(keyMappings) / sizeof(KeyMapping3ds); ++i)
    {
       KeyMapping3ds &entry = keyMappings[i];
@@ -282,6 +285,8 @@ void Interface3ds::showKeyboard()
    const static U32 BUF_SIZE = 255;
    static char buffer[BUF_SIZE];
 
+   Event::mAllowTextInput = true;
+
    SwkbdState swkbd;
    swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 3, -1);
    swkbdInputText(&swkbd, buffer, sizeof(buffer)); // Blocking
@@ -289,9 +294,14 @@ void Interface3ds::showKeyboard()
    for(U32 i = 0; i < BUF_SIZE && buffer[i] != '\0'; ++i)
    {
       SDL_Event event;
-      createKeyEvent(&event, SDL_KEYDOWN, SDLK_z, buffer[i]);
+      createKeyEvent(&event, BF_3DS_TEXT_EVENT, SDLK_z, buffer[i]);
       mQueuedEvents.push(event);
    }
+
+   // Press enter
+   SDL_Event event;
+   createKeyEvent(&event, SDL_KEYDOWN, SDLK_RETURN);
+   mQueuedEvents.push(event);
 }
 
 } // namespace Zap
