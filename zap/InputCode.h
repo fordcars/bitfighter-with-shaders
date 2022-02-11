@@ -35,8 +35,8 @@ namespace Zap
    BINDING( BINDING_SELWEAP2,           "SelWeapon2",          true,  inputSELWEAP2,     KEY_2,            KEY_2            ) \
    BINDING( BINDING_SELWEAP3,           "SelWeapon3",          true,  inputSELWEAP3,     KEY_3,            KEY_3            ) \
    BINDING( BINDING_ADVWEAP,            "SelNextWeapon",       true,  inputADVWEAP,      KEY_E,            BUTTON_1         ) \
-   BINDING( BINDING_ADVWEAP2,           "SelNextWeapon2",      true,  inputADVWEAP2,     MOUSE_WHEEL_UP,   MOUSE_WHEEL_UP   ) \
-   BINDING( BINDING_PREVWEAP,           "SelPrevWeapon",       true,  inputPREVWEAP,     MOUSE_WHEEL_DOWN, MOUSE_WHEEL_DOWN ) \
+   BINDING( BINDING_ADVWEAP2,           "SelNextWeapon2",      true,  inputADVWEAP2,     KEY_RIGHT,        MOUSE_WHEEL_UP   ) \
+   BINDING( BINDING_PREVWEAP,           "SelPrevWeapon",       true,  inputPREVWEAP,     KEY_LEFT,         MOUSE_WHEEL_DOWN ) \
    BINDING( BINDING_CMDRMAP,            "ShowCmdrMap",         true,  inputCMDRMAP,      KEY_C,            BUTTON_2         ) \
    BINDING( BINDING_TEAMCHAT,           "TeamChat",            true,  inputTEAMCHAT,     KEY_T,            KEY_T            ) \
    BINDING( BINDING_GLOBCHAT,           "GlobalChat",          true,  inputGLOBCHAT,     KEY_G,            KEY_G            ) \
@@ -44,7 +44,7 @@ namespace Zap
    BINDING( BINDING_CMDCHAT,            "Command",             true,  inputCMDCHAT,      KEY_SLASH,        KEY_SLASH        ) \
    BINDING( BINDING_LOADOUT,            "ShowLoadoutMenu",     true,  inputLOADOUT,      KEY_Z,            BUTTON_4         ) \
    BINDING( BINDING_MOD1,               "ActivateModule1",     true,  inputMOD1,         KEY_SPACE,        BUTTON_TRIGGER_LEFT         ) \
-   BINDING( BINDING_MOD2,               "ActivateModule2",     true,  inputMOD2,         MOUSE_RIGHT,      BUTTON_6         ) \
+   BINDING( BINDING_MOD2,               "ActivateModule2",     true,  inputMOD2,         KEY_SHIFT,        BUTTON_6         ) \
    BINDING( BINDING_FIRE,               "Fire",                true,  inputFIRE,         MOUSE_LEFT,       MOUSE_LEFT       ) \
    BINDING( BINDING_DROPITEM,           "DropItem",            true,  inputDROPITEM,     KEY_B,            KEY_B            ) \
    BINDING( BINDING_TOGVOICE,           "VoiceChat",           true,  inputTOGVOICE,     KEY_R,            KEY_R            ) \
