@@ -49,6 +49,10 @@ EngineerHelper::EngineerHelper() :
    mEngineerItemsDisplayWidth( getWidthOfItems() )
 {
    mSelectedIndex = -1;
+
+#ifdef BF_PLATFORM_3DS
+   mCurrentlySelected = 0;
+#endif
 }
 
 
@@ -94,6 +98,11 @@ void EngineerHelper::onActivated()
    Parent::onActivated();
 
    mSelectedIndex = -1;
+
+#ifdef BF_PLATFORM_3DS
+   mCurrentlySelected = 0;
+   engineerItemInfo[mCurrentlySelected].itemColor = &Colors::overlayMenuSelectedItemColor;
+#endif
 }
 
 
@@ -133,6 +142,39 @@ bool EngineerHelper::processInputCode(InputCode inputCode)
 
    if(isMenuBeingDisplayed())    // Menu is being displayed, so interpret keystrokes as menu items
    {
+#ifdef BF_PLATFORM_3DS
+      if(inputCode == KEY_UP)
+      {
+         engineerItemInfo[mCurrentlySelected].itemColor = &Colors::overlayMenuUnselectedItemColor;
+         --mCurrentlySelected;
+
+         if(mCurrentlySelected <= 0)
+            mCurrentlySelected = 0;
+
+         engineerItemInfo[mCurrentlySelected].itemColor = &Colors::overlayMenuSelectedItemColor;
+         return true;
+      }
+      else if(inputCode == KEY_DOWN)
+      {
+         engineerItemInfo[mCurrentlySelected].itemColor = &Colors::overlayMenuUnselectedItemColor;
+         ++mCurrentlySelected;
+
+         if(mCurrentlySelected >= ARRAYSIZE(engineerItemInfo))
+            mCurrentlySelected = ARRAYSIZE(engineerItemInfo) - 1;
+
+         engineerItemInfo[mCurrentlySelected].itemColor = &Colors::overlayMenuSelectedItemColor;
+         return true;
+      }
+
+      if(inputCode == KEY_ENTER)
+      {
+         if(engineerItemInfo[mCurrentlySelected].showOnMenu)
+         {
+            mSelectedIndex = mCurrentlySelected;
+            return true;
+         }
+      }
+#else
       for(U32 i = 0; i < ARRAYSIZE(engineerItemInfo); i++)
       {
          // Disallow selecting unselectable items
@@ -145,6 +187,7 @@ bool EngineerHelper::processInputCode(InputCode inputCode)
             return true;
          }
       }
+#endif
 
       Ship *ship = getGame()->getLocalPlayerShip();
 

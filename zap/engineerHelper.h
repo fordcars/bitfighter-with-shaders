@@ -24,6 +24,10 @@ private:
    const char *getCancelMessage() const;
    S32 mSelectedIndex;
 
+#ifdef BF_PLATFORM_3DS
+   S32 mCurrentlySelected;
+#endif
+
    const S32 mEngineerItemsDisplayWidth;
    S32 mEngineerButtonsWidth;
 

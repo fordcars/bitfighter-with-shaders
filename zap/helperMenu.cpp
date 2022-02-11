@@ -129,8 +129,7 @@ void HelperMenu::drawItemMenu(const char *title, const OverlayMenuItem *items, S
 
    // Count how many items we will be displaying -- some may be hidden
    for(S32 i = 0; i < count; i++)
-      if(items[i].showOnMenu)
-         displayItems++;
+      displayItems++;
 
    bool hasLegend = legendCount > 0;
 
@@ -251,8 +250,7 @@ void HelperMenu::drawMenuItems(const OverlayMenuItem *items, S32 count, S32 top,
 
    // Calculate height of all our items, ignorning those that are hidden
    for(S32 i = 0; i < count; i++)
-      if(items[i].showOnMenu)
-         height += MENU_FONT_SIZE + MENU_FONT_SPACING;
+      height += MENU_FONT_SIZE + MENU_FONT_SPACING;
 
    S32 oldHeight = (MENU_FONT_SIZE + MENU_FONT_SPACING) * mOldCount;
 
@@ -282,20 +280,22 @@ void HelperMenu::drawMenuItems(const OverlayMenuItem *items, S32 count, S32 top,
 
    for(S32 i = 0; i < count; i++)
    {
-      // Skip hidden options!
-      if(!items[i].showOnMenu)
-         continue;
-
       InputCode code = (inputMode == InputModeJoystick) ? items[i].button : items[i].key;    // Get the input code for the thing we want to render
 
       // Render key in white, or, if there is a legend, in the color of the adjacent item
       const Color *buttonOverrideColor = items[i].buttonOverrideColor;
       
       const Color *itemColor = items[i].itemColor;
+      if(!items[i].showOnMenu && *items[i].itemColor != Colors::overlayMenuSelectedItemColor)
+         itemColor = &Colors::gray40;
 
-      // Need to add buttonWidth / 2 because renderControllerButton() centers on passed coords
-      JoystickRender::renderControllerButton(LeftMargin + horizOffset + (F32)buttonWidth / 2, 
-                                             (F32)yPos - 1, code, buttonOverrideColor);
+      if(items[i].showOnMenu)
+      {
+         // Need to add buttonWidth / 2 because renderControllerButton() centers on passed coords
+         JoystickRender::renderControllerButton(LeftMargin + horizOffset + (F32)buttonWidth / 2,
+            (F32)yPos - 1, code, buttonOverrideColor);
+      }
+
       renderer.setColor(*itemColor);
 
       S32 xPos = LeftMargin + buttonWidth + ButtonLabelGap + horizOffset;
