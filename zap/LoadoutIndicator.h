@@ -14,7 +14,7 @@ using namespace TNL;
 namespace Zap { namespace UI {
 
 #ifdef BF_PLATFORM_3DS
-   static const S32 IndicatorFontSize = 25;
+   static const S32 IndicatorFontSize = 20;
 #else
    static const S32 IndicatorFontSize = 15;
 #endif

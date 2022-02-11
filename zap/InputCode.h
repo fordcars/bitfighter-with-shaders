@@ -46,7 +46,7 @@ namespace Zap
    BINDING( BINDING_MOD1,               "ActivateModule1",     true,  inputMOD1,         KEY_SPACE,        BUTTON_TRIGGER_LEFT         ) \
    BINDING( BINDING_MOD2,               "ActivateModule2",     true,  inputMOD2,         KEY_SHIFT,        BUTTON_6         ) \
    BINDING( BINDING_FIRE,               "Fire",                true,  inputFIRE,         MOUSE_LEFT,       MOUSE_LEFT       ) \
-   BINDING( BINDING_DROPITEM,           "DropItem",            true,  inputDROPITEM,     KEY_B,            KEY_B            ) \
+   BINDING( BINDING_DROPITEM,           "DropItem",            true,  inputDROPITEM,     KEY_DOWN,         KEY_B            ) \
    BINDING( BINDING_TOGVOICE,           "VoiceChat",           true,  inputTOGVOICE,     KEY_R,            KEY_R            ) \
    BINDING( BINDING_UP,                 "ShipUp",              true,  inputUP,           KEY_W,            KEY_UP           ) \
    BINDING( BINDING_DOWN,               "ShipDown",            true,  inputDOWN,         KEY_S,            KEY_DOWN         ) \
