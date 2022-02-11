@@ -68,7 +68,7 @@ IniSettings::IniSettings()
    mSettings.add(new Setting<RelAbs>        ("ControlMode",              Absolute,              "ControlMode",                 "Settings", "Use Relative or Absolute controls (Relative means left is ship's left, Absolute means left is screen left)"));
    mSettings.add(new Setting<YesNo>         ("VoiceEcho",                No,                    "VoiceEcho",                   "Settings", "Play echo when recording a voice message? Yes/No"));
    mSettings.add(new Setting<YesNo>         ("VerboseHelpMessages",      Yes,                   "VerboseHelpMessages",         "Settings", "Display all messages related to loadout management?  Yes/No"));
-   mSettings.add(new Setting<YesNo>         ("ShowInGameHelp",           Yes,                   "ShowInGameHelp",              "Settings", "Show tutorial style messages in-game?  Yes/No"));
+   mSettings.add(new Setting<YesNo>         ("ShowInGameHelp",           No,                    "ShowInGameHelp",              "Settings", "Show tutorial style messages in-game?  Yes/No"));
    mSettings.add(new Setting<string>        ("HelpItemsAlreadySeenList", "",                    "HelpItemsAlreadySeenList",    "Settings", "Tracks which in-game help items have already been seen; let the game manage this"));
    mSettings.add(new Setting<U32>           ("EditorGridSize",           255,                   "EditorGridSize",              "Settings", "Grid size used in the editor, mostly for snapping purposes"));
    mSettings.add(new Setting<YesNo>         ("LineSmoothing",            Yes,                   "LineSmoothing",               "Settings", "Activates anti-aliased rendering.  This may be a little slower on some machines.  Yes/No"));
