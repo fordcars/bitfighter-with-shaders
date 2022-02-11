@@ -62,6 +62,10 @@ LoadoutHelper::LoadoutHelper()
 
    mPresetItemsDisplayWidth = 0;    // Will be set in onActivated()
    mPresetButtonsWidth = 0;
+
+#ifdef BF_PLATFORM_3DS
+   mCurrentlySelected = 0;
+#endif
 }
 
 
@@ -135,6 +139,11 @@ void LoadoutHelper::onActivated()
 
    mCurrentIndex = 0;
 
+#ifdef BF_PLATFORM_3DS
+   mCurrentlySelected = 0;
+   mModuleMenuItems[mCurrentlySelected].itemColor = &Colors::overlayMenuSelectedItemColor;
+#endif
+
    mModuleMenuItems[moduleEngineerIndex].showOnMenu = mEngineerEnabled;    // Can't delete this or other arrays will become unaligned
 
    mLoadoutChanged = false;
@@ -181,8 +190,44 @@ bool LoadoutHelper::processInputCode(InputCode inputCode)
    Vector<OverlayMenuItem> &menuItems = mShowingPresets ? mPresetItems : 
                                                    (mCurrentIndex < ShipModuleCount) ? mModuleMenuItems : 
                                                                                        mWeaponMenuItems;
-   S32 index;
 
+   S32 index = 0;
+
+#ifdef BF_PLATFORM_3DS
+   if(inputCode == KEY_UP)
+   {
+      menuItems[mCurrentlySelected].itemColor = &Colors::overlayMenuUnselectedItemColor;
+      --mCurrentlySelected;
+
+      if(mCurrentlySelected <= 0)
+         mCurrentlySelected = 0;
+
+      menuItems[mCurrentlySelected].itemColor = &Colors::overlayMenuSelectedItemColor;
+      return true;
+   }
+   else if(inputCode == KEY_DOWN)
+   {
+      menuItems[mCurrentlySelected].itemColor = &Colors::overlayMenuUnselectedItemColor;
+      ++mCurrentlySelected;
+
+      if(mEngineerEnabled)
+      {
+         if(mCurrentlySelected >= menuItems.size())
+            mCurrentlySelected = menuItems.size() - 1;
+      }
+      else
+      {
+         if(mCurrentlySelected >= menuItems.size() - 1)
+            mCurrentlySelected = menuItems.size() - 2;
+      }
+
+      menuItems[mCurrentlySelected].itemColor = &Colors::overlayMenuSelectedItemColor;
+      return true;
+   }
+
+   if(inputCode == KEY_ENTER)
+      index = mCurrentlySelected;
+#else
    for(index = 0; index < menuItems.size(); index++)
       if(inputCode == menuItems[index].key || inputCode == menuItems[index].button)
          break;
@@ -202,6 +247,7 @@ bool LoadoutHelper::processInputCode(InputCode inputCode)
 
       return false;     // Key not handled
    }
+#endif
 
    if(mShowingPresets)
    {
@@ -244,7 +290,13 @@ bool LoadoutHelper::processInputCode(InputCode inputCode)
 
       // Check if we need to switch over to weapons
       if(mCurrentIndex == ShipModuleCount)
+      {
+#ifdef BF_PLATFORM_3DS
+         mCurrentlySelected = 0;
+         mWeaponMenuItems[mCurrentlySelected].itemColor = &Colors::overlayMenuSelectedItemColor;
+#endif
          resetScrollTimer();
+      }
    }
 
    if(mCurrentIndex == ShipModuleCount + ShipWeaponCount)   // All loadout options selected, process complete

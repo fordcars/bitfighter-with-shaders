@@ -53,6 +53,10 @@ private:
    S32 mPresetItemsDisplayWidth;
    S32 mPresetButtonsWidth;
 
+#ifdef BF_PLATFORM_3DS
+   S32 mCurrentlySelected;
+#endif
+
    Vector<OverlayMenuItem> mModuleMenuItems;
    Vector<OverlayMenuItem> mWeaponMenuItems;
    Vector<OverlayMenuItem> mPresetItems;
