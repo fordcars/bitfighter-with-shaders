@@ -13,7 +13,11 @@ using namespace TNL;
 
 namespace Zap { namespace UI {
 
-static const S32 IndicatorFontSize = 15;
+#ifdef BF_PLATFORM_3DS
+   static const S32 IndicatorFontSize = 25;
+#else
+   static const S32 IndicatorFontSize = 15;
+#endif
 static const S32 IndicatorHorizPadding = 5;       // Gap between text and box
 static const S32 IndicatorVertPadding = 3;
 
