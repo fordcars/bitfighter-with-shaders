@@ -123,6 +123,11 @@ void HelperMenu::drawItemMenu(const char *title, const OverlayMenuItem *items, S
    r.pushMatrix();
    r.translate(getInsideEdge(), 0, 0);
 
+#ifdef BF_PLATFORM_3DS
+   r.translate(0.0f, -50.0f);
+   r.scale(1.3f, 1.3f, 1.3f);
+#endif
+
    static const Color baseColor(Colors::red);
 
    S32 displayItems = 0;
